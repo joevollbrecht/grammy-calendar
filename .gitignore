@@ -1,0 +1,4 @@
+.pyc
+__pycache__
+w3s-dynamic-storage/database.db
+.venv

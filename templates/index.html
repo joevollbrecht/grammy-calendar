@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <title>{% block title %}{% endblock %}SQL Sandbox</title>
+    <script type="text/javascript" src="fred.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='codemirror.min.css') }}"></link>
+    <link rel="stylesheet" href="{{ url_for('static', filename='codemirror-theme-eclipse.min.css') }}"></link>
+  </head>
+  <body>
+    <div id="test_space"></div>
+    <button id="test_button" onclick="callBackend()">test button</button>
+
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+    <script type="text/javascript" src="{{ url_for('static', filename='codemirror.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='codemirror-sql.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='codemirror-sql-hint.min.js') }}"></script>
+    <script>
+      const myTextarea = document.querySelector('#sql-textarea')
+      CodeMirror.fromTextArea(myTextarea, {
+        lineNumbers: true,
+        mime: 'text/x-sqlite',
+        mode: 'sql',
+        indentWithTabs: true,
+        smartIndent: true,
+        lineNumbers: true,
+        matchBrackets : true,
+        autofocus: true,
+        theme: 'eclipse'
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,152 @@
+{% extends 'index.html' %}
+{% block content %}
+<h1 class="sandbox-title">SQL SANDBOX</h1>
+<section class="container">
+  <section class="actions-container">
+    <section class="database-container-mobile">
+      <form id="mobile-table-form" action="" method="post">
+      <select class="mobile-select" name="selected_table_name_mobile_query" onchange="mobileTableFormHandler()">
+        <option value="none" selected disabled hidden>-Select Table-</option>
+        {%if table_names and table_names_count > 0 %}
+        {%for index in range(0, table_names_count)%}
+          <option value="SELECT * FROM {{table_names[index][0]}}">
+            {{table_names[index][0]}}
+          </option>
+          {%endfor%}
+        {%endif%}
+        </select>
+      </section>
+    </form>
+    <section class="database-container">
+      <p class="select-table-text">Select "Table":</p>
+      <div class="wrapper">
+        <div class="table-data">
+          <p class="table-data-row text-disabled" style="font-weight: bold">
+            <span>TableName</span>
+            <span class="text-right">Records</p>
+          </p>
+          {%if table_names and table_names_count > 0 %}
+            {%for index in range(0, table_names_count)%}
+                <form action="" method="post">
+                  <input name="selected_table_name" type="hidden" value="{{table_names[index][0]}}" />
+                  <button 
+                    id="{{table_names[index][0]}}"
+                    class="db-name-button" 
+                    type="submit" 
+                    name="statement" 
+                    value="SELECT * FROM {{table_names[index][0]}}">
+                    <span>{{table_names[index][0]}}</span>
+                    <span>{{table_names[index][1]}}</span>
+                  </button>
+                </form>
+            {%endfor%}
+          {%endif%}
+        </div>
+        <button id="open-modal" class="reset-button">Reset</button>
+      </div>
+    </section>
+    <section class="editor-container">
+      <p class="info-text">Edit the SQL Statement, and "Run" to see the result.</p>
+      <section class="sandbox-container">
+        <form class="form" method="post" name="sql-statement" action="">
+          <textarea name="statement" id="sql-textarea">{%if sql_query%}{{sql_query}}{% else %}SELECT * FROM{% endif %}</textarea>
+          <div class="sandbox-actions">
+            <button class="submit-button" type="submit">Run</button>
+            <button id="open-modal-mobile" class="reset-button-mobile" type="button">Reset</button>
+          </div>
+        </form>
+      </section>
+    </section>
+  </section>
+  <section class="result">
+    {% if data %}
+      <h2>Results</h2>
+      {% if data['header'] and data['body'] %}
+      <section class="result-container">
+        <p>No. Of Records: {{data_count}}</p>
+        <table class="table">
+          <thead>
+            {% for item in data['header'] %}
+            <th>{{item}}</th>
+            {% endfor %}
+          </thead>
+          <tbody>
+            {% for row in data['body'] %}
+            <tr>
+              {% for item in row %}
+              <td>{{item}}</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+      {% elif data and data['error'] %}
+      <div>
+        {{data['error']}}
+      </div>
+      {%else%}
+      <div>
+        <p>Click <strong>"Run SQL"</strong> to execute the SQL statement above.</p>
+      </div>
+      {% endif %}
+    {% endif %}
+  </section>
+</section>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <h2>This action will restore database back to its original content.</h2>
+    <h3>Do you want to continue?</h3>
+    <div class="modal-actions">
+      <form method="post" action="reset">
+        <button id="reset-database-button" class="danger-button-outline" type="submit">Yes</button>
+      </form>
+      <button id="close-modal" class="reset-button">No</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const modal = document.getElementById("myModal");
+  const openModalButton = document.getElementById("open-modal");
+  const openModalMobileButton = document.getElementById('open-modal-mobile')
+  const closeButton = document.getElementById("close-modal");
+  
+  openModalButton.onclick = function() {
+    modal.style.display = "block";
+  }
+  
+  // When the user clicks on <span> (x), close the modal
+  closeButton.onclick = function() {
+    modal.style.display = "none";
+  }
+
+  openModalMobileButton.onclick = function() {
+    modal.style.display = "block";
+  }
+  
+  
+  // When the user clicks anywhere outside of the modal, close it
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+
+  const selected_table = "{{selected_table}}"
+  const btn = document.getElementById(selected_table);
+  if (btn) {
+    btn.classList.add('text-active');
+  }
+
+  function mobileTableFormHandler () {
+    const form = document.getElementById('mobile-table-form')
+    form.submit();
+  }
+  </script>
+{% endblock %}

@@ -1,0 +1,16 @@
+<html>
+    <head>
+      <title>Family Calendar</title>
+        <script type="text/javascript" src="scripts/myScripts.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='codemirror.min.css') }}"></link>
+        <link rel="stylesheet" href="{{ url_for('static', filename='codemirror-theme-eclipse.min.css') }}"></link>
+    </head>
+    <body>
+        <div id="test_space"></div>
+        <div id="fetch_space"></div>
+        <button id="test_button" onclick="callBackend()">test button</button>
+        <button id="test_button" onclick="fetchFile()">Fetch File</button>
+    </body>
+</html>

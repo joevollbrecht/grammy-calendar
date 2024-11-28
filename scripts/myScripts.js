@@ -25,7 +25,7 @@ async function callAjax(type){
             document.getElementById("fetch_space").innerText = response;
             return;
         }
-    myObject = await fetch('backend/ajax.php');
+    myObject = await fetch(myUrl);
     response = await myObject.text();
    
     document.getElementById("fetch_space").innerText = response;

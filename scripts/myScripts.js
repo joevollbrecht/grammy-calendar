@@ -6,8 +6,16 @@ async function fetchFile(){
     myText = await myObject.text();
     document.getElementById("fetch_space").innerText = myText;
 }
+function defaultDisplay(response){
+    document.getElementById("fetch_space").innerText = response;
+}
+function formatFamilyMembers(response){
+    myObj = JSON.parse(response);
+    console.log([response,myObj]);
+}
 async function callAjax(type){
     let myUrl = 'backend/ajax.php';
+    let responseHandler = defaultDisplay;
     console.log('get type:' + type);
     switch(type){
         case 'foo':
@@ -18,6 +26,7 @@ async function callAjax(type){
             break;
         case 'getFamilyMembers':
             myUrl += '?action=' + type;
+            responseHandler = formatFamilyMembers;
             break;
         default:
             console.log("in default with type="+type);
@@ -27,6 +36,5 @@ async function callAjax(type){
         }
     myObject = await fetch(myUrl);
     response = await myObject.text();
-   
-    document.getElementById("fetch_space").innerText = response;
+    responseHandler(response);
 }

@@ -8,13 +8,15 @@ async function fetchFile(){
 }
 async function callAjax(type){
     let myUrl = 'backend/ajax.php';
+    console.log('get type:' + type);
     switch(type){
         case 'foo':
-            console.log('got foo');
             myUrl += '?action=' + type;
             break;
         case 'bar':
-            console.log('got bar');
+            myUrl += '?action=' + type;
+            break;
+        case 'getFamilyMembers':
             myUrl += '?action=' + type;
             break;
         default:

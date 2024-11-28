@@ -7,30 +7,24 @@ async function fetchFile(){
     document.getElementById("fetch_space").innerText = myText;
 }
 async function callAjax(type){
+    let myUrl = 'backend/ajax.php';
     switch(type){
         case 'foo':
             console.log('got foo');
-            let myObject = await fetch('backend/ajax.php', {
-                method: 'GET',
-                body: {
-                    action:'foo'
-                }});
-            let response = await myObject.text();
-            console.log(response);
+            myUrl += '?action=' + type;
             break;
         case 'bar':
             console.log('got bar');
-            myObject = await fetch('backend/ajax.php', {
-                method: 'GET',
-                body: {
-                    action:'foo'
-                }});
-            response = await myObject.text();
-            console.log(response);
+            myUrl += '?action=' + type;
             break;
         default:
             console.log("in default with type="+type);
             response = "hit the default";
-    }
+            document.getElementById("fetch_space").innerText = response;
+            return;
+        }
+    myObject = await fetch('backend/ajax.php');
+    response = await myObject.text();
+   
     document.getElementById("fetch_space").innerText = response;
 }

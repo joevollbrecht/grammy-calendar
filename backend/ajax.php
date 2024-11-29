@@ -1,11 +1,17 @@
 <?php
 require_once 'dbConnect.php';
+include_once 'ResultClass.php';
 function foo(){
-   echo 'foo';
+    $result = new Result();
+    $result->setSuccess(true);
+    echo $result->getResultString();
 }
 
 function bar(){
-   echo 'bar';
+    $result = new Result();
+    $result->setSuccess(false);
+    $result->setBody("bar");
+    echo $result->getResultString();
 }
 function getFamilyMembers($myConn){
     $myStatement = $myConn->prepare("SELECT * FROM FamilyMember");

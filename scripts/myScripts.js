@@ -10,7 +10,7 @@ function defaultDisplay(response){
     document.getElementById("fetch_space").innerText = response;
 }
 function familyMemberSelected(selection){
-    console.log("familyMemberSelected, selected:"+selection);
+    console.log("familyMemberSelected, selected:"+selection.value);
 }
 function formatFamilyMembers(response){
     familyArray = JSON.parse(response);
@@ -18,8 +18,8 @@ function formatFamilyMembers(response){
     var familySelect = document.getElementById("familyMembers");
     familySelect.length = 1;
     familyArray.forEach((element, key) => {
-        familySelect[familySelect.options.length] = new Option(element.firstName+' '+element.lastName, element.id);
-      });
+        familySelect[familySelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
+    });
 }
 async function callAjax(type){
     let myUrl = 'backend/ajax.php';

@@ -9,9 +9,17 @@ async function fetchFile(){
 function defaultDisplay(response){
     document.getElementById("fetch_space").innerText = response;
 }
+function familyMemberSelected(selection){
+    console.log("familyMemberSelected, selected:"+selection);
+}
 function formatFamilyMembers(response){
-    myObj = JSON.parse(response);
-    console.log([response,myObj]);
+    familyArray = JSON.parse(response);
+    console.log([response,familyArray]);
+    var familySelect = document.getElementById("familyMembers");
+    familySelect.length = 1;
+    familyArray.forEach((element, key) => {
+        familySelect[familySelect.options.length] = new Option(element.firstName+' '+element.lastName, element.id);
+      });
 }
 async function callAjax(type){
     let myUrl = 'backend/ajax.php';

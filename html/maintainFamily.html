@@ -1,7 +1,7 @@
 <html>
     <head>
       <title>Maintain Family</title>
-        <script type="text/javascript" src="scripts/myScripts.js"></script>
+        <script type="text/javascript" src="/scripts/myScripts.js"></script>
         <style src="css/style.css"></style>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
@@ -12,14 +12,16 @@
             <label>Last Name<input type="text" id='lastName' name="lastName"></label>
             <br><button onclick="maintainFamilyAddMember()">Add</button>
         </div>
+        <br\><br\><br\>
         <div id="maintain_relationship">
-            <select id="parent" name="parent" onselect="maintainFamilyParentSelected()">
+            <div id="relationType"></div>
+            <span id="parentLabel">Parent</span></span><select id="parentSelect" name="parentSelect" onselect="maintainFamilyParentSelected()">
                 <option value=-1 selected disabled>None</option>
             </select>
-            <select id="child" name="child" disabled onselect="maintainFamilyChildSelected()">
+            <span id="childLabel">Child</span><select id="childSelect" name="childSelect" disabled onselect="maintainFamilyChildSelected()">
                 <option value=-1 selected disabled>None</option>
             </select>
-            <button onclick="maintainFamilySetRelationShip()" disabled>Set Relationship</button>
+            <button id="setRelationship" onclick="maintainFamilySetRelationShip()" disabled>Set Relationship</button>
         </div>
     </body>
 </html>

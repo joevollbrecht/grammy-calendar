@@ -36,6 +36,9 @@ switch ($_GET['action']){
     case 'getFamilyMembers':
         getFamilyMembers($conn);
         break;
+    case 'getFamilyMembers':
+        getFamilyMembers($conn);
+        break;
     default:
         $badResult = new Result();
         $badResult->setSuccess(false);

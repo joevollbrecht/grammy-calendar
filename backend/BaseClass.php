@@ -1,12 +1,16 @@
 <?php
 include_once 'ResultClass.php';
 class Base{
-    public $return;
-    public static $myConn;
+    public static $result;
+    public static $conn;
+    public $localResult;
     public static function setConnection($conn){
-        self::$myConn = $conn;
+        self::$conn = $conn;
+    }
+    public static function createResult($conn){
+        self::$result = new Result();
     }
     function __construct(){
-        $this->return = new Result;
+        $this->localResult = new Result();
     }
 }

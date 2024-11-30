@@ -16,15 +16,7 @@ function bar(){
     echo $result->getResultString();
 }
 function getFamilyMembers($myConn){
-    /*
-    $myStatement = $myConn->prepare("SELECT * FROM FamilyMember");
-    $myStatement->execute();
-    $retVal = array();
-    while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
-        array_push($retVal,$row);
-    }
-    */
-    echo json_encode(FamilyMember::getAll()->getResultString());
+    echo FamilyMember::getAll()->getResultString();
 }
 Base::createResult();
 try {
@@ -51,13 +43,4 @@ switch ($_GET['action']){
         echo $badResult->getResultString();
         exit();
 }
-/*
-if($_GET['action'] == 'foo'){
-    foo();
-} elseif($_GET['action'] == 'bar') {
-    bar();
-} elseif($_GET['action'] == 'getFamilyMembers') {
-    getFamilyMembers($conn);
-}
-*/
 exit();

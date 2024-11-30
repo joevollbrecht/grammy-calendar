@@ -7,14 +7,15 @@
     </head>
     <body>
         <div id="test_space"></div>
-        <div id="fetch_space"></div>
+        <div id="message_space"></div>
         <button id="fetch_button" onclick="fetchFile()">Fetch File</button>
         <button id="foo_button" onclick="callAjax('foo')">foo</button>
         <button id="bar_button" onclick="callAjax('bar')">bar</button>
         <button id="bar_button" onclick="callAjax('getFamilyMembers')">Fetch Family</button>
+        <button id="maintainFamily"><a href="html/maintainFamily.html">Maintain Family</a></button>
         <div id="familySelector"></div>
         Family Members: <select name="familyMembers" id="familyMembers" onchange="familyMemberSelected(this)">
-            <option value='{"id":null,"firstname":"n/a","lastname":"n/a","parent_id":null}' selected="selected">None</option>
+            <option value=-1 selected="selected">None</option>
           </select>
     </body>
 </html>

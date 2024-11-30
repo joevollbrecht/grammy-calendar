@@ -1,0 +1,25 @@
+<html>
+    <head>
+      <title>Maintain Family</title>
+        <script type="text/javascript" src="scripts/myScripts.js"></script>
+        <style src="css/style.css"></style>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body onload="maintainFamilyInit()">
+        <div id="add_family_member">
+            <h2>Add Family Member</h2>
+            <label>First Name<input type="text" id='firstName' name="firstName"></label>
+            <label>Last Name<input type="text" id='lastName' name="lastName"></label>
+            <br><button onclick="maintainFamilyAddMember()">Add</button>
+        </div>
+        <div id="maintain_relationship">
+            <select id="parent" name="parent" onselect="maintainFamilyParentSelected()">
+                <option value=-1 selected disabled>None</option>
+            </select>
+            <select id="child" name="child" disabled onselect="maintainFamilyChildSelected()">
+                <option value=-1 selected disabled>None</option>
+            </select>
+            <button onclick="maintainFamilySetRelationShip()" disabled>Set Relationship</button>
+        </div>
+    </body>
+</html>

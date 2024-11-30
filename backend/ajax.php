@@ -26,10 +26,10 @@ function getFamilyMembers($myConn){
     */
     echo json_encode(FamilyMember::getAll()->getResultString());
 }
-BaseClass::createResult();
+Base::createResult();
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    BaseClass::setConnection($conn);
+    Base::setConnection($conn);
     //echo "Connected to $dbname at $host successfully.";
 } catch (PDOException $pe) {
     die ("Could not connect to the database $dbname :" . $pe->getMessage());

@@ -20,7 +20,7 @@ function getFamilyMembers($myConn){
     echo FamilyMember::getAll()->getResultString();
 }
 function getFamilyRelationshipTypes($myConn){
-    echo FamilyRelationshipTypes::getAll()->getResultString();
+    echo FamilyRelationshipType::getAll()->getResultString();
 }
 Base::createResult();
 try {

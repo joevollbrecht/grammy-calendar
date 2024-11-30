@@ -30,7 +30,7 @@ function getStandardDbResponse(response){
     return standardArray['body'];
 }
 async function callAjax(type){
-    let myUrl = 'backend/ajax.php';
+    let myUrl = '/backend/ajax.php';
     let responseHandler = defaultDisplay;
     console.log('get type:' + type);
     switch(type){

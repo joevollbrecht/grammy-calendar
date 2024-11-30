@@ -3,6 +3,7 @@ require_once 'dbConnect.php';
 include_once 'ResultClass.php';
 include_once 'BaseClass.php';
 include_once 'FamilyMemberClass.php';
+include_once 'FamilyRelationshipTypeClass.php';
 function foo(){
     $result = new Result();
     $result->setSuccess(true);
@@ -17,6 +18,9 @@ function bar(){
 }
 function getFamilyMembers($myConn){
     echo FamilyMember::getAll()->getResultString();
+}
+function getFamilyRelationshipTypes($myConn){
+    echo FamilyRelationshipTypes::getAll()->getResultString();
 }
 Base::createResult();
 try {
@@ -36,8 +40,8 @@ switch ($_GET['action']){
     case 'getFamilyMembers':
         getFamilyMembers($conn);
         break;
-    case 'getFamilyMembers':
-        getFamilyMembers($conn);
+    case 'getFamilyRelationshipTypes':
+        getFamilyRelationshipTypes($conn);
         break;
     default:
         $badResult = new Result();

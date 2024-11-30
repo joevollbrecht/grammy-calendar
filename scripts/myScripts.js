@@ -14,11 +14,19 @@ function familyMemberSelected(selection){
 }
 function formatFamilyMembers(response){
     familyArray = JSON.parse(response);
-    console.log([response,familyArray]);
+    //console.log([response,familyArray]);
+    if(storedFamilyMembers === null){
+        console.log("stored familyMembers is null, setting");
+        storedFamilyMembers = familyArray['body'];
+    }
+    else{
+        console.log("stored familyMembers already set, length:"+storedFamilyMembers.length);
+    }
     var familySelect = document.getElementById("familyMembers");
     familySelect.length = 1;
-    familyArray.forEach((element, key) => {
-        familySelect[familySelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
+    //familyArray['body'].forEach((element, key) => {
+    storedFamilyMembers.forEach((element, key) => {
+            familySelect[familySelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
     });
 }
 async function callAjax(type){
@@ -46,3 +54,4 @@ async function callAjax(type){
     response = await myObject.text();
     responseHandler(response);
 }
+let storedFamilyMembers = null;

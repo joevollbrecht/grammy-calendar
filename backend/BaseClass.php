@@ -7,7 +7,7 @@ class Base{
     public static function setConnection($conn){
         self::$conn = $conn;
     }
-    public static function createResult($conn){
+    public static function createResult(){
         self::$result = new Result();
     }
     function __construct(){

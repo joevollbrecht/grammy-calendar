@@ -68,6 +68,8 @@ async function callAjax(type, values = {}){
     return responseHandler(response);
 }
 async function maintainFamilyInit(){
+    maintainFamilyLoadFamilySelectors();
+    /*
     let familyArray = await callAjax('getFamilyMembers');
     let parentSelect = document.getElementById("parentSelect");
     let childSelect = document.getElementById("childSelect");
@@ -76,24 +78,40 @@ async function maintainFamilyInit(){
         parentSelect[parentSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
         childSelect[childSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
     });
+    */
     let relationArray = await callAjax('getFamilyRelationshipTypes');
     let relationSelect = document.getElementById('relationType');
     let relationString = ""
     relationArray.forEach((element, key) => {
         relationString += "<label>"+element.type
             +"<input type='radio' name='relationship' value='"+element.id
-            + " id='"+element.type;
+            + "' id='"+element.type + "'";
         if(element.id == 1) relationString +=" selected";
         relationString += "></label>";
     });
     relationSelect.innerHTML = relationString;
     console.log(['relation radio',relationString]);
 }
+async function maintainFamilyLoadFamilySelectors(){
+    let familyArray = await callAjax('getFamilyMembers');
+    let parentSelect = document.getElementById("parentSelect");
+    let childSelect = document.getElementById("childSelect");
+    parentSelect.length = childSelect.length = 1;
+    familyArray.forEach((element, key) => {
+        parentSelect[parentSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
+        childSelect[childSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
+    });
+}
 function maintainFamilyParentSelected(){
     let parent = document.getElementById("parentSelect");
     let child = document.getElementById("childSelect");
+    let button = document.getElementById("setRelationship");
     child.disabled = parent.value !== -1?false:true;
-    console.log(["parentSelected",parent.value,parent.text,"childDisabled"+child.disabled]);
+    if(child.disabled){
+        child.options[0].selected = true;
+        button.disabled = true;
+    }
+    console.log(["parentSelected",parent.value,"childDisabled"+child.disabled]);
 }
 function maintainFamilyChildSelected(){
     let child = document.getElementById("childSelect");
@@ -106,14 +124,19 @@ async function maintainFamilySetRelationShip(){
     let types = document.getElementsByName("relationship");
 
     let values = {};
-    values.parent = parent.value;
-    values.child = child.value;
+    values.parent = getValueFromJson(parent.value,'id');
+    values.child = getValueFromJson(child.value,'id');
     for (var i = 0, length = types.length; i < length; i++) {
         if (types[i].checked) {
-          values.type = types.value;
-          break;
+            let tempArray = JSON.parse(types.value);
+            values.type = types.value;
+            break;
         }
     }
-    let insertRespone = await callAjax('addFamilyRelationship', values);
-    console.log(['return from insert',insertRespone]);
+    let insertResponse = await callAjax('addFamilyRelationship', values);
+    console.log(['return from insert',insertResponse]);
+}
+function getIdFromJson(json,choice){
+    let tempArray = JSON.parse(json);
+    return tempArray[choice];
 }

@@ -35,7 +35,7 @@ function getStandardDbResponse(response){
 }
 function displayMessages(messageArray){
     displayHtml = Object.keys(messageArray)
-        .map(k => values[k].message)
+        .map(k => messageArray[k].message)
         .join('<br>');
     document.getElementById("messageSpace").innerHtml = displayHtml;
 }

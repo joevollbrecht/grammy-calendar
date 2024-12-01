@@ -69,25 +69,14 @@ async function callAjax(type, values = {}){
 }
 async function maintainFamilyInit(){
     maintainFamilyLoadFamilySelectors();
-    /*
-    let familyArray = await callAjax('getFamilyMembers');
-    let parentSelect = document.getElementById("parentSelect");
-    let childSelect = document.getElementById("childSelect");
-    parentSelect.length = childSelect.length = 1;
-    familyArray.forEach((element, key) => {
-        parentSelect[parentSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
-        childSelect[childSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
-    });
-    */
     let relationArray = await callAjax('getFamilyRelationshipTypes');
     let relationSelect = document.getElementById('relationType');
     let relationString = ""
     relationArray.forEach((element, key) => {
-        relationString += "<label>"+element.type
-            +"<input type='radio' name='relationship' value='"+element.id
+        relationString +="<label><input type='radio' name='relationship' value='"+element.id
             + "' id='"+element.type + "'";
-        if(element.id == 1) relationString +=" selected";
-        relationString += "></label>";
+        if(element.id == 1) relationString +=" checked";
+        relationString += ">" + element.type + "</label>";
     });
     relationSelect.innerHTML = relationString;
     console.log(['relation radio',relationString]);

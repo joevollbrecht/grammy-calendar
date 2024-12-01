@@ -11,10 +11,14 @@ class Result{
         $this->result["body"] = $value;
     }
     public function getResultString(){
+        error_log(print_r($this->result,true));
         return json_encode($this->result);
     }
     public function addMessage(int $level, string $message){
-        $messages = this->result["messages"];
+        error_log("addMessage: level:".$level." message:".$message);
+        $messages = $this->result["messages"];
+        error_log("messages length on entrance".count($messages));
         $messages[] = array("type"=>$level, "message"=>$message);
+        error_log("messages length on exit".count($messages));
     }
 }

@@ -25,7 +25,7 @@ class FamilyRelationship extends Base{
     }
     static public function insert(int $familyMemberId1, int $familyMemberId2, int $familyRelationshipTypeId){
         $member = self::getByMemberIds($familyMemberId1,$familyMemberId2);
-        if(!is_null($member)){
+        if(is_null($member)){
             $myStatement = self::$conn->prepare("INSERT INTO `FamilyRelationship` 
                 (`familyMemberId1`, `familyMemberId2`, `familyRelationshipTypeId`) 
                 VALUES (".$familyMemberId1.",".$familyMemberId2.",".$familyRelationshipTypeId.")");
@@ -44,7 +44,7 @@ class FamilyRelationship extends Base{
         $myStatement->execute();
         $retVal = null;
         while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
-            $retVal = new FamilyRelationShip($row.id,$row.familymemberid1,$row.familymemberid2,$row.familyrelationshiptypeid);
+            $retVal = new FamilyRelationShip($row["id"],$row["familyMemberId1"],$row["familyMemberId2"],$row["familyRelationshipTypeId"]);
         }
         return $retVal;
     }

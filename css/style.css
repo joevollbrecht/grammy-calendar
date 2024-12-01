@@ -40,6 +40,15 @@ label{
 .messageError {
   background: red
 }
+tr:nth-child(even) {
+  background-color: #D6EEEE;
+}
+table {
+  border: 1px solid black;
+  border-collapse: collapse;
+  width: 100%;
+}
+/*
 .container {
   gap: 20px;
   padding: 1rem;
@@ -241,19 +250,19 @@ label{
   color: white;
 }
 
-/* The Modal (background) */
+/* The Modal (background) */ /*
 .modal {
-  display: none; /* Hidden by default */
+  display: none; /* Hidden by default */ /*
   margin: 0 auto;
   position: fixed;
   top: 0;
   left: 25%;
   width: 50%;
   text-align: center;
-  overflow: auto; /* Enable scroll if needed */
+  overflow: auto; /* Enable scroll if needed */ /*
 }
 
-/* Modal Content */
+/* Modal Content */ /*
 .modal-content {
   background-color: #fefefe;
   margin: auto;
@@ -334,3 +343,4 @@ label{
   background-color: #7F0055;
   color: #fff !important;
 }
+*/

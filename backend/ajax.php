@@ -4,6 +4,7 @@ include_once 'ResultClass.php';
 include_once 'BaseClass.php';
 include_once 'FamilyMemberClass.php';
 include_once 'FamilyRelationshipClass.php';
+include_once 'FamilyRelationshipTypeClass.php';
 function foo(){
     $result = new Result();
     $result->setSuccess(true);

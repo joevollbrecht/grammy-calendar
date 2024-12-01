@@ -99,13 +99,13 @@ async function maintainFamilyLoadFamilyData(){
     });
 }
 function maintainFamilyCreateFamilyMemberTable(familyArray){
-    let text = "<table>";
+    let text = "<table style='width:225';>";
     text += "<thead><th>Delete</th><th>Name</th></thead>"
 
     for (let ii = 0; ii < familyArray.length; ii++) {
         text += '<tr>';
         let member = familyArray[ii];
-        text += "<td><input type='checkbox' name='familyMemberCheckbox' id='" 
+        text += "<td class='tdCenter'><input type='checkbox' name='familyMemberCheckbox' id='" 
             + generateCheckBoxId("fmcheck",ii) +"'></td>";
         text += "<td>" + member.fullName + "</td>";
         text += '</tr>';

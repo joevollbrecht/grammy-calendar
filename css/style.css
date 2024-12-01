@@ -40,6 +40,10 @@ label{
 .messageError {
   background: red
 }
+.tdCenter{
+  text-align: center;
+  vertical-align: middle;
+}
 tr:nth-child(even) {
   background-color: #D6EEEE;
 }

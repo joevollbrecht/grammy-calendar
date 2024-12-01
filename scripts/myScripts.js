@@ -105,7 +105,8 @@ function maintainFamilyCreateFamilyMemberTable(familyArray){
     for (let ii = 0; ii < familyArray.length; ii++) {
         text += '<tr>';
         let member = familyArray[ii];
-        text += "<td><input type='checkbox' name='familyMemberCheckbox' id='" + generateCheckBoxId("fmcheck",ii) +"></td>";
+        text += "<td><input type='checkbox' name='familyMemberCheckbox' id='" 
+            + generateCheckBoxId("fmcheck",ii) +"'></td>";
         text += "<td>" + member.fullName + "</td>";
         text += '</tr>';
     }

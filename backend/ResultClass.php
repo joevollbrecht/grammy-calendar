@@ -19,6 +19,7 @@ class Result{
         $messages = $this->result["messages"];
         error_log("messages length on entrance".count($messages));
         $messages[] = array("type"=>$level, "message"=>$message);
+        $this->result["messages"] = $messages;
         error_log("messages length on exit".count($messages));
     }
 }

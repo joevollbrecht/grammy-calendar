@@ -26,28 +26,37 @@ function getFamilyMembers(response){
 }
 function getStandardDbResponse(response){
     standardArray = JSON.parse(response);
-    console.log([familyArray]);
+    console.log([standardArray]);
     return standardArray['body'];
 }
-async function callAjax(type){
+async function callAjax(type, values = {}){
     let myUrl = '/backend/ajax.php';
     let responseHandler = defaultDisplay;
-    console.log('get type:' + type);
+    values.action = type;
+    let queryString = Object.keys(values)
+        .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+        .join('&');
+    console.log(['got type:' + type,queryString]);
     switch(type){
         case 'foo':
-            myUrl += '?action=' + type;
+            myUrl += '?' + queryString;
+            //myUrl += '?action=' + type;
             break;
         case 'bar':
             myUrl += '?action=' + type;
             break;
-            case 'getFamilyMembers':
-                myUrl += '?action=' + type;
-                responseHandler = getFamilyMembers;
-                break;
-            case 'getFamilyRelationshipTypes':
-                myUrl += '?action=' + type;
-                responseHandler = getStandardDbResponse;
-                break;
+        case 'getFamilyMembers':
+            myUrl += '?action=' + type;
+            responseHandler = getStandardDbResponse;
+            break;
+        case 'getFamilyRelationshipTypes':
+            myUrl += '?action=' + type;
+            responseHandler = getStandardDbResponse;
+            break;
+        case 'addFamilyRelationship':
+            myUrl += '?' + queryString;
+            responseHandler = getStandardDbResponse;
+            break;
         default:
             console.log("in default with type="+type);
             response = "hit the default";
@@ -68,12 +77,14 @@ async function maintainFamilyInit(){
         childSelect[childSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
     });
     let relationArray = await callAjax('getFamilyRelationshipTypes');
-    let relationSelect = document.getElementById('maintain_relationship');
+    let relationSelect = document.getElementById('relationType');
     let relationString = ""
     relationArray.forEach((element, key) => {
-
-        relationString += "<label><input type='radio' name='relationship' value='"+element.id
-            + " id='"+element.type+">";
+        relationString += "<label>"+element.type
+            +"<input type='radio' name='relationship' value='"+element.id
+            + " id='"+element.type;
+        if(element.id == 1) relationString +=" selected";
+        relationString += "></label>";
     });
     relationSelect.innerHTML = relationString;
     console.log(['relation radio',relationString]);
@@ -85,7 +96,24 @@ function maintainFamilyParentSelected(){
     console.log(["parentSelected",parent.value,parent.text]);
 }
 function maintainFamilyChildSelected(){
+    let child = document.getElementById("childSelect");
+    let button = document.getElementById("setRelationship");
+    button.disabled = child.value !== -1?false:true;
+}
+async function maintainFamilySetRelationShip(){
     let parent = document.getElementById("parentSelect");
     let child = document.getElementById("childSelect");
-    child.disabled = parent.value !== -1?false:true;
+    let types = document.getElementsByName("relationship");
+
+    let values = {};
+    values.parent = parent.value;
+    values.child = child.value;
+    for (var i = 0, length = types.length; i < length; i++) {
+        if (types[i].checked) {
+          values.type = types.value;
+          break;
+        }
+    }
+    let insertRespone = await callAjax('addFamilyRelationship', values);
+    console.log(['return from insert',insertRespone]);
 }

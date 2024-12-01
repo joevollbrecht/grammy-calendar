@@ -93,7 +93,7 @@ function maintainFamilyParentSelected(){
     let parent = document.getElementById("parentSelect");
     let child = document.getElementById("childSelect");
     child.disabled = parent.value !== -1?false:true;
-    console.log(["parentSelected",parent.value,parent.text]);
+    console.log(["parentSelected",parent.value,parent.text,"childDisabled"+child.disabled]);
 }
 function maintainFamilyChildSelected(){
     let child = document.getElementById("childSelect");

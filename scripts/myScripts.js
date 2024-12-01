@@ -34,7 +34,7 @@ async function callAjax(type, values = {}){
     let responseHandler = defaultDisplay;
     values.action = type;
     let queryString = Object.keys(values)
-        .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+        .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(values[k]))
         .join('&');
     console.log(['got type:' + type,queryString]);
     switch(type){

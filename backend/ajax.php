@@ -16,13 +16,13 @@ function bar(){
     $result->setBody("bar");
     echo $result->getResultString();
 }
-function addFamilyRelationship($myConn){
+function getFamilyRelationshipTypes(){
+    echo FamilyRelationshipType::getAll()->getResultString();
+}
+function getFamilyMembers(){
     echo FamilyMember::getAll()->getResultString();
 }
-function getFamilyMembers($myConn){
-    echo FamilyMember::getAll()->getResultString();
-}
-function getFamilyRelationshipTypes($myConn){
+function addFamilyRelationship(){
     echo FamilyRelationship::insert($_GET['parent'],$_GET['child'],$_GET['type'])->getResultString();
 }
 Base::createResult();
@@ -41,13 +41,13 @@ switch ($_GET['action']){
         bar();
         break;
     case 'getFamilyMembers':
-        getFamilyMembers($conn);
+        getFamilyMembers();
         break;
     case 'getFamilyRelationshipTypes':
-        getFamilyRelationshipTypes($conn);
+        getFamilyRelationshipTypes();
         break;
     case 'addFamilyRelationship':
-        addFamilyRelationship($conn);
+        addFamilyRelationship();
         break;
     default:
         $badResult = new Result();

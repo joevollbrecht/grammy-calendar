@@ -1,10 +1,17 @@
 <?php
 include_once 'BaseClass.php';
 class FamilyRelationship extends Base{
-    public $id;
-    public $familyMemberId1;
-    public $familyMemberId2;
-    public $familyRelationshipTypeId;
+    public int $id;
+    public int $familyMemberId1;
+    public int $familyMemberId2;
+    public int $familyRelationshipTypeId;
+    function __construct(int $id, int $familyMemberId1, int $familyMemberId2, int $familyRelationshipTypeId){
+        parent::__construct();
+        $this->id = $id;
+        $this->familyMemberId1 = $familyMemberId1;
+        $this->familyMemberId2 = $familyMemberId2;
+        $this->familyRelationshipTypeId = $familyRelationshipTypeId;
+    }
     static public function getAll(){
         $myStatement = self::$conn->prepare("SELECT * FROM FamilyRelationship");
         $myStatement->execute();
@@ -16,13 +23,29 @@ class FamilyRelationship extends Base{
         self::$result->setBody($retVal);
         return self::$result;
     }
-    static public function insert($familyMemberId1, $familyMemberId2, $familyRelationshipTypeId){
-        $myStatement = self::$conn->prepare("INSERT INTO `FamilyRelationship` 
-            (`familyMemberId1`, `familyMemberId2`, `familyRelationshipTypeId`) 
-            VALUES (".$familyMemberId1.",".$familyMemberId2.",".$familyRelationshipTypeId.")");
-        $myStatement->execute();
-        self::$result->setSuccess(true);
-        self::$result->setBody("inserted ".$myStatement->row_count()." rows");
+    static public function insert(int $familyMemberId1, int $familyMemberId2, int $familyRelationshipTypeId){
+        $member = self::getByMemberIds($familyMemberId1,$familyMemberId2);
+        if(!is_null($member)){
+            $myStatement = self::$conn->prepare("INSERT INTO `FamilyRelationship` 
+                (`familyMemberId1`, `familyMemberId2`, `familyRelationshipTypeId`) 
+                VALUES (".$familyMemberId1.",".$familyMemberId2.",".$familyRelationshipTypeId.")");
+            $myStatement->execute();
+            self::$result->setSuccess(true);
+            self::$result->addMessage(1,"inserted ".$myStatement->rowCount()." rows");
+        }
+        else{
+            sef::$result->setSuccess(false);
+            self::$result->addmessage(2,"relationship already exists");
+        }
         return self::$result;
+    }
+    static public function getByMemberIds(int $familyMemberId1, int $familyMemberId2){
+        $myStatement = self::$conn->prepare("SELECT * FROM FamilyRelationship where familyMemberId1 = ".$familyMemberId1." AND familyMemberId2 = ".$familyMemberId2);
+        $myStatement->execute();
+        $retVal = null;
+        while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
+            $retVal = new FamilyRelationShip($row.id,$row.familymemberid1,$row.familymemberid2,$row.familyrelationshiptypeid);
+        }
+        return $retVal;
     }
 }

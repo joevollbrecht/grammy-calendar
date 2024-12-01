@@ -2,7 +2,7 @@
 class Result{
     public $result = null;
     function __construct(){
-        $this->setSuccessresult = array("success"=>true,"body"=>array());
+        $this->result = array("success"=>true,"body"=>array(),"messages"=>array());
     }
     public function setSuccess($value = true ){
         $this->result["success"] = $value;
@@ -12,5 +12,9 @@ class Result{
     }
     public function getResultString(){
         return json_encode($this->result);
+    }
+    public function addMessage(int $level, string $message){
+        $messages = this->result["messages"];
+        $messages[] = array("type"=>$level, "message"=>$message);
     }
 }

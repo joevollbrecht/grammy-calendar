@@ -28,7 +28,16 @@ function getFamilyMembers(response){
 function getStandardDbResponse(response){
     standardArray = JSON.parse(response);
     console.log([standardArray]);
+    if(standardArray.hasOwnObject("messages")){
+        displayMessages(standardArray["messages"]);
+    }
     return standardArray['body'];
+}
+function displayMessages(messageArray){
+    displayHtml = Object.keys(messageArray)
+        .map(k => values[k].message)
+        .join('<br>');
+    document.getElementById("messageSpace").innerHtml = displayHtml;
 }
 async function callAjax(type, values = {}){
     let myUrl = '/backend/ajax.php';
@@ -101,6 +110,11 @@ function maintainFamilyParentSelected(){
     if(child.disabled){
         child.options[0].selected = true;
         button.disabled = true;
+    }
+    else{
+        child.options.forEach((element, key) =>{
+            element.disabled = element.value == parent.value?true:false;
+        })
     }
     console.log(["parentSelected",parent.value,"childDisabled"+child.disabled]);
 }

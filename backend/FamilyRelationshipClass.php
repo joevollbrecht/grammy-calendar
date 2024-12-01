@@ -22,6 +22,16 @@ class FamilyRelationship extends Base{
         self::$result->setSuccess(true);
         self::$result->setBody($retVal);
         return self::$result;
+    }static public function getAllRelationships(){
+        $myStatement = self::$conn->prepare("SELECT fr.id, parent.fullname as parentName, child.fullName as childName, t.type FROM `FamilyRelationship` fr JOIN FamilyMember parent on parent.id = fr.familyMemberId1 JOIN FamilyMember child on child.id = fr.familyMemberId2 JOIN FamilyRelationshipType t on t.id = fr.familyRelationshipTypeId;");
+        $myStatement->execute();
+        $retVal = array();
+        while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
+            array_push($retVal,$row);
+        }
+        self::$result->setSuccess(true);
+        self::$result->setBody($retVal);
+        return self::$result;
     }
     static public function insert(int $familyMemberId1, int $familyMemberId2, int $familyRelationshipTypeId){
         $member = self::getByMemberIds($familyMemberId1,$familyMemberId2);

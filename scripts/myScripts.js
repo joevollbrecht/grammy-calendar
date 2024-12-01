@@ -16,13 +16,6 @@ function familyMemberSelected(selection){
 function getFamilyMembers(response){
     familyArray = JSON.parse(response);
     console.log([familyArray]);
-    /*
-    var familySelect = document.getElementById("familyMembers");
-    familySelect.length = 1;
-    familyArray['body'].forEach((element, key) => {
-            familySelect[familySelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
-    });
-    */
     return familyArray['body'];
 }
 function getStandardDbResponse(response){
@@ -54,17 +47,16 @@ async function callAjax(type, values = {}){
     switch(type){
         case 'foo':
             myUrl += '?' + queryString;
-            //myUrl += '?action=' + type;
             break;
         case 'bar':
-            myUrl += '?action=' + type;
+            myUrl += '?' + queryString;
             break;
         case 'getFamilyMembers':
-            myUrl += '?action=' + type;
+            myUrl += '?' + queryString;
             responseHandler = getStandardDbResponse;
             break;
         case 'getFamilyRelationshipTypes':
-            myUrl += '?action=' + type;
+            myUrl += '?' + queryString;
             responseHandler = getStandardDbResponse;
             break;
         case 'addFamilyRelationship':
@@ -82,7 +74,7 @@ async function callAjax(type, values = {}){
     return responseHandler(response);
 }
 async function maintainFamilyInit(){
-    maintainFamilyLoadFamilySelectors();
+    maintainFamilyLoadFamilyData();
     let relationArray = await callAjax('getFamilyRelationshipTypes');
     let relationSelect = document.getElementById('relationType');
     let relationString = ""
@@ -95,8 +87,9 @@ async function maintainFamilyInit(){
     });
     relationSelect.innerHTML = relationString;
 }
-async function maintainFamilyLoadFamilySelectors(){
+async function maintainFamilyLoadFamilyData(){
     let familyArray = await callAjax('getFamilyMembers');
+    maintainFamilyCreateFamilyMemberTable(familyArray);
     let parentSelect = document.getElementById("parentSelect");
     let childSelect = document.getElementById("childSelect");
     parentSelect.length = childSelect.length = 1;
@@ -104,6 +97,27 @@ async function maintainFamilyLoadFamilySelectors(){
         parentSelect[parentSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
         childSelect[childSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
     });
+}
+function maintainFamilyCreateFamilyMemberTable(familyArray){
+    let text = "<table>";
+    text += "<thead><th>Delete</th><th>Name</th></thead>"
+
+    for (let ii = 0; ii < familyArray.length; ii++) {
+        text += '<tr>';
+        let member = familyArray[ii];
+        text += "<td><input type='checkbox' name='familyMemberCheckbox' id='" + generateCheckBoxId("fmcheck",ii) +"></td>";
+        text += "<td>" + member.fullName + "</td>";
+        text += '</tr>';
+    }
+    text += "</table>";
+    text += "<br><button id='fetch_button' onclick='maintainFamilyMemberDeleteFamily()'>Delete Selected</button>"
+    document.getElementById("showFamilyMembers").innerHTML = text;
+}
+async function maintainFamilyMemberDeleteFamily(){
+    alert(maintainFamilyMemberDeleteFamily.name +" is under construction");
+}
+function generateCheckBoxId(prefix,ii){
+    return prefix+ii;
 }
 function maintainFamilyParentSelected(){
     let parent = document.getElementById("parentSelect");

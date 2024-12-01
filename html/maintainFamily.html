@@ -6,14 +6,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body onload="maintainFamilyInit()">
-        <div id="messageSpace"></div>
-        <div id="add_family_member">
+        <div id="messageSpace">
+            &NonBreakingSpace;
+        </div>
+        <div id="showFamilyMembers"></div>
+        <div id="addFamilyMember">
             <h2>Add Family Member</h2>
             <label>First Name<input type="text" id='firstName' name="firstName"></label>
             <label>Last Name<input type="text" id='lastName' name="lastName"></label>
             <br><button onclick="maintainFamilyAddMember()">Add</button>
         </div>
-        <div id="maintain_relationship">
+        <div id="showRelationships"></div>
+        <div id="maintainRelationship">
             <h2>Maintain Relationships</h2>
             <div id="relationType" class="box" style="width: 225px;"></div>
             <span id="parentLabel">Parent</span></span>

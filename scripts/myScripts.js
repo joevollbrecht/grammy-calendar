@@ -1,3 +1,4 @@
+let relationshipType = 1;
 function callBackend(){
     document.getElementById("test_space").innerText = "did this work";
 }
@@ -74,7 +75,8 @@ async function maintainFamilyInit(){
     let relationString = ""
     relationArray.forEach((element, key) => {
         relationString +="<label><input type='radio' name='relationship' value='"+element.id
-            + "' id='"+element.type + "'";
+            + "' id='"+element.type + "'"
+            + " onChange='selectRelationshipType(this)'";
         if(element.id == 1) relationString +=" checked";
         relationString += ">" + element.type + "</label>";
     });
@@ -115,16 +117,20 @@ async function maintainFamilySetRelationShip(){
     let values = {};
     values.parent = getValueFromJson(parent.value,'id');
     values.child = getValueFromJson(child.value,'id');
-    for (var i = 0, length = types.length; i < length; i++) {
+    values.type = relationshipType;
+    /*for (var i = 0, length = types.length; i < length; i++) {
         if (types[i].checked) {
             values.type = types.value;
             break;
         }
-    }
+    }*/
     let insertResponse = await callAjax('addFamilyRelationship', values);
     console.log(['return from insert',insertResponse]);
 }
 function getValueFromJson(json,choice){
     let tempArray = JSON.parse(json);
     return tempArray[choice];
+}
+function selectRelationshipType(selection){
+    relationshipType = selection.value;
 }

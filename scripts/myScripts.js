@@ -125,7 +125,7 @@ async function maintainFamilySetRelationShip(){
     let insertResponse = await callAjax('addFamilyRelationship', values);
     console.log(['return from insert',insertResponse]);
 }
-function getIdFromJson(json,choice){
+function getValueFromJson(json,choice){
     let tempArray = JSON.parse(json);
     return tempArray[choice];
 }

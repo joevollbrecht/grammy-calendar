@@ -31,7 +31,15 @@ label{
 .box {
   border: 1px solid black;
 }
-
+.messageInfo {
+  background: lightgreen;
+}
+.messageWarning {
+  background: lightgoldenrodyellow
+}
+.messageError {
+  background: red
+}
 .container {
   gap: 20px;
   padding: 1rem;

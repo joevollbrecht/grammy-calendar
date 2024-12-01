@@ -34,10 +34,14 @@ function getStandardDbResponse(response){
     return standardArray['body'];
 }
 function displayMessages(messageArray){
+    let messageCss = [];
+    messageCss[1] = 'class="messageInfo"';
+    messageCss[2] = 'class="messageWarning"';
+    messageCss[3] = 'class="messageError"';
     displayHtml = Object.keys(messageArray)
-        .map(k => messageArray[k].message)
+        .map(k =>"<span " + messageCss[messageArray[k].type] + ">" + messageArray[k].message + "</span>")
         .join('<br>');
-    document.getElementById("messageSpace").innerHtml = displayHtml;
+    document.getElementById("messageSpace").innerHTML = displayHtml;
 }
 async function callAjax(type, values = {}){
     let myUrl = '/backend/ajax.php';

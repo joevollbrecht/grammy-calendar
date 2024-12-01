@@ -55,6 +55,7 @@ switch ($_GET['action']){
         break;
     case 'getAllRelationships':
         getAllRelationships();
+        break;
     default:
         $badResult = new Result();
         $badResult->setSuccess(false);

@@ -63,6 +63,10 @@ async function callAjax(type, values = {}){
             myUrl += '?' + queryString;
             responseHandler = getStandardDbResponse;
             break;
+        case 'getAllRelationships':
+            myUrl += '?' + queryString;
+            responseHandler = getStandardDbResponse;
+            break;
         default:
             console.log("in default with type="+type);
             response = "hit the default";
@@ -75,6 +79,7 @@ async function callAjax(type, values = {}){
 }
 async function maintainFamilyInit(){
     maintainFamilyLoadFamilyData();
+    maintainFamilyLoadFamilyRelationships();
     let relationArray = await callAjax('getFamilyRelationshipTypes');
     let relationSelect = document.getElementById('relationType');
     let relationString = ""
@@ -98,24 +103,46 @@ async function maintainFamilyLoadFamilyData(){
         childSelect[childSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
     });
 }
+async function maintainFamilyLoadFamilyRelationships(){
+    let familyArray = await callAjax('getAllRelationships');
+    let text = "<table style='width:225;'>";
+    text += "<thead><th>Delete</th><th>Name</th><th>Relationship</th><th>Name</th></thead>"
+
+    for (let ii = 0; ii < familyArray.length; ii++) {
+        text += '<tr>';
+        let member = familyArray[ii];
+        text += "<td class='tdCenter'><input type='checkbox' name='familyRelationshipCheckbox' id='" 
+            + generateCheckBoxId("fmcheck",ii) +"' value=" + member.id + "></td>";
+            text += "<td>" + member.parentName + "</td>";
+            text += "<td>" + member.type + "</td>";
+            text += "<td>" + member.childName + "</td>";
+            text += '</tr>';
+    }
+    text += "</table>";
+    text += "<br><button id='fetch_button' onclick='maintainFamilyDeleteRelationship()'>Delete Selected</button>"
+    document.getElementById("showFamilyMembers").innerHTML = text;
+}
 function maintainFamilyCreateFamilyMemberTable(familyArray){
-    let text = "<table style='width:225';>";
+    let text = "<table style='width:225;'>";
     text += "<thead><th>Delete</th><th>Name</th></thead>"
 
     for (let ii = 0; ii < familyArray.length; ii++) {
         text += '<tr>';
         let member = familyArray[ii];
         text += "<td class='tdCenter'><input type='checkbox' name='familyMemberCheckbox' id='" 
-            + generateCheckBoxId("fmcheck",ii) +"'></td>";
+            + generateCheckBoxId("relcheck",ii) + "' value=" + member.id + "></td>";
         text += "<td>" + member.fullName + "</td>";
         text += '</tr>';
     }
     text += "</table>";
     text += "<br><button id='fetch_button' onclick='maintainFamilyMemberDeleteFamily()'>Delete Selected</button>"
-    document.getElementById("showFamilyMembers").innerHTML = text;
+    document.getElementById("showFamilyRelations").innerHTML = text;
 }
 async function maintainFamilyMemberDeleteFamily(){
     alert(maintainFamilyMemberDeleteFamily.name +" is under construction");
+}
+async function maintainFamilyMemberDeleteRelationship(){
+    alert(maintainFamilyMemberDeleteRelationship.name +" is under construction");
 }
 function generateCheckBoxId(prefix,ii){
     return prefix+ii;

@@ -27,7 +27,15 @@ body {
 label{
   padding-right: 20px;
 }
+.row {
+  display: flex;
+  margin-right:-5px;
+}
 
+.column {
+  flex: 30%;
+  padding: 5px;
+}
 .box {
   border: 1px solid black;
 }

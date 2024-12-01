@@ -26,6 +26,9 @@ function getFamilyMembers(){
 function addFamilyRelationship(){
     echo FamilyRelationship::insert($_GET['parent'],$_GET['child'],$_GET['type'])->getResultString();
 }
+function getAllRelationships(){
+    echo FamilyRelationship::getAllRelationships()->getResultString();
+}
 Base::createResult();
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
@@ -50,6 +53,8 @@ switch ($_GET['action']){
     case 'addFamilyRelationship':
         addFamilyRelationship();
         break;
+    case 'getAllRelationships':
+        getAllRelationships();
     default:
         $badResult = new Result();
         $badResult->setSuccess(false);

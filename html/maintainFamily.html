@@ -9,7 +9,6 @@
         <div id="messageSpace">
             &NonBreakingSpace;
         </div>
-        <div id="showFamilyMembers"></div>
         <div id="addFamilyMember">
             <h2>Add Family Member</h2>
             <label>First Name<input type="text" id='firstName' name="firstName"></label>
@@ -29,6 +28,14 @@
                 <option value=-1 selected disabled>None</option>
             </select>
             <button id="setRelationship" onclick="maintainFamilySetRelationShip()" disabled>Set Relationship</button>
+        </div>
+        <div class="row">
+            <div class="column">
+                <div id="showFamilyMembers"></div>
+            </div>
+            <div class="column">
+                <div id="showFamilyRelations"></div>
+            </div>
         </div>
     </body>
 </html>

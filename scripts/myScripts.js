@@ -117,7 +117,6 @@ async function maintainFamilySetRelationShip(){
     values.child = getValueFromJson(child.value,'id');
     for (var i = 0, length = types.length; i < length; i++) {
         if (types[i].checked) {
-            let tempArray = JSON.parse(types.value);
             values.type = types.value;
             break;
         }

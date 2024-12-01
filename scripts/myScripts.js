@@ -28,7 +28,7 @@ function getFamilyMembers(response){
 function getStandardDbResponse(response){
     standardArray = JSON.parse(response);
     console.log([standardArray]);
-    if(standardArray.hasOwnObject("messages")){
+    if(standardArray.hasOwnProperty("messages")){
         displayMessages(standardArray["messages"]);
     }
     return standardArray['body'];
@@ -90,7 +90,6 @@ async function maintainFamilyInit(){
         relationString += ">" + element.type + "</label>";
     });
     relationSelect.innerHTML = relationString;
-    console.log(['relation radio',relationString]);
 }
 async function maintainFamilyLoadFamilySelectors(){
     let familyArray = await callAjax('getFamilyMembers');
@@ -112,9 +111,9 @@ function maintainFamilyParentSelected(){
         button.disabled = true;
     }
     else{
-        child.options.forEach((element, key) =>{
-            element.disabled = element.value == parent.value?true:false;
-        })
+        for(let ii = 0;ii<child.options.length;ii++){
+            child.options[ii].disabled = child.options[ii].value == parent.value?true:false;
+        }
     }
     console.log(["parentSelected",parent.value,"childDisabled"+child.disabled]);
 }

@@ -34,7 +34,7 @@ class FamilyRelationship extends Base{
             self::$result->addMessage(1,"inserted ".$myStatement->rowCount()." rows");
         }
         else{
-            sef::$result->setSuccess(false);
+            self::$result->setSuccess(false);
             self::$result->addmessage(2,"relationship already exists");
         }
         return self::$result;

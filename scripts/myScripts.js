@@ -120,7 +120,7 @@ async function maintainFamilyLoadFamilyRelationships(){
     }
     text += "</table>";
     text += "<br><button id='fetch_button' onclick='maintainFamilyDeleteRelationship()'>Delete Selected</button>"
-    document.getElementById("showFamilyMembers").innerHTML = text;
+    document.getElementById("showFamilyRelations").innerHTML = text;
 }
 function maintainFamilyCreateFamilyMemberTable(familyArray){
     let text = "<table style='width:225;'>";
@@ -136,7 +136,7 @@ function maintainFamilyCreateFamilyMemberTable(familyArray){
     }
     text += "</table>";
     text += "<br><button id='fetch_button' onclick='maintainFamilyMemberDeleteFamily()'>Delete Selected</button>"
-    document.getElementById("showFamilyRelations").innerHTML = text;
+    document.getElementById("showFamilyMembers").innerHTML = text;
 }
 async function maintainFamilyMemberDeleteFamily(){
     alert(maintainFamilyMemberDeleteFamily.name +" is under construction");

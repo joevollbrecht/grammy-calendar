@@ -28,19 +28,27 @@ function getStandardDbResponse(response){
     }
     return standardArray['body'];
 }
+function clearMessageSpace(){
+    document.getElementById("messageSpace").innerHtml = "";
+    document.getElementById("clearMessageSpaceButton").hidden = true;
+}
 function displayMessages(messageArray){
     let messageCss = [];
     messageCss[1] = 'class="messageInfo"';
     messageCss[2] = 'class="messageWarning"';
     messageCss[3] = 'class="messageError"';
-    displayHtml = Object.keys(messageArray)
+    let displayHtml = Object.keys(messageArray)
         .map(k =>"<span " + messageCss[messageArray[k].type] + ">" + messageArray[k].message + "</span>")
         .join('<br>');
-    document.getElementById("messageSpace").innerHTML = displayHtml;
+    let element = document.getElementById("messageSpace");
+    if( element.innerHTML.length && displayHtml.length){
+        element.innerHTML = element.innerHTML + '<br>' + displayHtml;
+    } else if(displayHtml.length) element.innerHTML = displayHtml;
+    document.getElementById("clearMessageSpaceButton").hidden = element.innerHTML.length?false:true;
 }
 async function callAjax(type, values = {}){
     let myUrl = '/backend/ajax.php';
-    let responseHandler = defaultDisplay;
+    let responseHandler = getStandardDbResponse;
     values.action = type;
     let queryString = Object.keys(values)
         .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(values[k]))
@@ -49,25 +57,25 @@ async function callAjax(type, values = {}){
     switch(type){
         case 'foo':
             myUrl += '?' + queryString;
+            responseHandler = defaultDisplay;
             break;
         case 'bar':
             myUrl += '?' + queryString;
+            responseHandler = defaultDisplay;
             break;
         case 'getFamilyMembers':
             myUrl += '?' + queryString;
-            responseHandler = getStandardDbResponse;
             break;
         case 'getFamilyRelationshipTypes':
             myUrl += '?' + queryString;
-            responseHandler = getStandardDbResponse;
             break;
+        case 'addFamilyMember':
+            myUrl += '?' + queryString;
         case 'addFamilyRelationship':
             myUrl += '?' + queryString;
-            responseHandler = getStandardDbResponse;
             break;
         case 'getAllRelationships':
             myUrl += '?' + queryString;
-            responseHandler = getStandardDbResponse;
             break;
         default:
             console.log("in default with type="+type);
@@ -183,6 +191,10 @@ async function maintainFamilySetRelationShip(){
     maintainFamilyLoadFamilyRelationships()
 }
 async function maintainFamilyAddFamilyMember(){
+    let values = {};
+    values.firstName = maintainFamilyFirstName;
+    values.lastName = maintainFamilyLastName;
+    let insertResponse = await callAjax('addFamilyMember');
 /* 
 after creation, reload family member list and null out the name fields
 */
@@ -190,8 +202,8 @@ after creation, reload family member list and null out the name fields
     clearFamilyNameInputs();
 }
 function maintainFamilyNameChanged(member){
-    if(member.id = 'firstName') maintainFamilyFirstName = member.value;
-    if(member.id = 'lastName') maintainFamilyLastName = member.value;
+    if(member.id == 'firstName') maintainFamilyFirstName = member.value;
+    if(member.id == 'lastName') maintainFamilyLastName = member.value;
     if(maintainFamilyFirstName!=null && maintainFamilyLastName != null){
         document.getElementById("addFamilyMember").disabled = false;
     } else document.getElementById("addFamilyMember").disabled = true;
@@ -200,6 +212,7 @@ function clearFamilyNameInputs(){
     maintainFamilyFirstName = maintainFamilyLastName = null;
     document.getElementById('firstName').value = null;
     document.getElementById('lastName').value = null;
+    document.getElementById("addFamilyMember").disabled = true;
 }
 function getValueFromJson(json,choice){
     let tempArray = JSON.parse(json);

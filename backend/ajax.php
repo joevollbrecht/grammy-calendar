@@ -23,6 +23,9 @@ function getFamilyRelationshipTypes(){
 function getFamilyMembers(){
     echo FamilyMember::getAll()->getResultString();
 }
+function addFamilyMember(){
+    echo FamilyMember::insert($_GET['firstName'],$_GET['lastName'])->getResultString();
+}
 function addFamilyRelationship(){
     echo FamilyRelationship::insert($_GET['parent'],$_GET['child'],$_GET['type'])->getResultString();
 }
@@ -49,6 +52,9 @@ switch ($_GET['action']){
         break;
     case 'getFamilyRelationshipTypes':
         getFamilyRelationshipTypes();
+        break;
+    case 'addFamilyMember':
+        addFamilyMember();
         break;
     case 'addFamilyRelationship':
         addFamilyRelationship();

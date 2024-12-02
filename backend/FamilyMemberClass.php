@@ -29,7 +29,7 @@ class FamilyMember extends Base{
         if(is_null($member)){
             $myStatement = self::$conn->prepare("INSERT INTO `FamilyMember` 
                 (`firstName`, `lastName`) 
-                VALUES (".$firstName.",".$lastName.")");
+                VALUES ('".$firstName."','".$lastName."')");
             $myStatement->execute();
             self::$result->setSuccess(true);
             self::$result->addMessage(1,"inserted ".$myStatement->rowCount()." rows");

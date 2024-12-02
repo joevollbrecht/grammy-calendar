@@ -65,7 +65,7 @@ switch ($_GET['action']){
     default:
         $badResult = new Result();
         $badResult->setSuccess(false);
-        $badResult->setBody("why are we here?");
+        $badResult->addMessage(3,"why are we here?");
         echo $badResult->getResultString();
         exit();
 }

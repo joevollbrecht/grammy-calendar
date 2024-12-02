@@ -71,6 +71,7 @@ async function callAjax(type, values = {}){
             break;
         case 'addFamilyMember':
             myUrl += '?' + queryString;
+            break;
         case 'addFamilyRelationship':
             myUrl += '?' + queryString;
             break;
@@ -194,7 +195,7 @@ async function maintainFamilyAddFamilyMember(){
     let values = {};
     values.firstName = maintainFamilyFirstName;
     values.lastName = maintainFamilyLastName;
-    let insertResponse = await callAjax('addFamilyMember');
+    let insertResponse = await callAjax('addFamilyMember',values);
 /* 
 after creation, reload family member list and null out the name fields
 */

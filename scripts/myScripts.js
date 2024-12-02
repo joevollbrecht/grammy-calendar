@@ -1,4 +1,6 @@
 let relationshipType = 1;
+let maintainFamilyFirstName = null;
+let maintainFamilyLastName = null;
 function callBackend(){
     document.getElementById("test_space").innerText = "did this work";
 }
@@ -105,7 +107,7 @@ async function maintainFamilyLoadFamilyData(){
 }
 async function maintainFamilyLoadFamilyRelationships(){
     let familyArray = await callAjax('getAllRelationships');
-    let text = "<table style='width:225;'>";
+    let text = "<table style='width:500;'>";
     text += "<thead><th>Delete</th><th>Name</th><th>Relationship</th><th>Name</th></thead>"
 
     for (let ii = 0; ii < familyArray.length; ii++) {
@@ -135,14 +137,14 @@ function maintainFamilyCreateFamilyMemberTable(familyArray){
         text += '</tr>';
     }
     text += "</table>";
-    text += "<br><button id='fetch_button' onclick='maintainFamilyMemberDeleteFamily()'>Delete Selected</button>"
+    text += "<br><button id='fetch_button' onclick='maintainFamilyDeleteFamilyMember()'>Delete Selected</button>"
     document.getElementById("showFamilyMembers").innerHTML = text;
 }
-async function maintainFamilyMemberDeleteFamily(){
-    alert(maintainFamilyMemberDeleteFamily.name +" is under construction");
+async function maintainFamilyDeleteFamilyMember(){
+    alert(maintainFamilyDeleteFamilyMember.name +" is under construction");
 }
-async function maintainFamilyMemberDeleteRelationship(){
-    alert(maintainFamilyMemberDeleteRelationship.name +" is under construction");
+async function maintainFamilyDeleteRelationship(){
+    alert(maintainFamilyDeleteRelationship.name +" is under construction");
 }
 function generateCheckBoxId(prefix,ii){
     return prefix+ii;
@@ -177,14 +179,27 @@ async function maintainFamilySetRelationShip(){
     values.parent = getValueFromJson(parent.value,'id');
     values.child = getValueFromJson(child.value,'id');
     values.type = relationshipType;
-    /*for (var i = 0, length = types.length; i < length; i++) {
-        if (types[i].checked) {
-            values.type = types.value;
-            break;
-        }
-    }*/
     let insertResponse = await callAjax('addFamilyRelationship', values);
-    console.log(['return from insert',insertResponse]);
+    maintainFamilyLoadFamilyRelationships()
+}
+async function maintainFamilyAddFamilyMember(){
+/* 
+after creation, reload family member list and null out the name fields
+*/
+    maintainFamilyLoadFamilyData();
+    clearFamilyNameInputs();
+}
+function maintainFamilyNameChanged(member){
+    if(member.id = 'firstName') maintainFamilyFirstName = member.value;
+    if(member.id = 'lastName') maintainFamilyLastName = member.value;
+    if(maintainFamilyFirstName!=null && maintainFamilyLastName != null){
+        document.getElementById("addFamilyMember").disabled = false;
+    } else document.getElementById("addFamilyMember").disabled = true;
+}
+function clearFamilyNameInputs(){
+    maintainFamilyFirstName = maintainFamilyLastName = null;
+    document.getElementById('firstName').value = null;
+    document.getElementById('lastName').value = null;
 }
 function getValueFromJson(json,choice){
     let tempArray = JSON.parse(json);

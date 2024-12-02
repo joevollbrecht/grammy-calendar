@@ -11,9 +11,9 @@
         </div>
         <div id="addFamilyMember">
             <h2>Add Family Member</h2>
-            <label>First Name<input type="text" id='firstName' name="firstName"></label>
-            <label>Last Name<input type="text" id='lastName' name="lastName"></label>
-            <br><button onclick="maintainFamilyAddMember()">Add</button>
+            <label>First Name<input type="text" id='firstName' name="firstName" onchange="maintainFamilyNameChanged(this)"></label>
+            <label>Last Name<input type="text" id='lastName' name="lastName" onchange="maintainFamilyNameChanged(this)"></label>
+            <br><button id="addFamilyMember" onclick="maintainFamilyAddFamilyMember()" disabled>Add Family Member</button>
         </div>
         <div id="showRelationships"></div>
         <div id="maintainRelationship">

@@ -51,7 +51,10 @@ class FamilyRelationship extends Base{
         return self::$result;
     }
     static public function getByMemberIds(int $familyMemberId1, int $familyMemberId2){
-        $myStatement = self::$conn->prepare("SELECT * FROM FamilyRelationship where familyMemberId1 = ".$familyMemberId1." AND familyMemberId2 = ".$familyMemberId2);
+        $queryString = "SELECT * FROM FamilyRelationship where ".
+            "(familyMemberId1 = ".$familyMemberId1." AND familyMemberId2 = ".$familyMemberId2.")".
+            " OR (familyMemberId1 = ".$familyMemberId2." AND familyMemberId2 = ".$familyMemberId1.")";
+        $myStatement = self::$conn->prepare($queryString);
         $myStatement->execute();
         $retVal = null;
         while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){

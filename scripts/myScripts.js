@@ -1,48 +1,7 @@
 let relationshipType = 1;
 let maintainFamilyFirstName = null;
 let maintainFamilyLastName = null;
-async function fetchFile(){
-    myObject = await fetch("files/random.txt");
-    myText = await myObject.text();
-    document.getElementById("message_space").innerText = myText;
-}
-function defaultDisplay(response){
-    document.getElementById("message_space").innerText = response;
-}
-function familyMemberSelected(selection){
-    console.log("familyMemberSelected, selected:"+selection.value);
-}
-function getFamilyMembers(response){
-    familyArray = JSON.parse(response);
-    console.log([familyArray]);
-    return familyArray['body'];
-}
-function getStandardDbResponse(response){
-    standardArray = JSON.parse(response);
-    console.log([standardArray]);
-    if(standardArray.hasOwnProperty("messages")){
-        displayMessages(standardArray["messages"]);
-    }
-    return standardArray['body'];
-}
-function clearMessageSpace(){
-    document.getElementById("messageSpace").innerHTML = "";
-    document.getElementById("clearMessageSpaceButton").hidden = true;
-}
-function displayMessages(messageArray){
-    let messageCss = [];
-    messageCss[1] = 'class="messageInfo"';
-    messageCss[2] = 'class="messageWarning"';
-    messageCss[3] = 'class="messageError"';
-    let displayHtml = Object.keys(messageArray)
-        .map(k =>"<span " + messageCss[messageArray[k].type] + ">" + messageArray[k].message + "</span>")
-        .join('<br>');
-    let element = document.getElementById("messageSpace");
-    if( element.innerHTML.length && displayHtml.length){
-        element.innerHTML = element.innerHTML + '<br>' + displayHtml;
-    } else if(displayHtml.length) element.innerHTML = displayHtml;
-    document.getElementById("clearMessageSpaceButton").hidden = element.innerHTML.length?false:true;
-}
+let maintainEventEventName = null;
 async function callAjax(type, values = {}){
     let myUrl = '/backend/ajax.php';
     let responseHandler = getStandardDbResponse;
@@ -60,6 +19,9 @@ async function callAjax(type, values = {}){
             myUrl += '?' + queryString;
             responseHandler = defaultDisplay;
             break;
+        case 'addEvent':
+            myUrl += '?' + queryString;
+            break;
         case 'addFamilyMember':
             myUrl += '?' + queryString;
             break;
@@ -70,6 +32,9 @@ async function callAjax(type, values = {}){
             myUrl += '?' + queryString;
             break;
         case 'deleteFamilyRelationship':
+            myUrl += '?' + queryString;
+            break;
+        case 'getEvents':
             myUrl += '?' + queryString;
             break;
         case 'getFamilyMembers':
@@ -90,6 +55,98 @@ async function callAjax(type, values = {}){
     myObject = await fetch(myUrl);
     response = await myObject.text();
     return responseHandler(response);
+}
+function clearMessageSpace(){
+    document.getElementById("messageSpace").innerHTML = "";
+    document.getElementById("clearMessageSpaceButton").hidden = true;
+}
+function defaultDisplay(response){
+    document.getElementById("message_space").innerText = response;
+}
+function displayMessages(messageArray){
+    let messageCss = [];
+    messageCss[1] = 'class="messageInfo"';
+    messageCss[2] = 'class="messageWarning"';
+    messageCss[3] = 'class="messageError"';
+    let displayHtml = Object.keys(messageArray)
+        .map(k =>"<span " + messageCss[messageArray[k].type] + ">" + messageArray[k].message + "</span>")
+        .join('<br>');
+    let element = document.getElementById("messageSpace");
+    if( element.innerHTML.length && displayHtml.length){
+        element.innerHTML = element.innerHTML + '<br>' + displayHtml;
+    } else if(displayHtml.length) element.innerHTML = displayHtml;
+    document.getElementById("clearMessageSpaceButton").hidden = element.innerHTML.length?false:true;
+}
+function familyMemberSelected(selection){
+    console.log("familyMemberSelected, selected:"+selection.value);
+}
+function getFamilyMembers(response){
+    familyArray = JSON.parse(response);
+    console.log([familyArray]);
+    return familyArray['body'];
+}
+function getStandardDbResponse(response){
+    standardArray = JSON.parse(response);
+    console.log([standardArray]);
+    if(standardArray.hasOwnProperty("messages")){
+        displayMessages(standardArray["messages"]);
+    }
+    return standardArray['body'];
+}
+
+function populateFamilySelecter(familyArray,elementName){
+    maintainFamilyCreateFamilyMemberTable(familyArray);
+    let select = document.getElementById(elementName);
+    select.length = 1;
+    familyArray.forEach((element, key) => {
+        select[select.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
+    });
+}
+async function maintainEventsInit(){
+
+}
+async function maintainEventAddEvent(){
+    values = {};
+    values.name = maintainEventEventName;
+    let addResponse = callAjax("addEvent",values);  
+}
+function maintainEventEventChanged(member){
+    maintainEventEventName = member.value;
+    document.getElementById("addFamilyEvent").disabled = maintainEventEventName != null?false:true;
+}
+function maintainEventClearEventInputs(){
+    maintainEventEventName = null;
+    document.getElementById('eventName').value = null;
+    document.getElementById("addFamilyEvent").disabled = true;
+}
+function maintainFamilyCreateEventTable(eventArray){
+    let text = "<table style='width:500;'>";
+    text += "<thead><th>Delete</th><th>Name</th><th>Start Date</th><th>End Date</th></thead>"
+
+    for (let ii = 0; ii < eventArray.length; ii++) {
+        text += '<tr>';
+        let member = eventArray[ii];
+        text += "<td class='tdCenter'><input type='checkbox' name='eventCheckbox' id='" 
+            + generateCheckBoxId("evtcheck",ii) + "' value=" + member.id 
+            + " onchange='maintainEventActivateDeleteEventButton(this)'></td>";
+            text += "<td>" + member.name + "</td>";
+            text += "<td>" + member.startDate + "</td>";
+            text += "<td>" + member.endDate + "</td>";
+            text += '</tr>';
+    }
+    text += "</table>";
+    document.getElementById("showFamilyMembers").innerHTML = text;
+}
+async function maintainEventLoadEventData(){
+    let eventArray = await callAjax('getEvents');
+    maintainFamilyCreateEventTable(eventArray);
+    let parentSelect = document.getElementById("parentSelect");
+    let childSelect = document.getElementById("childSelect");
+    parentSelect.length = childSelect.length = 1;
+    familyArray.forEach((element, key) => {
+        parentSelect[parentSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
+        childSelect[childSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
+    });
 }
 async function maintainFamilyInit(){
     maintainFamilyLoadFamilyData();

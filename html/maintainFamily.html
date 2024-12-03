@@ -1,15 +1,12 @@
 <html>
     <head>
-      <title>Maintain Family</title>
+        <title>Maintain Family</title>
         <script type="text/javascript" src="/scripts/myScripts.js"></script>
         <link rel="stylesheet" href="/css/style.css">
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     </head>
     <body onload="maintainFamilyInit()">
-        <div id="messageSpace"></div>
-        <button id="clearMessageSpaceButton" onclick="clearMessageSpace()" hidden>
-            Clear Messages
-        </button>
         <div class="row">
             <div class="column">
                 <div id="addFamilyMemberDiv" class="divBox">
@@ -36,14 +33,18 @@
             </div>
         </div>
         <div class="row">
-            <div class="column" class="divBox">
+            <div class="column divBox">
                 <button id="deleteFamilyMembers" onclick="maintainFamilyDeleteFamilyMember()" disabled>Delete Selected Family Members</button>
                 <div id="showFamilyMembers" class="fixTableHead"></div>
             </div>
-            <div class="column" class="divBox">
+            <div class="column divBox">
                 <button id="deleteFamilyRelations" onclick="maintainFamilyDeleteRelationship()" disabled>Remove Selected Relationships</button>
                 <div id="showFamilyRelations" class="fixTableHead"></div>
             </div>
         </div>
+        <div id="messageSpace"></div>
+        <button id="clearMessageSpaceButton" onclick="clearMessageSpace()" hidden>
+            Clear Messages
+        </button>
     </body>
 </html>

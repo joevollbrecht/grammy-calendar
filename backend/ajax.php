@@ -17,6 +17,9 @@ function bar(){
     $result->setBody("bar");
     echo $result->getResultString();
 }
+function addEvent(){
+    echo Event::insert($_GET['name'])->getResultString();
+}
 function addFamilyMember(){
     echo FamilyMember::insert($_GET['firstName'],$_GET['lastName'])->getResultString();
 }
@@ -28,6 +31,9 @@ function deleteFamilyMember(){
 }
 function deleteFamilyRelationship(){
     echo FamilyRelationship::delete(json_decode($_GET['ids']))->getResultString();
+}
+function getEvents(){
+    echo Event::getAll()->getResultString();
 }
 function getFamilyRelationshipTypes(){
     echo FamilyRelationshipType::getAll()->getResultString();
@@ -52,6 +58,9 @@ switch ($_GET['action']){
         break;
     case 'bar':
         bar();
+        break;
+    case 'addEvent':
+        addEvent();
         break;
     case 'addFamilyMember':
         addFamilyMember();

@@ -1,21 +1,24 @@
 <html>
     <head>
-      <title>Family Calendar</title>
+        <title>Family Calendar</title>
         <script type="text/javascript" src="/scripts/myScripts.js"></script>
         <link rel="stylesheet" href="/css/style.css">
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     </head>
     <body>
         <div id="test_space"></div>
-        <div id="message_space"></div>
-        <button id="fetch_button" onclick="fetchFile()">Fetch File</button>
-        <button id="foo_button" onclick="callAjax('foo')">foo</button>
-        <button id="bar_button" onclick="callAjax('bar')">bar</button>
         <button id="bar_button" onclick="callAjax('getFamilyMembers')">Fetch Family</button>
-        <button id="maintainFamily"><a href="html/maintainFamily.html">Maintain Family</a></button>
+        <button id="maintainFamily"><a href="/html/maintainFamily.html">Maintain Family</a></button>
+        <button id="maintainFamily"><a href="/html/maintainEvent.html">Maintain Family</a></button>
         <div id="familySelector"></div>
         Family Members: <select name="familyMembers" id="familyMembers" onchange="familyMemberSelected(this)">
             <option value=-1 selected="selected">None</option>
-          </select>
+        </select>
+
+        <div id="messageSpace"></div>
+        <button id="clearMessageSpaceButton" onclick="clearMessageSpace()" hidden>
+            Clear Messages
+        </button>
     </body>
 </html>

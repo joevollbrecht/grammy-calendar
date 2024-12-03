@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <title>Maintain Events</title>
+        <script type="text/javascript" src="/scripts/myScripts.js"></script>
+        <link rel="stylesheet" href="/css/style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    </head>
+    <body onload="maintainEventsInit()">
+        <div class="row">
+            <div class="column">
+                <div id="addEventDiv" class="divBox">
+                    <h2>Add Event</h2>
+                    <label>Event Name<input type="text" id='eventName' name="eventName" onchange="maintainEventEventChanged(this)"></label>
+                    <br><button id="addEvent" onclick="maintainEventAddEvent()" disabled>Add Event</button>
+                </div>
+            </div>
+            <div class="column">
+                <div id="addInvites" class="divBox">
+                    <h2>Add Invites</h2>
+                    <span id="eventLabel">Event</span></span>
+                    <select id="eventSelect" name="eventSelect" onchange="maintainEventEventSelected()">
+                        <option value=-1 selected disabled>None</option>
+                    </select>
+                    <span id="inviteeSelectLabel">Invitee(s)</span>
+                    <select id="inviteeSelect" name="inviteeSelect" multiple disabled onchange="maintainEventChildSelected()">
+                        <option value=-1 selected disabled>None</option>
+                    </select>
+                    <button id="addInvites" onclick="maintainEventInvites()" disabled>Set Invites</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column divBox">
+                <button id="deleteEvents" onclick="maintainEventDeleteEvent()" disabled>Delete Selected Events</button>
+                <div id="showEvents" class="fixTableHead"></div>
+            </div>
+            <div class="column divBox">
+                <button id="deleteFamilyRelations" onclick="maintainEventDeleteRelationship()" disabled>Remove Selected Relationships</button>
+                <div id="showFamilyRelations" class="fixTableHead"></div>
+            </div>
+        </div>
+        <div id="messageSpace"></div>
+        <button id="clearMessageSpaceButton" onclick="clearMessageSpace()" hidden>
+            Clear Messages
+        </button>
+    </body>
+</html>

@@ -58,7 +58,7 @@ class EventInvite extends Base{
             return self::$result;
         }
         $sqlQuery = "REPLACE INTO `EventInvite` 
-            (eventId, familyMemberId) VALUES (".$eventId.",".$familyIds[0].",1)";
+            (eventId, familyMemberId, eventInviteStatusId) VALUES (".$eventId.",".$familyIds[0].",1)";
         for($ii=1;$ii<count($familyIds);$ii++){
             $sqlQuery .= ", (".$eventId.",".$familyIds[$ii].",1)";
         }

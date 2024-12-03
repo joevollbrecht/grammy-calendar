@@ -23,10 +23,10 @@
                         <option value=-1 selected disabled>None</option>
                     </select>
                     <span id="inviteeSelectLabel">Invitee(s)</span>
-                    <select id="inviteeSelect" name="inviteeSelect" multiple disabled onchange="maintainEventChildSelected()">
+                    <select id="inviteeSelect" name="inviteeSelect" multiple disabled onchange="maintainEventInviteeSelected()">
                         <option value=-1 selected disabled>None</option>
                     </select>
-                    <button id="addInvites" onclick="maintainEventInvites()" disabled>Set Invites</button>
+                    <button id="addInvitees" onclick="maintainEventAddInvitees()" disabled>Set Invites</button>
                 </div>
             </div>
         </div>
@@ -36,8 +36,8 @@
                 <div id="showEvents" class="fixTableHead"></div>
             </div>
             <div class="column divBox">
-                <button id="deleteFamilyRelations" onclick="maintainEventDeleteRelationship()" disabled>Remove Selected Relationships</button>
-                <div id="showFamilyRelations" class="fixTableHead"></div>
+                <button id="deleteFamilyRelations" onclick="maintainEventInviteRelationship()" disabled>Remove Selected Relationships</button>
+                <div id="showEvents" class="fixTableHead"></div>
             </div>
         </div>
         <div id="messageSpace"></div>

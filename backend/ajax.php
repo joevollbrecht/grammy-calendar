@@ -3,21 +3,10 @@ require_once 'dbConnect.php';
 include_once 'ResultClass.php';
 include_once 'BaseClass.php';
 include_once 'EventClass.php';
+include_once 'EventInviteClass.php';
 include_once 'FamilyMemberClass.php';
 include_once 'FamilyRelationshipClass.php';
 include_once 'FamilyRelationshipTypeClass.php';
-function foo(){
-    $result = new Result();
-    $result->setSuccess(true);
-    echo $result->getResultString();
-}
-
-function bar(){
-    $result = new Result();
-    $result->setSuccess(false);
-    $result->setBody("bar");
-    echo $result->getResultString();
-}
 function addEvent(){
     echo Event::insert($_GET['name'])->getResultString();
 }
@@ -27,11 +16,20 @@ function addFamilyMember(){
 function addFamilyRelationship(){
     echo FamilyRelationship::insert($_GET['parent'],$_GET['child'],$_GET['type'])->getResultString();
 }
+function addInvites(){
+    echo EventInvite::insert($_GET['eventId'],json_decode($_GET['familyIds']))->getResultString();
+}
 function deleteFamilyMember(){
     echo FamilyMember::delete(json_decode($_GET['ids']))->getResultString();
 }
 function deleteFamilyRelationship(){
     echo FamilyRelationship::delete(json_decode($_GET['ids']))->getResultString();
+}
+function getAllEventRelationships(){
+    echo EventInviteRelationship::getAllRelationships()->getResultString();
+}
+function getAllRelationships(){
+    echo FamilyRelationship::getAllRelationships()->getResultString();
 }
 function getEvents(){
     echo Event::getAll()->getResultString();
@@ -42,9 +40,6 @@ function getFamilyRelationshipTypes(){
 function getFamilyMembers(){
     echo FamilyMember::getAll()->getResultString();
 }
-function getAllRelationships(){
-    echo FamilyRelationship::getAllRelationships()->getResultString();
-}
 Base::createResult();
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
@@ -54,12 +49,6 @@ try {
     die ("Could not connect to the database $dbname :" . $pe->getMessage());
 }
 switch ($_GET['action']){
-    case 'foo':
-        foo();
-        break;
-    case 'bar':
-        bar();
-        break;
     case 'addEvent':
         addEvent();
         break;
@@ -74,6 +63,9 @@ switch ($_GET['action']){
         break;
     case 'deleteFamilyRelationship':
         deleteFamilyRelationship();
+        break;
+    case 'getAllEventRelationships':
+        getAllEventRelationships();
         break;
     case 'getAllRelationships':
         getAllRelationships();

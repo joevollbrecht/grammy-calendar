@@ -11,14 +11,6 @@ async function callAjax(type, values = {}){
         .join('&');
     console.log(['got type:' + type,queryString]);
     switch(type){
-        case 'foo':
-            myUrl += '?' + queryString;
-            responseHandler = defaultDisplay;
-            break;
-        case 'bar':
-            myUrl += '?' + queryString;
-            responseHandler = defaultDisplay;
-            break;
         case 'addEvent':
             myUrl += '?' + queryString;
             break;
@@ -28,10 +20,19 @@ async function callAjax(type, values = {}){
         case 'addFamilyRelationship':
             myUrl += '?' + queryString;
             break;
+        case 'addInvites':
+            myUrl += '?' + queryString;
+            break;
         case 'deleteFamilyMember':
             myUrl += '?' + queryString;
             break;
         case 'deleteFamilyRelationship':
+            myUrl += '?' + queryString;
+            break;
+        case 'getAllEventRelationships':
+            myUrl += '?' + queryString;
+            break;
+        case 'getAllRelationships':
             myUrl += '?' + queryString;
             break;
         case 'getEvents':
@@ -41,9 +42,6 @@ async function callAjax(type, values = {}){
             myUrl += '?' + queryString;
             break;
         case 'getFamilyRelationshipTypes':
-            myUrl += '?' + queryString;
-            break;
-        case 'getAllRelationships':
             myUrl += '?' + queryString;
             break;
         default:
@@ -93,12 +91,16 @@ function getStandardDbResponse(response){
     }
     return standardArray['body'];
 }
+function getValueFromJson(json,choice){
+    let tempArray = JSON.parse(json);
+    return tempArray[choice];
+}
 
 function populateFamilySelecter(familyArray,elementName){
     let select = document.getElementById(elementName);
     select.length = 1;
     familyArray.forEach((element, key) => {
-        select[select.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
+        select[select.options.length] = new Option(element.fullName, JSON.stringify(element));
     });
 }
 async function maintainEventsInit(){
@@ -110,6 +112,17 @@ async function maintainEventAddEvent(){
     values.name = maintainEventEventName;
     let addResponse = callAjax("addEvent",values);  
 }
+async function maintainEventAddInvitees(){
+    let values = {};
+    values.eventId = getElementById("eventSelect").value;
+    let invitees = getElementById("inviteeSelect").selectedOptions;
+    let inviteeIds = [];
+    for(let ii = 0;ii<invitees.length;ii++){
+        inviteeIds.push( getValueFromJson(invitees[ii].value,"id"));
+    }
+    values.familyIds = JSON.stringify(inviteeIds);
+    let addResponse = callAjax("addInvites", values);
+}
 function maintainEventClearEventInputs(){
     maintainEventEventName = null;
     document.getElementById('eventName').value = null;
@@ -119,13 +132,22 @@ function maintainEventEventChanged(member){
     maintainEventEventName = member.value;
     document.getElementById("addEvent").disabled = maintainEventEventName != null?false:true;
 }
+function maintainEventEventSelected(){
+    items = getElementById("eventSelect").selectedOptions;
+    getElementById("inviteeSelect").disabled = items.length?false:true;
+
+}
+function maintainEventInviteeSelected(){
+    items = getElementById("inviteeSelect").selectedOptions;
+    getElementById("addInvitees").disabled = items.length?false:true;
+}
 async function maintainEventLoadFamilyData(){
     let familyArray = await callAjax('getFamilyMembers');
     populateFamilySelecter(familyArray,"inviteeSelect");
 }
-function maintainFamilyCreateEventTable(eventArray){
+function maintainEventCreateEventTable(eventArray){
     let text = "<table style='width:500;'>";
-    text += "<thead><th>Delete</th><th>Name</th><th>Start Date</th><th>End Date</th></thead>"
+    text += "<thead><th>Select</th><th>Name</th><th>Start Date</th><th>End Date</th></thead>"
 
     for (let ii = 0; ii < eventArray.length; ii++) {
         text += '<tr>';
@@ -139,17 +161,15 @@ function maintainFamilyCreateEventTable(eventArray){
             text += '</tr>';
     }
     text += "</table>";
-    document.getElementById("showFamilyMembers").innerHTML = text;
+    document.getElementById("showEvents").innerHTML = text;
 }
 async function maintainEventLoadEventData(){
     let eventArray = await callAjax('getEvents');
-    maintainFamilyCreateEventTable(eventArray);
-    let parentSelect = document.getElementById("parentSelect");
-    let childSelect = document.getElementById("childSelect");
-    parentSelect.length = childSelect.length = 1;
+    maintainEventCreateEventTable(eventArray);
+    let eventSelect = document.getElementById("eventSelect");
+    eventSelect.length = 1;
     familyArray.forEach((element, key) => {
-        parentSelect[parentSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
-        childSelect[childSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
+        eventSelect[eventSelect.options.length] = new Option(element.name, id);
     });
 }
 async function maintainFamilyInit(){
@@ -302,10 +322,6 @@ function clearFamilyNameInputs(){
     document.getElementById('firstName').value = null;
     document.getElementById('lastName').value = null;
     document.getElementById("addFamilyMember").disabled = true;
-}
-function getValueFromJson(json,choice){
-    let tempArray = JSON.parse(json);
-    return tempArray[choice];
 }
 function selectRelationshipType(selection){
     relationshipType = selection.value;

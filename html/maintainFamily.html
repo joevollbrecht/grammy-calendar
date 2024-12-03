@@ -11,30 +11,38 @@
         <button id="clearMessageSpaceButton" onclick="clearMessageSpace()" hidden>
             Clear Messages
         </button>
-        <div id="addFamilyMemberDiv">
-            <h2>Add Family Member</h2>
-            <label>First Name<input type="text" id='firstName' name="firstName" onchange="maintainFamilyNameChanged(this)"></label>
-            <label>Last Name<input type="text" id='lastName' name="lastName" onchange="maintainFamilyNameChanged(this)"></label>
-            <br><button id="addFamilyMember" onclick="maintainFamilyAddFamilyMember()" disabled>Add Family Member</button>
-        </div>
-        <div id="maintainRelationship">
-            <h2>Maintain Relationships</h2>
-            <div id="relationType" class="box" style="width: 225px;"></div>
-            <span id="parentLabel">Parent</span></span>
-            <select id="parentSelect" name="parentSelect" onchange="maintainFamilyParentSelected()">
-                <option value=-1 selected disabled>None</option>
-            </select>
-            <span id="childLabel">Child</span>
-            <select id="childSelect" name="childSelect" disabled onchange="maintainFamilyChildSelected()">
-                <option value=-1 selected disabled>None</option>
-            </select>
-            <button id="setRelationship" onclick="maintainFamilySetRelationShip()" disabled>Set Relationship</button>
+        <div class="row">
+            <div class="column">
+                <div id="addFamilyMemberDiv">
+                    <h2>Add Family Member</h2>
+                    <label>First Name<input type="text" id='firstName' name="firstName" onchange="maintainFamilyNameChanged(this)"></label>
+                    <label>Last Name<input type="text" id='lastName' name="lastName" onchange="maintainFamilyNameChanged(this)"></label>
+                    <br><button id="addFamilyMember" onclick="maintainFamilyAddFamilyMember()" disabled>Add Family Member</button>
+                </div>
+            </div>
+            <div class="column">
+                <div id="maintainRelationship">
+                    <h2>Maintain Relationships</h2>
+                    <div id="relationType" class="box" style="width: 225px;"></div>
+                    <span id="parentLabel">Parent</span></span>
+                    <select id="parentSelect" name="parentSelect" onchange="maintainFamilyParentSelected()">
+                        <option value=-1 selected disabled>None</option>
+                    </select>
+                    <span id="childLabel">Child</span>
+                    <select id="childSelect" name="childSelect" disabled onchange="maintainFamilyChildSelected()">
+                        <option value=-1 selected disabled>None</option>
+                    </select>
+                    <button id="setRelationship" onclick="maintainFamilySetRelationShip()" disabled>Set Relationship</button>
+                </div>
+            </div>
         </div>
         <div class="row">
             <div class="column">
+                <button id="deleteFamilyMembers" onclick="maintainFamilyDeleteFamilyMember()">Delete Selected Family Members</button>
                 <div id="showFamilyMembers"></div>
             </div>
             <div class="column">
+                <button id="deleteFamilyRelations" onclick="maintainFamilyDeleteRelationship()">Remove Selected Relationships</button>
                 <div id="showFamilyRelations"></div>
             </div>
         </div>

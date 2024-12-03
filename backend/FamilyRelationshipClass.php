@@ -12,6 +12,15 @@ class FamilyRelationship extends Base{
         $this->familyMemberId2 = $familyMemberId2;
         $this->familyRelationshipTypeId = $familyRelationshipTypeId;
     }
+    static public function delete(array $ids){
+        $myStatement = self::$conn->prepare("DELETE FROM `FamilyRelationship` 
+            WHERE id IN (".implode(",",$ids).")");
+        $myStatement->execute();
+        self::$result->setSuccess(true);
+        self::$result->addMessage(1,"deleted ".$myStatement->rowCount()." rows (may include relationships)");
+    
+        return self::$result;
+    }
     static public function getAll(){
         $myStatement = self::$conn->prepare("SELECT * FROM FamilyRelationship");
         $myStatement->execute();

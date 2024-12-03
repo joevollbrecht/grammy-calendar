@@ -17,17 +17,23 @@ function bar(){
     $result->setBody("bar");
     echo $result->getResultString();
 }
-function getFamilyRelationshipTypes(){
-    echo FamilyRelationshipType::getAll()->getResultString();
-}
-function getFamilyMembers(){
-    echo FamilyMember::getAll()->getResultString();
-}
 function addFamilyMember(){
     echo FamilyMember::insert($_GET['firstName'],$_GET['lastName'])->getResultString();
 }
 function addFamilyRelationship(){
     echo FamilyRelationship::insert($_GET['parent'],$_GET['child'],$_GET['type'])->getResultString();
+}
+function deleteFamilyMember(){
+    echo FamilyMember::delete(json_decode($_GET['ids']))->getResultString();
+}
+function deleteFamilyRelationship(){
+    echo FamilyRelationship::delete(json_decode($_GET['ids']))->getResultString();
+}
+function getFamilyRelationshipTypes(){
+    echo FamilyRelationshipType::getAll()->getResultString();
+}
+function getFamilyMembers(){
+    echo FamilyMember::getAll()->getResultString();
 }
 function getAllRelationships(){
     echo FamilyRelationship::getAllRelationships()->getResultString();
@@ -47,25 +53,32 @@ switch ($_GET['action']){
     case 'bar':
         bar();
         break;
-    case 'getFamilyMembers':
-        getFamilyMembers();
-        break;
-    case 'getFamilyRelationshipTypes':
-        getFamilyRelationshipTypes();
-        break;
     case 'addFamilyMember':
         addFamilyMember();
         break;
     case 'addFamilyRelationship':
         addFamilyRelationship();
         break;
+    case 'deleteFamilyMember':
+        deleteFamilyMember();
+        break;
+    case 'deleteFamilyRelationship':
+        deleteFamilyRelationship();
+        break;
     case 'getAllRelationships':
         getAllRelationships();
+        break;
+    case 'getFamilyMembers':
+        getFamilyMembers();
+        break;
+    case 'getFamilyRelationshipTypes':
+        getFamilyRelationshipTypes();
         break;
     default:
         $badResult = new Result();
         $badResult->setSuccess(false);
-        $badResult->addMessage(3,"why are we here?");
+        $badResult->addMessage(3,"Problem in ajax.php main method");
+        $badResult->addMessage(3,"unhandled action:".$_GET['action']);
         echo $badResult->getResultString();
         exit();
 }

@@ -1,9 +1,6 @@
 let relationshipType = 1;
 let maintainFamilyFirstName = null;
 let maintainFamilyLastName = null;
-function callBackend(){
-    document.getElementById("test_space").innerText = "did this work";
-}
 async function fetchFile(){
     myObject = await fetch("files/random.txt");
     myText = await myObject.text();
@@ -29,7 +26,7 @@ function getStandardDbResponse(response){
     return standardArray['body'];
 }
 function clearMessageSpace(){
-    document.getElementById("messageSpace").innerHtml = "";
+    document.getElementById("messageSpace").innerHTML = "";
     document.getElementById("clearMessageSpaceButton").hidden = true;
 }
 function displayMessages(messageArray){
@@ -63,16 +60,22 @@ async function callAjax(type, values = {}){
             myUrl += '?' + queryString;
             responseHandler = defaultDisplay;
             break;
-        case 'getFamilyMembers':
-            myUrl += '?' + queryString;
-            break;
-        case 'getFamilyRelationshipTypes':
-            myUrl += '?' + queryString;
-            break;
         case 'addFamilyMember':
             myUrl += '?' + queryString;
             break;
         case 'addFamilyRelationship':
+            myUrl += '?' + queryString;
+            break;
+        case 'deleteFamilyMember':
+            myUrl += '?' + queryString;
+            break;
+        case 'deleteFamilyRelationship':
+            myUrl += '?' + queryString;
+            break;
+        case 'getFamilyMembers':
+            myUrl += '?' + queryString;
+            break;
+        case 'getFamilyRelationshipTypes':
             myUrl += '?' + queryString;
             break;
         case 'getAllRelationships':
@@ -150,10 +153,21 @@ function maintainFamilyCreateFamilyMemberTable(familyArray){
     document.getElementById("showFamilyMembers").innerHTML = text;
 }
 async function maintainFamilyDeleteFamilyMember(){
-    alert(maintainFamilyDeleteFamilyMember.name +" is under construction");
+    boxesArray = document.getElementsByName("familyMemberCheckbox");
+    values = {};
+    idsArray = getCheckedIds(boxesArray);
+    values.ids = JSON.stringify(idsArray);
+    deleteResponse = callAjax('deleteFamilyMember', values);
 }
 async function maintainFamilyDeleteRelationship(){
-    alert(maintainFamilyDeleteRelationship.name +" is under construction");
+    boxesArray = document.getElementsByName("familyRelationshipCheckbox");
+    values = {};
+    idsArray = getCheckedIds(boxesArray);
+    values.ids = JSON.stringify(idsArray);
+    deleteResponse = callAjax('deleteFamilyRelationship', values);
+}
+function getCheckedIds(myArray){
+    return myArray.filter((element)=> element.checked).map((element) => element.value);
 }
 function generateCheckBoxId(prefix,ii){
     return prefix+ii;
@@ -221,4 +235,14 @@ function getValueFromJson(json,choice){
 }
 function selectRelationshipType(selection){
     relationshipType = selection.value;
+    parent = document.getElementById("parentLabel");
+    child = document.getElementById("childLabel");
+    if(relationshipType == 1){
+        parent.text = "Parent";
+        child.text = "Child";
+    }
+    else{
+        parent.text = "Spouse A";
+        child.text = "Spouse B";
+    }
 }

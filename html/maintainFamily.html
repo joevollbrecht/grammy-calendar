@@ -6,14 +6,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body onload="maintainFamilyInit()">
-        <div id="messageSpace">
-        </div>
+        <div id="messageSpace"></div>
         <button id="clearMessageSpaceButton" onclick="clearMessageSpace()" hidden>
             Clear Messages
         </button>
         <div class="row">
             <div class="column">
-                <div id="addFamilyMemberDiv">
+                <div id="addFamilyMemberDiv" class="divBox">
                     <h2>Add Family Member</h2>
                     <label>First Name<input type="text" id='firstName' name="firstName" onchange="maintainFamilyNameChanged(this)"></label>
                     <label>Last Name<input type="text" id='lastName' name="lastName" onchange="maintainFamilyNameChanged(this)"></label>
@@ -21,7 +20,7 @@
                 </div>
             </div>
             <div class="column">
-                <div id="maintainRelationship">
+                <div id="maintainRelationship" class="divBox">
                     <h2>Maintain Relationships</h2>
                     <div id="relationType" class="box" style="width: 225px;"></div>
                     <span id="parentLabel">Parent</span></span>
@@ -37,11 +36,11 @@
             </div>
         </div>
         <div class="row">
-            <div class="column">
+            <div class="column" class="divBox">
                 <button id="deleteFamilyMembers" onclick="maintainFamilyDeleteFamilyMember()" disabled>Delete Selected Family Members</button>
                 <div id="showFamilyMembers" class="fixTableHead"></div>
             </div>
-            <div class="column">
+            <div class="column" class="divBox">
                 <button id="deleteFamilyRelations" onclick="maintainFamilyDeleteRelationship()" disabled>Remove Selected Relationships</button>
                 <div id="showFamilyRelations" class="fixTableHead"></div>
             </div>

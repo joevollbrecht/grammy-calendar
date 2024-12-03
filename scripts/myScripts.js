@@ -134,7 +134,6 @@ async function maintainFamilyLoadFamilyRelationships(){
         text += '</tr>';
     }
     text += "</table>";
-    text += "<br><button id='fetch_button' onclick='maintainFamilyDeleteRelationship()'>Delete Selected</button>"
     document.getElementById("showFamilyRelations").innerHTML = text;
 }
 function maintainFamilyActivateDeleteRelationshipButton(checkbox){

@@ -27,10 +27,6 @@ body {
 label{
   padding-right: 20px;
 }
-.row {
-  display: flex;
-  margin-right:-5px;
-}
 
 .fixTableHead {
   overflow-y: auto;
@@ -40,6 +36,15 @@ label{
 .fixTableHead thead th {
     position: sticky;
     top: 0;
+}
+.divBox{
+  border: 2px solid rgb(96 139 168);
+  border-radius: 5px;
+  margin: 1;
+}
+.row {
+  display: flex;
+  margin-right:-5px;
 }
 
 .column {

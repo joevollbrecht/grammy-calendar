@@ -103,21 +103,26 @@ function populateFamilySelecter(familyArray,elementName){
     });
 }
 async function maintainEventsInit(){
-
+    maintainEventLoadEventData();
+    maintainEventLoadFamilyData();
 }
 async function maintainEventAddEvent(){
     values = {};
     values.name = maintainEventEventName;
     let addResponse = callAjax("addEvent",values);  
 }
-function maintainEventEventChanged(member){
-    maintainEventEventName = member.value;
-    document.getElementById("addFamilyEvent").disabled = maintainEventEventName != null?false:true;
-}
 function maintainEventClearEventInputs(){
     maintainEventEventName = null;
     document.getElementById('eventName').value = null;
-    document.getElementById("addFamilyEvent").disabled = true;
+    document.getElementById("addEvent").disabled = true;
+}
+function maintainEventEventChanged(member){
+    maintainEventEventName = member.value;
+    document.getElementById("addEvent").disabled = maintainEventEventName != null?false:true;
+}
+async function maintainEventLoadFamilyData(){
+    let familyArray = await callAjax('getFamilyMembers');
+    populateFamilySelecter(familyArray,"inviteeSelect");
 }
 function maintainFamilyCreateEventTable(eventArray){
     let text = "<table style='width:500;'>";
@@ -166,13 +171,15 @@ async function maintainFamilyInit(){
 async function maintainFamilyLoadFamilyData(){
     let familyArray = await callAjax('getFamilyMembers');
     maintainFamilyCreateFamilyMemberTable(familyArray);
-    let parentSelect = document.getElementById("parentSelect");
-    let childSelect = document.getElementById("childSelect");
-    parentSelect.length = childSelect.length = 1;
-    familyArray.forEach((element, key) => {
-        parentSelect[parentSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
-        childSelect[childSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
-    });
+    populateFamilySelecter(familyArray,"parentSelect");
+    populateFamilySelecter(familyArray,"childSelect");
+    // let parentSelect = document.getElementById("parentSelect");
+    // let childSelect = document.getElementById("childSelect");
+    // parentSelect.length = childSelect.length = 1;
+    // familyArray.forEach((element, key) => {
+    //     parentSelect[parentSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
+    //     childSelect[childSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
+    // });
 }
 async function maintainFamilyLoadFamilyRelationships(){
     let familyArray = await callAjax('getAllRelationships');

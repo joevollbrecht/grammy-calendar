@@ -110,7 +110,8 @@ async function maintainEventsInit(){
 async function maintainEventAddEvent(){
     values = {};
     values.name = maintainEventEventName;
-    let addResponse = callAjax("addEvent",values);  
+    let addResponse = callAjax("addEvent",values);
+    maintainEventLoadEventData();
 }
 async function maintainEventAddInvitees(){
     let values = {};
@@ -168,7 +169,7 @@ async function maintainEventLoadEventData(){
     maintainEventCreateEventTable(eventArray);
     let eventSelect = document.getElementById("eventSelect");
     eventSelect.length = 1;
-    familyArray.forEach((element, key) => {
+    eventArray.forEach((element, key) => {
         eventSelect[eventSelect.options.length] = new Option(element.name, id);
     });
 }

@@ -2,6 +2,7 @@
 require_once 'dbConnect.php';
 include_once 'ResultClass.php';
 include_once 'BaseClass.php';
+include_once 'Event.php';
 include_once 'FamilyMemberClass.php';
 include_once 'FamilyRelationshipClass.php';
 include_once 'FamilyRelationshipTypeClass.php';

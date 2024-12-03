@@ -95,7 +95,6 @@ function getStandardDbResponse(response){
 }
 
 function populateFamilySelecter(familyArray,elementName){
-    maintainFamilyCreateFamilyMemberTable(familyArray);
     let select = document.getElementById(elementName);
     select.length = 1;
     familyArray.forEach((element, key) => {

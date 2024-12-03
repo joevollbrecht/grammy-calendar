@@ -77,6 +77,9 @@ switch ($_GET['action']){
     case 'getAllRelationships':
         getAllRelationships();
         break;
+    case 'getEvents':
+        getEvents();
+        break;
     case 'getFamilyMembers':
         getFamilyMembers();
         break;

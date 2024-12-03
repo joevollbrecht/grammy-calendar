@@ -83,7 +83,7 @@ async function callAjax(type, values = {}){
             break;
         default:
             console.log("in default with type="+type);
-            response = "hit the default";
+            response = "hit the default with type="+type;
             document.getElementById("message_space").innerText = response;
             return;
         }
@@ -126,15 +126,20 @@ async function maintainFamilyLoadFamilyRelationships(){
         text += '<tr>';
         let member = familyArray[ii];
         text += "<td class='tdCenter'><input type='checkbox' name='familyRelationshipCheckbox' id='" 
-            + generateCheckBoxId("fmcheck",ii) +"' value=" + member.id + "></td>";
-            text += "<td>" + member.parentName + "</td>";
-            text += "<td>" + member.type + "</td>";
-            text += "<td>" + member.childName + "</td>";
-            text += '</tr>';
+            + generateCheckBoxId("fmcheck",ii) +"' value=" + member.id +
+            + " onchange='maintainFamilyActivateDeleteRelationshipButton(this)'></td>";
+        text += "<td>" + member.parentName + "</td>";
+        text += "<td>" + member.type + "</td>";
+        text += "<td>" + member.childName + "</td>";
+        text += '</tr>';
     }
     text += "</table>";
     text += "<br><button id='fetch_button' onclick='maintainFamilyDeleteRelationship()'>Delete Selected</button>"
     document.getElementById("showFamilyRelations").innerHTML = text;
+}
+function maintainFamilyActivateDeleteRelationshipButton(checkbox){
+    idsArray = getCheckedValuesForName(checkbox.name);
+    document.getElementById("deleteFamilyRelations").disabled = idsArray.length==0?true:false;
 }
 function maintainFamilyCreateFamilyMemberTable(familyArray){
     let text = "<table style='width:225;'>";
@@ -144,33 +149,37 @@ function maintainFamilyCreateFamilyMemberTable(familyArray){
         text += '<tr>';
         let member = familyArray[ii];
         text += "<td class='tdCenter'><input type='checkbox' name='familyMemberCheckbox' id='" 
-            + generateCheckBoxId("relcheck",ii) + "' value=" + member.id + "></td>";
+            + generateCheckBoxId("relcheck",ii) + "' value=" + member.id 
+            + " onchange='maintainFamilyActivateDeleteFamilyButton(this)'></td>";
         text += "<td>" + member.fullName + "</td>";
         text += '</tr>';
     }
     text += "</table>";
-    text += "<br><button id='fetch_button' onclick='maintainFamilyDeleteFamilyMember()'>Delete Selected</button>"
+    //text += "<br><button id='fetch_button' onclick='maintainFamilyDeleteFamilyMember()'>Delete Selected</button>"
     document.getElementById("showFamilyMembers").innerHTML = text;
 }
+function maintainFamilyActivateDeleteFamilyButton(checkbox){
+    idsArray = getCheckedValuesForName(checkbox.name);
+    document.getElementById("deleteFamilyMembers").disabled = idsArray.length==0?true:false;
+}
 async function maintainFamilyDeleteFamilyMember(){
-    boxesArray = document.getElementsByName("familyMemberCheckbox");
+    idsArray = getCheckedValuesForName("familyMemberCheckbox");
     values = {};
-    idsArray = getCheckedValues(boxesArray);
     values.ids = JSON.stringify(idsArray);
     deleteResponse = await callAjax('deleteFamilyMember', values);
     maintainFamilyLoadFamilyData();
     maintainFamilyLoadFamilyRelationships();
 }
 async function maintainFamilyDeleteRelationship(){
-    boxesArray = document.getElementsByName("familyRelationshipCheckbox");
+    idsArray = getCheckedValuesForName("familyRelationshipCheckbox");
     values = {};
-    idsArray = getCheckedValues(boxesArray);
     values.ids = JSON.stringify(idsArray);
     deleteResponse = await callAjax('deleteFamilyRelationship', values);
     maintainFamilyLoadFamilyRelationships();
 }
-function getCheckedValues(boxes){
-    return Object.entries(boxes).filter((key, element)=>{key[1].checked}).map((key,element) => key[1].value);
+function getCheckedValuesForName(name){
+    boxes = document.getElementsByName(name);
+    return Object.entries(boxes).filter((key, element)=>key[1].checked).map((key,element) => key[1].value);
 }
 function generateCheckBoxId(prefix,ii){
     return prefix+ii;

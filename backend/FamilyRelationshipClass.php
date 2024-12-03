@@ -22,7 +22,8 @@ class FamilyRelationship extends Base{
         return self::$result;
     }
     static public function getAll(){
-        $myStatement = self::$conn->prepare("SELECT * FROM FamilyRelationship");
+        $myStatement = self::$conn->prepare("SELECT * FROM FamilyRelationship
+            ORDER BY familyMemberId1, familyRelationshipTypeId DESC, familyMemberId2");
         $myStatement->execute();
         $retVal = array();
         while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){

@@ -36,7 +36,7 @@ class Event extends Base{
     static public function insert(string $name){
         $myStatement = self::$conn->prepare("INSERT INTO `Event` 
             (`name`) 
-            VALUES ('".$name."'");
+            VALUES ('".$name."')");
         $myStatement->execute();
         self::$result->setSuccess(true);
         self::$result->addMessage(1,"inserted ".$myStatement->rowCount()." rows");

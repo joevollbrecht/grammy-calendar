@@ -33,20 +33,13 @@ class Event extends Base{
         self::$result->setBody($retVal);
         return self::$result;
     }
-    static public function insert(string $firstName, string $lastName){
-        $member = self::getByFirstLast($firstName,$lastName);
-        if(is_null($member)){
-            $myStatement = self::$conn->prepare("INSERT INTO `Event` 
-                (`firstName`, `lastName`) 
-                VALUES ('".$firstName."','".$lastName."')");
-            $myStatement->execute();
-            self::$result->setSuccess(true);
-            self::$result->addMessage(1,"inserted ".$myStatement->rowCount()." rows");
-        }
-        else{
-            self::$result->setSuccess(false);
-            self::$result->addmessage(2,"family member already exists");
-        }
+    static public function insert(string $name){
+        $myStatement = self::$conn->prepare("INSERT INTO `Event` 
+            (`name`) 
+            VALUES ('".$name."'");
+        $myStatement->execute();
+        self::$result->setSuccess(true);
+        self::$result->addMessage(1,"inserted ".$myStatement->rowCount()." rows");
         return self::$result;
     }
     static public function getByFirstLast(string $firstName, string $lastName){

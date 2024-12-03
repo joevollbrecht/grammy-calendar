@@ -52,6 +52,9 @@ switch ($_GET['action']){
     case 'addEvent':
         addEvent();
         break;
+    case 'addInvites':
+        addInvites();
+        break;
     case 'addFamilyMember':
         addFamilyMember();
         break;

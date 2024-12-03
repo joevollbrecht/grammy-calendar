@@ -155,7 +155,7 @@ function maintainFamilyCreateFamilyMemberTable(familyArray){
 async function maintainFamilyDeleteFamilyMember(){
     boxesArray = document.getElementsByName("familyMemberCheckbox");
     values = {};
-    idsArray = getCheckedIds(boxesArray);
+    idsArray = getCheckedValues(boxesArray);
     values.ids = JSON.stringify(idsArray);
     deleteResponse = await callAjax('deleteFamilyMember', values);
     maintainFamilyLoadFamilyData();
@@ -164,12 +164,12 @@ async function maintainFamilyDeleteFamilyMember(){
 async function maintainFamilyDeleteRelationship(){
     boxesArray = document.getElementsByName("familyRelationshipCheckbox");
     values = {};
-    idsArray = getCheckedIds(boxesArray);
+    idsArray = getCheckedValues(boxesArray);
     values.ids = JSON.stringify(idsArray);
     deleteResponse = await callAjax('deleteFamilyRelationship', values);
     maintainFamilyLoadFamilyRelationships();
 }
-function getCheckedIds(myArray){
+function getCheckedValues(boxes){
     return Object.entries(boxes).filter((key, element)=>{key[1].checked}).map((key,element) => key[1].value);
 }
 function generateCheckBoxId(prefix,ii){

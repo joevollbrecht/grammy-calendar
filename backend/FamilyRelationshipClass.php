@@ -22,8 +22,7 @@ class FamilyRelationship extends Base{
         return self::$result;
     }
     static public function getAll(){
-        $myStatement = self::$conn->prepare("SELECT * FROM FamilyRelationship
-            ORDER BY familyMemberId1, familyRelationshipTypeId DESC, familyMemberId2");
+        $myStatement = self::$conn->prepare("SELECT * FROM FamilyRelationship");
         $myStatement->execute();
         $retVal = array();
         while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
@@ -34,7 +33,12 @@ class FamilyRelationship extends Base{
         return self::$result;
     }
     static public function getAllRelationships(){
-        $myStatement = self::$conn->prepare("SELECT fr.id, parent.fullname as parentName, child.fullName as childName, t.type FROM `FamilyRelationship` fr JOIN FamilyMember parent on parent.id = fr.familyMemberId1 JOIN FamilyMember child on child.id = fr.familyMemberId2 JOIN FamilyRelationshipType t on t.id = fr.familyRelationshipTypeId;");
+        $myStatement = self::$conn->prepare("SELECT fr.id, parent.fullname as parentName, child.fullName as childName, t.type 
+            FROM `FamilyRelationship` fr 
+            JOIN FamilyMember parent on parent.id = fr.familyMemberId1 
+            JOIN FamilyMember child on child.id = fr.familyMemberId2 
+            JOIN FamilyRelationshipType t on t.id = fr.familyRelationshipTypeId
+            ORDER BY fr.familyMemberId1, fr.familyRelationshipTypeId DESC, fr.familyMemberId2;");
         $myStatement->execute();
         $retVal = array();
         while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){

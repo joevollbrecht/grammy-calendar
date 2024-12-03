@@ -115,8 +115,8 @@ async function maintainEventAddEvent(){
 }
 async function maintainEventAddInvitees(){
     let values = {};
-    values.eventId = getElementById("eventSelect").value;
-    let invitees = getElementById("inviteeSelect").selectedOptions;
+    values.eventId = document.getElementById("eventSelect").value;
+    let invitees = document.getElementById("inviteeSelect").selectedOptions;
     let inviteeIds = [];
     for(let ii = 0;ii<invitees.length;ii++){
         inviteeIds.push( getValueFromJson(invitees[ii].value,"id"));
@@ -134,13 +134,12 @@ function maintainEventEventChanged(member){
     document.getElementById("addEvent").disabled = maintainEventEventName != null?false:true;
 }
 function maintainEventEventSelected(){
-    items = getElementById("eventSelect").selectedOptions;
-    getElementById("inviteeSelect").disabled = items.length?false:true;
-
+    items = document.getElementById("eventSelect").selectedOptions;
+    document.getElementById("inviteeSelect").disabled = items.length?false:true;
 }
 function maintainEventInviteeSelected(){
-    items = getElementById("inviteeSelect").selectedOptions;
-    getElementById("addInvitees").disabled = items.length?false:true;
+    items = document.getElementById("inviteeSelect").selectedOptions;
+    document.getElementById("addInvitees").disabled = items.length?false:true;
 }
 async function maintainEventLoadFamilyData(){
     let familyArray = await callAjax('getFamilyMembers');

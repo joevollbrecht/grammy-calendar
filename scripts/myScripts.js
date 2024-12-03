@@ -170,7 +170,7 @@ async function maintainEventLoadEventData(){
     let eventSelect = document.getElementById("eventSelect");
     eventSelect.length = 1;
     eventArray.forEach((element, key) => {
-        eventSelect[eventSelect.options.length] = new Option(element.name, id);
+        eventSelect[eventSelect.options.length] = new Option(element.name, element.id);
     });
 }
 async function maintainFamilyInit(){

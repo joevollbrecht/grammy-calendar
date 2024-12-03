@@ -157,17 +157,20 @@ async function maintainFamilyDeleteFamilyMember(){
     values = {};
     idsArray = getCheckedIds(boxesArray);
     values.ids = JSON.stringify(idsArray);
-    deleteResponse = callAjax('deleteFamilyMember', values);
+    deleteResponse = await callAjax('deleteFamilyMember', values);
+    maintainFamilyLoadFamilyData();
+    maintainFamilyLoadFamilyRelationships();
 }
 async function maintainFamilyDeleteRelationship(){
     boxesArray = document.getElementsByName("familyRelationshipCheckbox");
     values = {};
     idsArray = getCheckedIds(boxesArray);
     values.ids = JSON.stringify(idsArray);
-    deleteResponse = callAjax('deleteFamilyRelationship', values);
+    deleteResponse = await callAjax('deleteFamilyRelationship', values);
+    maintainFamilyLoadFamilyRelationships();
 }
 function getCheckedIds(myArray){
-    return myArray.filter((element)=> element.checked).map((element) => element.value);
+    return Object.entries(boxes).filter((key, element)=>{key[1].checked}).map((key,element) => key[1].value);
 }
 function generateCheckBoxId(prefix,ii){
     return prefix+ii;
@@ -238,11 +241,11 @@ function selectRelationshipType(selection){
     parent = document.getElementById("parentLabel");
     child = document.getElementById("childLabel");
     if(relationshipType == 1){
-        parent.text = "Parent";
-        child.text = "Child";
+        parent.innerText = "Parent";
+        child.innerText = "Child";
     }
     else{
-        parent.text = "Spouse A";
-        child.text = "Spouse B";
+        parent.innerText = "Spouse A";
+        child.innerText = "Spouse B";
     }
 }

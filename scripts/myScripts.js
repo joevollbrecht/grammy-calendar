@@ -13,48 +13,20 @@ async function callAjax(type, values = {}){
         .join('&');
     switch(type){
         case 'addEvent':
-            myUrl += '?' + queryString;
-            break;
         case 'addFamilyMember':
-            myUrl += '?' + queryString;
-            break;
         case 'addFamilyRelationship':
-            myUrl += '?' + queryString;
-            break;
         case 'addInvites':
-            myUrl += '?' + queryString;
-            break;
         case 'deleteEvents':
-            myUrl += '?' + queryString;
-            break;
         case 'deleteInvites':
-            myUrl += '?' + queryString;
-            break;
         case 'deleteFamilyMember':
-            myUrl += '?' + queryString;
-            break;
         case 'deleteFamilyRelationship':
-            myUrl += '?' + queryString;
-            break;
         case 'getAllEventRelationships':
-            myUrl += '?' + queryString;
-            break;
         case 'getAllRelationships':
-            myUrl += '?' + queryString;
-            break;
         case 'getEventInviteStatuses':
-            myUrl += '?' + queryString;
-            break;
         case 'getEvents':
-            myUrl += '?' + queryString;
-            break;
         case 'getFamilyMembers':
-            myUrl += '?' + queryString;
-            break;
         case 'getFamilyRelationshipTypes':
-            myUrl += '?' + queryString;
-            break;
-        case 'updateInvites':
+        case 'updateInviteStatuses':
             myUrl += '?' + queryString;
             break;
         default:
@@ -253,11 +225,11 @@ async function maintainEventUpdateInvites(){
         let elementId = myRegEx.exec(idsArray[ii].id);
         let selIdString = generateElementId("inviteStatusSelect", elementId);
         let selId = document.getElementById(selIdString).value;
-        updates.push({"id":idsArray.value,"newStatus":selId})
+        updates.push({"id":idsArray[ii].value,"newStatus":selId})
     }
     values = {};
     values.updates = JSON.stringify(updates);
-    deleteResponse = await callAjax('updateInvites', values);
+    deleteResponse = await callAjax('updateInviteStatuses', values);
     maintainEventCreateInviteTable();
 }
 async function maintainEventLoadEventData(){

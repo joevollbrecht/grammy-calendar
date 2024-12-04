@@ -27,13 +27,13 @@ function deleteFamilyRelationship(){
     echo FamilyRelationship::delete(json_decode($_GET['ids']))->getResultString();
 }
 function getAllEventRelationships(){
-    echo EventInviteRelationship::getAllRelationships()->getResultString();
+    echo EventInvite::getAllRelationships()->getResultString();
 }
 function getAllRelationships(){
     echo FamilyRelationship::getAllRelationships()->getResultString();
 }
 function getEventInviteStatuses(){
-    echo EventInviteStatus::getAll()->getResultsString();
+    echo EventInviteStatus::getAll()->getResultString();
 }
 function getEvents(){
     echo Event::getAll()->getResultString();

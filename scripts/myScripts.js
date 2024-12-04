@@ -54,6 +54,9 @@ async function callAjax(type, values = {}){
         case 'getFamilyRelationshipTypes':
             myUrl += '?' + queryString;
             break;
+        case 'updateInvites':
+            myUrl += '?' + queryString;
+            break;
         default:
             console.log("in default with type="+type);
             response = "hit the default with type="+type;

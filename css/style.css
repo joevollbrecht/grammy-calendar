@@ -27,6 +27,40 @@ body {
 label{
   padding-right: 20px;
 }
+.accordion {
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.accordionActive, .accordion:hover {
+  background-color: #555;
+}
+
+.accordionContent {
+  padding: 0 18px;
+  display: none;
+  overflow: hidden;
+  background-color: #f1f1f1;
+}
+.box {
+  border: 1px solid black;
+}
+.column {
+  flex: 30%;
+  padding: 5px;
+}
+.divBox{
+  border: 2px solid rgb(96 139 168);
+  border-radius: 5px;
+  margin: 1;
+}
 
 .fixTableHead {
   overflow-y: auto;
@@ -37,23 +71,6 @@ label{
     position: sticky;
     top: 0;
 }
-.divBox{
-  border: 2px solid rgb(96 139 168);
-  border-radius: 5px;
-  margin: 1;
-}
-.row {
-  display: flex;
-  margin-right:-5px;
-}
-
-.column {
-  flex: 30%;
-  padding: 5px;
-}
-.box {
-  border: 1px solid black;
-}
 .messageInfo {
   background: lightgreen;
 }
@@ -62,6 +79,10 @@ label{
 }
 .messageError {
   background: red
+}
+.row {
+  display: flex;
+  margin-right:-5px;
 }
 .tdCenter{
   text-align: center;

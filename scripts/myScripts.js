@@ -97,6 +97,21 @@ function getValueFromJson(json,choice){
     let tempArray = JSON.parse(json);
     return tempArray[choice];
 }
+function initAccordions(){
+    let coll = document.getElementsByClassName("accordion");
+    let i;
+    
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("accordionActive");
+        var content = this.nextElementSibling;
+        if (content.style.display === "block") {
+          content.style.display = "none";
+        } else {
+          content.style.display = "block";
+        }
+      });
+    }}
 
 function populateFamilySelecter(familyArray,elementName){
     let select = document.getElementById(elementName);

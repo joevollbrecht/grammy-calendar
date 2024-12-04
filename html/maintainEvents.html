@@ -36,11 +36,14 @@
                 <div id="showEvents" class="fixTableHead"></div>
             </div>
             <div class="column divBox">
-                <button id="deleteInvites" onclick="maintainEventDeleteInvites()" disabled>Delete Selected</button>
-                <button id="updateInvites" onclick="maintainEventUpdateInvites()" disabled>Update Selected</button>
-                <div id="showInvites" class="fixTableHead"></div>
             </div>
         </div>
+        <button type="button" class="accordion" id="maintainInvitesAccordion">Open Maintain Invites</button>
+        <div class="accordionContent">
+            <button id="deleteInvites" onclick="maintainEventDeleteInvites()" disabled>Delete Selected</button>
+            <button id="updateInvites" onclick="maintainEventUpdateInvites()" disabled>Update Selected</button>
+            <div id="showInvites" class="fixTableHead"></div>        
+        </div>        
         <div id="messageSpace"></div>
         <button id="clearMessageSpaceButton" onclick="clearMessageSpace()" hidden>
             Clear Messages

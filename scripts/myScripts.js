@@ -1,4 +1,5 @@
 let eventInviteStatuses = null;
+let extractElementIdNumberRegEx = new RegExp(/[^_]{1,}$/);
 let maintainFamilyFirstName = null;
 let maintainFamilyLastName = null;
 let maintainEventEventName = null;
@@ -60,11 +61,15 @@ function displayMessages(messageArray){
     } else if(displayHtml.length) element.innerHTML = displayHtml;
     document.getElementById("clearMessageSpaceButton").hidden = element.innerHTML.length?false:true;
 }
+function extractElementIdNumber(id){
+    return extractElementIdNumberRegEx.exec(id);
+}
 function generateElementId(prefix,ii){
     return prefix + "__" + ii;
 }
-function generateIdSelector(options, selectedId, idString="", nameString = ""){
-    let retVal = "<select id='" + idString + "' name='" + nameString + "'>";
+function generateIdSelector(options, selectedId, idString="", nameString = "", onChange=""){
+    let myFunction = onChange==""?onChange:"onchange='"+onChange+"'";
+    let retVal = "<select id='" + idString + "' name='" + nameString + "' " + myFunction + ">";
     let selected = "";
     options.forEach((element, key) => {
         selected = element.id == selectedId?" selected":"";
@@ -127,6 +132,7 @@ async function maintainEventsInit(){
     maintainEventLoadEventData();
     maintainEventLoadFamilyData();
     maintainEventCreateInviteTable();
+    initAccordions();
 }
 function maintainEventActivateDeleteEventButton(checkbox){
     let invitees = getCheckedValuesForName(checkbox.name);
@@ -154,6 +160,11 @@ async function maintainEventAddInvitees(){
     values.familyIds = JSON.stringify(inviteeIds);
     let addResponse = await callAjax("addInvites", values);
     maintainEventCreateInviteTable();
+}
+function maintainEventAutoSelectInviteRow(member){
+    maintainEventEventName = member.value;
+    let ii = extractElementIdNumber(member.id);
+    document.getElementById(generateElementId("evtInviteCheck",ii)).checked = true;
 }
 function maintainEventClearEventInputs(){
     maintainEventEventName = null;
@@ -191,11 +202,11 @@ async function maintainEventCreateInviteTable(){
         let member = eventArray[ii];
         let selId = generateElementId("inviteStatusSelect", ii);
         text += "<td class='tdCenter'><input type='checkbox' name='eventInviteCheckbox' id='" 
-            + generateElementId("evtInvitecheck",ii) + "' value=" + member.id 
+            + generateElementId("evtInviteCheck",ii) + "' value=" + member.id 
             + " onchange='maintainEventActivateEventButtons(this)'></td>";
             text += "<td>" + member.eventName + "</td>";
             text += "<td>" + member.fullName + "</td>";
-            text += "<td>" + generateIdSelector(eventInviteStatuses, member.statusId, selId) + "</td>";
+            text += "<td>" + generateIdSelector(eventInviteStatuses, member.statusId, selId, "maintainEventAutoSelectInviteRow(this)") + "</td>";
             text += '</tr>';
     }
     text += "</table>";

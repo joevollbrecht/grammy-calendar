@@ -31,7 +31,7 @@ label{
   background-color: #777;
   color: white;
   cursor: pointer;
-  padding: 18px;
+  padding: 5px;
   width: 100%;
   border: none;
   text-align: left;
@@ -44,7 +44,7 @@ label{
 }
 
 .accordionContent {
-  padding: 0 18px;
+  padding: 0 5px;
   display: none;
   overflow: hidden;
   background-color: #f1f1f1;
@@ -83,6 +83,15 @@ label{
 .row {
   display: flex;
   margin-right:-5px;
+}
+.spanCenter {
+  display:table;
+  margin-left:auto;
+  margin-right:auto;
+}
+.tableCenter {
+  margin-left: auto;
+  margin-right: auto;
 }
 .tdCenter{
   text-align: center;

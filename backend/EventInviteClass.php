@@ -36,7 +36,7 @@ class EventInvite extends Base{
         $myStatement = self::$conn->prepare("SELECT invite.id,
             ev.name as eventName, ev.id as eventId,
             fm.fullName as fullName, fm.id as familyId,
-            t.type 
+            t.type as inviteStatus, t.id as statusId
             FROM `EventInvite` invite 
             JOIN FamilyMember fm on fm.id = invite.familyMemberId
             JOIN Event ev on ev.id = invite.eventId 

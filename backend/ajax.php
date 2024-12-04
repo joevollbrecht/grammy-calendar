@@ -20,6 +20,9 @@ function addFamilyRelationship(){
 function addInvites(){
     echo EventInvite::insert($_GET['eventId'],json_decode($_GET['familyIds']))->getResultString();
 }
+function deleteEvents(){
+    echo Event::delete(json_decode($_GET['ids']))->getResultString();
+}
 function deleteFamilyMember(){
     echo FamilyMember::delete(json_decode($_GET['ids']))->getResultString();
 }
@@ -64,6 +67,9 @@ switch ($_GET['action']){
         break;
     case 'addFamilyRelationship':
         addFamilyRelationship();
+        break;
+    case 'deleteEvents':
+        deleteEvents();
         break;
     case 'deleteFamilyMember':
         deleteFamilyMember();

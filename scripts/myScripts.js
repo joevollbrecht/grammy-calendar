@@ -11,7 +11,6 @@ async function callAjax(type, values = {}){
     let queryString = Object.keys(values)
         .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(values[k]))
         .join('&');
-    console.log(['got type:' + type,queryString]);
     switch(type){
         case 'addEvent':
             myUrl += '?' + queryString;
@@ -23,6 +22,9 @@ async function callAjax(type, values = {}){
             myUrl += '?' + queryString;
             break;
         case 'addInvites':
+            myUrl += '?' + queryString;
+            break;
+        case 'deleteEvents':
             myUrl += '?' + queryString;
             break;
         case 'deleteFamilyMember':
@@ -80,17 +82,28 @@ function displayMessages(messageArray){
     } else if(displayHtml.length) element.innerHTML = displayHtml;
     document.getElementById("clearMessageSpaceButton").hidden = element.innerHTML.length?false:true;
 }
-function familyMemberSelected(selection){
-    console.log("familyMemberSelected, selected:"+selection.value);
+function generateElementId(prefix,ii){
+    return prefix + "__" + ii;
+}
+function generateIdSelector(options, selectedId, idString="", nameString = ""){
+    let retVal = "<select id='" + idString + "' name='" + nameString + "'>";
+    let selected = "";
+    options.forEach((element, key) => {
+        selected = element.id == selectedId?" selected":"";
+        retVal += "<option value=" + element.id + selected + ">" + element.type + "</option>";
+    });
+    retVal += "</select>";
+}
+function getCheckedValuesForName(name){
+    boxes = document.getElementsByName(name);
+    return Object.entries(boxes).filter((key, element)=>key[1].checked).map((key,element) => key[1].value);
 }
 function getFamilyMembers(response){
     familyArray = JSON.parse(response);
-    console.log([familyArray]);
     return familyArray['body'];
 }
 function getStandardDbResponse(response){
     standardArray = JSON.parse(response);
-    console.log([standardArray]);
     if(standardArray.hasOwnProperty("messages")){
         displayMessages(standardArray["messages"]);
     }
@@ -117,8 +130,12 @@ async function maintainEventsInit(){
     maintainEventCreateInviteTable();
     retrieveEventInviteStatuses();
 }
-function maintainEventActivateEventButtons(element){
-    let invitees = document.getElementById("inviteeSelect").selectedOptions;
+function maintainEventActivateDeleteEventButton(checkbox){
+    let invitees = getCheckedValuesForName(checkbox.name);
+    document.getElementById("deleteEvents").disabled = invitees.length?false:true;
+}
+function maintainEventActivateEventButtons(checkbox){
+    let invitees = getCheckedValuesForName(checkbox.name);
     document.getElementById("deleteInvites").disabled = invitees.length?false:true;
     document.getElementById("updateInvites").disabled = invitees.length?false:true;
 }
@@ -144,6 +161,14 @@ function maintainEventClearEventInputs(){
     document.getElementById('eventName').value = null;
     document.getElementById("addEvent").disabled = true;
 }
+async function maintainEventDeleteEvents(){
+    idsArray = getCheckedValuesForName("eventCheckbox");
+    values = {};
+    values.ids = JSON.stringify(idsArray);
+    deleteResponse = await callAjax('deleteEvents', values);
+    maintainEventLoadEventData();
+    maintainEventCreateInviteTable();
+}
 function maintainEventEventChanged(member){
     maintainEventEventName = member.value;
     document.getElementById("addEvent").disabled = maintainEventEventName != null?false:true;
@@ -168,7 +193,7 @@ function maintainEventCreateEventTable(eventArray){
         text += '<tr>';
         let member = eventArray[ii];
         text += "<td class='tdCenter'><input type='checkbox' name='eventCheckbox' id='" 
-            + generateCheckBoxId("evtcheck",ii) + "' value=" + member.id 
+            + generateElementId("evtcheck",ii) + "' value=" + member.id 
             + " onchange='maintainEventActivateDeleteEventButton(this)'></td>";
             text += "<td>" + member.name + "</td>";
             text += "<td>" + member.startDate + "</td>";
@@ -178,7 +203,7 @@ function maintainEventCreateEventTable(eventArray){
     text += "</table>";
     document.getElementById("showEvents").innerHTML = text;
 }
-async function maintainEventCreateInviteTable(eventArray){
+async function maintainEventCreateInviteTable(){
     eventArray = await callAjax('getAllEventRelationships');
     let text = "<table style='width:500;'>";
     text += "<thead><th>Sel</th><th>Event</th><th>Invitee</th><th>Status</th></thead>"
@@ -186,12 +211,13 @@ async function maintainEventCreateInviteTable(eventArray){
     for (let ii = 0; ii < eventArray.length; ii++) {
         text += '<tr>';
         let member = eventArray[ii];
+        let selId = generateElementId("inviteStatusSelect", ii);
         text += "<td class='tdCenter'><input type='checkbox' name='eventInviteCheckbox' id='" 
-            + generateCheckBoxId("evtInvitecheck",ii) + "' value=" + member.id 
+            + generateElementId("evtInvitecheck",ii) + "' value=" + member.id 
             + " onchange='maintainEventActivateEventButtons(this)'></td>";
             text += "<td>" + member.eventName + "</td>";
             text += "<td>" + member.fullName + "</td>";
-            text += "<td>" + member.type + "</td>";
+            text += "<td>" + generateIdSelector(eventInviteStatuses, member.statusId, selId) + "</td>";
             text += '</tr>';
     }
     text += "</table>";
@@ -236,7 +262,7 @@ async function maintainFamilyLoadFamilyRelationships(){
         text += '<tr>';
         let member = familyArray[ii];
         text += "<td class='tdCenter'><input type='checkbox' name='familyRelationshipCheckbox' id='" 
-            + generateCheckBoxId("fmcheck",ii) +"' value=" + member.id +
+            + generateElementId("fmcheck",ii) +"' value=" + member.id +
             + " onchange='maintainFamilyActivateDeleteRelationshipButton(this)'></td>";
         text += "<td>" + member.parentName + "</td>";
         text += "<td>" + member.type + "</td>";
@@ -258,7 +284,7 @@ function maintainFamilyCreateFamilyMemberTable(familyArray){
         text += '<tr>';
         let member = familyArray[ii];
         text += "<td class='tdCenter'><input type='checkbox' name='familyMemberCheckbox' id='" 
-            + generateCheckBoxId("relcheck",ii) + "' value=" + member.id 
+            + generateElementId("relcheck",ii) + "' value=" + member.id 
             + " onchange='maintainFamilyActivateDeleteFamilyButton(this)'></td>";
         text += "<td>" + member.fullName + "</td>";
         text += '</tr>';
@@ -286,13 +312,6 @@ async function maintainFamilyDeleteRelationship(){
     deleteResponse = await callAjax('deleteFamilyRelationship', values);
     maintainFamilyLoadFamilyRelationships();
 }
-function getCheckedValuesForName(name){
-    boxes = document.getElementsByName(name);
-    return Object.entries(boxes).filter((key, element)=>key[1].checked).map((key,element) => key[1].value);
-}
-function generateCheckBoxId(prefix,ii){
-    return prefix+ii;
-}
 function maintainFamilyParentSelected(){
     let parent = document.getElementById("parentSelect");
     let child = document.getElementById("childSelect");
@@ -307,7 +326,6 @@ function maintainFamilyParentSelected(){
             child.options[ii].disabled = child.options[ii].value == parent.value?true:false;
         }
     }
-    console.log(["parentSelected",parent.value,"childDisabled"+child.disabled]);
 }
 function maintainFamilyChildSelected(){
     let child = document.getElementById("childSelect");

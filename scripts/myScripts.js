@@ -107,6 +107,11 @@ async function maintainEventsInit(){
     maintainEventLoadEventData();
     maintainEventLoadFamilyData();
 }
+function maintainEventActivateEventButtons(element){
+    let invitees = document.getElementById("inviteeSelect").selectedOptions;
+    document.getElementById("deleteInvites").disabled = invitees.length?false:true;
+    document.getElementById("updateInvites").disabled = invitees.length?false:true;
+}
 async function maintainEventAddEvent(){
     values = {};
     values.name = maintainEventEventName;
@@ -162,6 +167,25 @@ function maintainEventCreateEventTable(eventArray){
     }
     text += "</table>";
     document.getElementById("showEvents").innerHTML = text;
+}
+async function maintainEventCreateInviteTable(eventArray){
+    eventArray = await callAjax('getAllEventRelationships');
+    let text = "<table style='width:500;'>";
+    text += "<thead><th>Sel</th><th>Event</th><th>Invitee</th><th>Status</th></thead>"
+
+    for (let ii = 0; ii < eventArray.length; ii++) {
+        text += '<tr>';
+        let member = eventArray[ii];
+        text += "<td class='tdCenter'><input type='checkbox' name='eventInviteCheckbox' id='" 
+            + generateCheckBoxId("evtInvitecheck",ii) + "' value=" + member.id 
+            + " onchange='maintainEventActivateEventButtons(this)'></td>";
+            text += "<td>" + member.eventName + "</td>";
+            text += "<td>" + member.fullName + "</td>";
+            text += "<td>" + member.type + "</td>";
+            text += '</tr>';
+    }
+    text += "</table>";
+    document.getElementById("showInvites").innerHTML = text;
 }
 async function maintainEventLoadEventData(){
     let eventArray = await callAjax('getEvents');

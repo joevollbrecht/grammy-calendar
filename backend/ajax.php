@@ -4,6 +4,7 @@ include_once 'ResultClass.php';
 include_once 'BaseClass.php';
 include_once 'EventClass.php';
 include_once 'EventInviteClass.php';
+include_once 'EventInviteStatus.php';
 include_once 'FamilyMemberClass.php';
 include_once 'FamilyRelationshipClass.php';
 include_once 'FamilyRelationshipTypeClass.php';
@@ -30,6 +31,9 @@ function getAllEventRelationships(){
 }
 function getAllRelationships(){
     echo FamilyRelationship::getAllRelationships()->getResultString();
+}
+function getEventInviteStatuses(){
+    echo EventInviteStatus::getAll()->getResultsString();
 }
 function getEvents(){
     echo Event::getAll()->getResultString();
@@ -72,6 +76,9 @@ switch ($_GET['action']){
         break;
     case 'getAllRelationships':
         getAllRelationships();
+        break;
+    case 'getEventInviteStatuses':
+        getEventInviteStatuses();
         break;
     case 'getEvents':
         getEvents();

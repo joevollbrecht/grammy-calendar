@@ -1,7 +1,9 @@
-let relationshipType = 1;
+let eventInviteStatuses = [];
 let maintainFamilyFirstName = null;
 let maintainFamilyLastName = null;
 let maintainEventEventName = null;
+let relationshipType = 1;
+
 async function callAjax(type, values = {}){
     let myUrl = '/backend/ajax.php';
     let responseHandler = getStandardDbResponse;
@@ -33,6 +35,9 @@ async function callAjax(type, values = {}){
             myUrl += '?' + queryString;
             break;
         case 'getAllRelationships':
+            myUrl += '?' + queryString;
+            break;
+        case 'getEventInviteStatuses':
             myUrl += '?' + queryString;
             break;
         case 'getEvents':
@@ -103,9 +108,14 @@ function populateFamilySelecter(familyArray,elementName){
         select[select.options.length] = new Option(element.fullName, JSON.stringify(element));
     });
 }
+async function retrieveEventInviteStatuses() {
+    eventInviteStatuses = await callAjax("getEventInviteStatuses");
+}
 async function maintainEventsInit(){
     maintainEventLoadEventData();
     maintainEventLoadFamilyData();
+    maintainEventCreateInviteTable();
+    retrieveEventInviteStatuses();
 }
 function maintainEventActivateEventButtons(element){
     let invitees = document.getElementById("inviteeSelect").selectedOptions;
@@ -216,13 +226,6 @@ async function maintainFamilyLoadFamilyData(){
     maintainFamilyCreateFamilyMemberTable(familyArray);
     populateFamilySelecter(familyArray,"parentSelect");
     populateFamilySelecter(familyArray,"childSelect");
-    // let parentSelect = document.getElementById("parentSelect");
-    // let childSelect = document.getElementById("childSelect");
-    // parentSelect.length = childSelect.length = 1;
-    // familyArray.forEach((element, key) => {
-    //     parentSelect[parentSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
-    //     childSelect[childSelect.options.length] = new Option(element.firstname+' '+element.lastname, JSON.stringify(element));
-    // });
 }
 async function maintainFamilyLoadFamilyRelationships(){
     let familyArray = await callAjax('getAllRelationships');

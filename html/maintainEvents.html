@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
         <title>Maintain Events</title>
@@ -6,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     </head>
-    <body onload="maintainEventsInit()">
+    <body onload="myInit('maintainEventsInit')">
         <div class="row">
             <div class="column">
                 <div id="addEventDiv" class="divBox">
@@ -24,20 +25,20 @@
                     </select>
                     <span id="inviteeSelectLabel">Invitee(s)</span>
                     <select id="inviteeSelect" name="inviteeSelect" multiple disabled onchange="maintainEventInviteeSelected()">
-                        <option value=-1 selected disabled>None</option>
+                        <option value=-1 disabled>None</option>
                     </select>
                     <button id="addInvitees" onclick="maintainEventAddInvitees()" disabled>Set Invites</button>
                 </div>
             </div>
         </div>
-        <button type="button" class="accordion" id="maintainEventsAccordion">Maintain Events</button>
+        <button type="button" class="accordion" id="maintainEventsAccordion" value="Maintain Events">Maintain Events</button>
         <div class="accordionContent">
             <span class="spanCenter">
                 <button id="deleteEvents" onclick="maintainEventDeleteEvents()" disabled>Delete Selected</button>
             </span>
             <div id="showEvents" class="fixTableHead"></div>
         </div>
-        <button type="button" class="accordion" id="maintainInvitesAccordion">Maintain Invites</button>
+        <button type="button" class="accordion" id="maintainInvitesAccordion" value="Maintain Invites">Maintain Invites</button>
         <div class="accordionContent">
             <span class="spanCenter">
                 <button id="deleteInvites" onclick="maintainEventDeleteInvites()" disabled>Delete Selected</button>
@@ -45,9 +46,11 @@
             </span>
             <div id="showInvites" class="fixTableHead"></div>        
         </div>        
-        <div id="messageSpace"></div>
+                <!--
+<div id="messageSpace"></div>
         <button id="clearMessageSpaceButton" onclick="clearMessageSpace()" hidden>
             Clear Messages
         </button>
-    </body>
+    -->
+</body>
 </html>

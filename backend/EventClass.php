@@ -33,6 +33,29 @@ class Event extends Base{
         self::$result->setBody($retVal);
         return self::$result;
     }
+    static public function getAllWithInvites(){
+        $myStatement = self::$conn->prepare("SELECT * FROM Event
+            WHERE id in (SELECT eventId from EventInvite)");
+        $myStatement->execute();
+        $retVal = array();
+        while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
+            array_push($retVal,$row);
+        }
+        return $retVal;
+    }
+    static public function getByFamilyMember(int $familyMemberId){
+        $myStatement = self::$conn->prepare("SELECT e.* FROM Event e
+            JOIN EventInvite ei on e.id = ei.eventId
+            WHERE ei.familyMemberId = $familyMemberId");
+        $myStatement->execute();
+        $retVal = array();
+        while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
+            array_push($retVal,$row);
+        }
+        self::$result->setSuccess(true);
+        self::$result->setBody($retVal);
+        return self::$result;        
+    }
     static public function insert(string $name){
         $myStatement = self::$conn->prepare("INSERT INTO `Event` 
             (`name`) 

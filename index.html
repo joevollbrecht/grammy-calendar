@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
         <title>Family Calendar</title>
@@ -5,20 +6,9 @@
         <link rel="stylesheet" href="/css/style.css">
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+        <link rel="stylesheet" href="/dist/calendar.js.css">
+        <script src="/dist/calendar.js"></script>
     </head>
-    <body>
-        <div id="test_space"></div>
-        <button id="bar_button" onclick="callAjax('getFamilyMembers')">Fetch Family</button>
-        <button id="maintainFamily"><a href="/html/maintainFamily.html">Maintain Family</a></button>
-        <button id="maintainEvents"><a href="/html/maintainEvent.html">Maintain Events</a></button>
-        <div id="familySelector"></div>
-        Family Members: <select name="familyMembers" id="familyMembers" onchange="familyMemberSelected(this)">
-            <option value=-1 selected="selected">None</option>
-        </select>
-
-        <div id="messageSpace"></div>
-        <button id="clearMessageSpaceButton" onclick="clearMessageSpace()" hidden>
-            Clear Messages
-        </button>
+    <body onload='myInit("initIndex")'>
     </body>
 </html>

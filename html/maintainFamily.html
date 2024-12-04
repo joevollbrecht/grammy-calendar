@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
         <title>Maintain Family</title>
@@ -6,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     </head>
-    <body onload="maintainFamilyInit()">
+    <body onload='myInit("maintainFamilyInit")'>
         <div class="row">
             <div class="column">
                 <div id="addFamilyMemberDiv" class="divBox">
@@ -19,7 +20,7 @@
             <div class="column">
                 <div id="maintainRelationship" class="divBox">
                     <h2>Maintain Relationships</h2>
-                    <div id="relationType" class="box" style="width: 225px;"></div>
+                    <div id="relationType" class="box" style="width: 250px;"></div>
                     <span id="parentLabel">Parent</span></span>
                     <select id="parentSelect" name="parentSelect" onchange="maintainFamilyParentSelected()">
                         <option value=-1 selected disabled>None</option>
@@ -32,19 +33,25 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="column divBox">
+        <button type="button" class="accordion" id="maintainFamilyAccordion" value="Maintain Family Members">Maintain Family Members</button>
+        <div class="accordionContent">
+            <span class="spanCenter">
                 <button id="deleteFamilyMembers" onclick="maintainFamilyDeleteFamilyMember()" disabled>Delete Selected Family Members</button>
-                <div id="showFamilyMembers" class="fixTableHead"></div>
-            </div>
-            <div class="column divBox">
-                <button id="deleteFamilyRelations" onclick="maintainFamilyDeleteRelationship()" disabled>Remove Selected Relationships</button>
-                <div id="showFamilyRelations" class="fixTableHead"></div>
-            </div>
+            </span>
+            <div id="showFamilyMembers" class="fixTableHead"></div>
         </div>
+        <button type="button" class="accordion" id="maintainFamilyAccordion" value="Maintain Family Relationships">Maintain Family Relationships</button>
+        <div class="accordionContent">
+            <span class="spanCenter">
+                <button id="deleteFamilyRelations" onclick="maintainFamilyDeleteRelationship()" disabled>Remove Selected Relationships</button>
+            </span>
+            <div id="showFamilyRelations" class="fixTableHead"></div>
+        </div>
+        <!--
         <div id="messageSpace"></div>
         <button id="clearMessageSpaceButton" onclick="clearMessageSpace()" hidden>
             Clear Messages
         </button>
+    -->
     </body>
 </html>

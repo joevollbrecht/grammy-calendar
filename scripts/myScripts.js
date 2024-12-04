@@ -160,7 +160,20 @@ async function maintainEventAddInvitees(){
     }
     values.familyIds = JSON.stringify(inviteeIds);
     let addResponse = await callAjax("addInvites", values);
+    maintainEventAddInviteesClearSelections();
     maintainEventCreateInviteTable();
+}
+function maintainEventAddInviteesClearSelections(){
+    let selectedEvents = document.getElementById("eventSelect").selectedOptions;
+    for(let ii = 0;ii<selectedEvents.length;ii++){
+        selectedEvents[ii].selected =ii != 0?false:true  ;
+    }
+    selectedEvents = document.getElementById("inviteeSelect").selectedOptions;
+    for(ii = 0;ii<selectedEvents.length;ii++){
+        selectedEvents[ii].selected = false;
+    }
+    document.getElementById("inviteeSelect").disabled = true;
+    document.getElementById("addInvitees").disabled = true;
 }
 function maintainEventAutoSelectInviteRow(member){
     maintainEventEventName = member.value;
@@ -293,7 +306,7 @@ async function maintainFamilyLoadFamilyData(){
 }
 async function maintainFamilyLoadFamilyRelationships(){
     let familyArray = await callAjax('getAllRelationships');
-    let text = "<table style='width:500;'>";
+    let text = "<table class='tableCenter' style='width:500;'>";
     text += "<thead><th>Delete</th><th>Name</th><th>Relationship</th><th>Name</th></thead>"
 
     for (let ii = 0; ii < familyArray.length; ii++) {
@@ -315,7 +328,7 @@ function maintainFamilyActivateDeleteRelationshipButton(checkbox){
     document.getElementById("deleteFamilyRelations").disabled = idsArray.length==0?true:false;
 }
 function maintainFamilyCreateFamilyMemberTable(familyArray){
-    let text = "<table style='width:225;'>";
+    let text = "<table class='tableCenter' style='width:225;'>";
     text += "<thead><th>Delete</th><th>Name</th></thead>"
 
     for (let ii = 0; ii < familyArray.length; ii++) {
@@ -328,7 +341,6 @@ function maintainFamilyCreateFamilyMemberTable(familyArray){
         text += '</tr>';
     }
     text += "</table>";
-    //text += "<br><button id='fetch_button' onclick='maintainFamilyDeleteFamilyMember()'>Delete Selected</button>"
     document.getElementById("showFamilyMembers").innerHTML = text;
 }
 function maintainFamilyActivateDeleteFamilyButton(checkbox){

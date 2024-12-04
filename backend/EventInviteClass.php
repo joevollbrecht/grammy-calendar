@@ -57,7 +57,7 @@ class EventInvite extends Base{
             self::$result->setSuccess(false);
             return self::$result;
         }
-        $sqlQuery = "REPLACE INTO `EventInvite` 
+        $sqlQuery = "INSERT IGNORE INTO `EventInvite` 
             (eventId, familyMemberId, eventInviteStatusId) VALUES (".$eventId.",".$familyIds[0].",1)";
         for($ii=1;$ii<count($familyIds);$ii++){
             $sqlQuery .= ", (".$eventId.",".$familyIds[$ii].",1)";

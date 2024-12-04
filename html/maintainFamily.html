@@ -32,15 +32,19 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="column divBox">
+        <button type="button" class="accordion" id="maintainFamilyAccordion" value="Maintain Family">Maintain Family</button>
+        <div class="accordionContent">
+            <span class="spanCenter">
                 <button id="deleteFamilyMembers" onclick="maintainFamilyDeleteFamilyMember()" disabled>Delete Selected Family Members</button>
-                <div id="showFamilyMembers" class="fixTableHead"></div>
-            </div>
-            <div class="column divBox">
+            </span>
+            <div id="showFamilyMembers" class="fixTableHead"></div>
+        </div>
+        <button type="button" class="accordion" id="maintainFamilyAccordion" value="Maintain Family">Maintain Family</button>
+        <div class="accordionContent">
+            <span class="spanCenter">
                 <button id="deleteFamilyRelations" onclick="maintainFamilyDeleteRelationship()" disabled>Remove Selected Relationships</button>
-                <div id="showFamilyRelations" class="fixTableHead"></div>
-            </div>
+            </span>
+            <div id="showFamilyRelations" class="fixTableHead"></div>
         </div>
         <div id="messageSpace"></div>
         <button id="clearMessageSpaceButton" onclick="clearMessageSpace()" hidden>

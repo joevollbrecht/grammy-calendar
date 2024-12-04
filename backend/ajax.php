@@ -4,7 +4,7 @@ include_once 'ResultClass.php';
 include_once 'BaseClass.php';
 include_once 'EventClass.php';
 include_once 'EventInviteClass.php';
-include_once 'EventInviteStatus.php';
+include_once 'EventInviteStatusClass.php';
 include_once 'FamilyMemberClass.php';
 include_once 'FamilyRelationshipClass.php';
 include_once 'FamilyRelationshipTypeClass.php';

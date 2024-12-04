@@ -1,4 +1,4 @@
-let eventInviteStatuses = [];
+let eventInviteStatuses = null;
 let maintainFamilyFirstName = null;
 let maintainFamilyLastName = null;
 let maintainEventEventName = null;
@@ -25,6 +25,9 @@ async function callAjax(type, values = {}){
             myUrl += '?' + queryString;
             break;
         case 'deleteEvents':
+            myUrl += '?' + queryString;
+            break;
+        case 'deleteInvites':
             myUrl += '?' + queryString;
             break;
         case 'deleteFamilyMember':
@@ -54,7 +57,7 @@ async function callAjax(type, values = {}){
         default:
             console.log("in default with type="+type);
             response = "hit the default with type="+type;
-            document.getElementById("message_space").innerText = response;
+            document.getElementById("messageSpace").innerText = response;
             return;
         }
     myObject = await fetch(myUrl);
@@ -93,6 +96,7 @@ function generateIdSelector(options, selectedId, idString="", nameString = ""){
         retVal += "<option value=" + element.id + selected + ">" + element.type + "</option>";
     });
     retVal += "</select>";
+    return retVal;
 }
 function getCheckedValueAndIdsForName(name){
     boxes = document.getElementsByName(name);
@@ -133,7 +137,6 @@ async function maintainEventsInit(){
     maintainEventLoadEventData();
     maintainEventLoadFamilyData();
     maintainEventCreateInviteTable();
-    retrieveEventInviteStatuses();
 }
 function maintainEventActivateDeleteEventButton(checkbox){
     let invitees = getCheckedValuesForName(checkbox.name);
@@ -186,6 +189,9 @@ function maintainEventCreateEventTable(eventArray){
     document.getElementById("showEvents").innerHTML = text;
 }
 async function maintainEventCreateInviteTable(){
+    if(eventInviteStatuses == null){
+        await retrieveEventInviteStatuses();
+    }
     eventArray = await callAjax('getAllEventRelationships');
     let text = "<table style='width:500;'>";
     text += "<thead><th>Sel</th><th>Event</th><th>Invitee</th><th>Status</th></thead>"

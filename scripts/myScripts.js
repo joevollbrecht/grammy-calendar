@@ -284,6 +284,7 @@ async function maintainEventLoadEventData(){
     });
 }
 async function maintainFamilyInit(){
+    initAccordions();
     maintainFamilyLoadFamilyData();
     maintainFamilyLoadFamilyRelationships();
     let relationArray = await callAjax('getFamilyRelationshipTypes');
@@ -313,7 +314,7 @@ async function maintainFamilyLoadFamilyRelationships(){
         text += '<tr>';
         let member = familyArray[ii];
         text += "<td class='tdCenter'><input type='checkbox' name='familyRelationshipCheckbox' id='" 
-            + generateElementId("fmcheck",ii) +"' value=" + member.id +
+            + generateElementId("fmcheck",ii) +"' value=" + member.id
             + " onchange='maintainFamilyActivateDeleteRelationshipButton(this)'></td>";
         text += "<td>" + member.parentName + "</td>";
         text += "<td>" + member.type + "</td>";

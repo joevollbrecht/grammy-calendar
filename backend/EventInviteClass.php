@@ -17,7 +17,7 @@ class EventInvite extends Base{
             WHERE id IN (".implode(",",$ids).")");
         $myStatement->execute();
         self::$result->setSuccess(true);
-        self::$result->addMessage(1,"deleted $myStatement->rowCount() rows (may include relationships)");
+        self::$result->addMessage(1,"deleted ".$myStatement->rowCount()." rows (may include relationships)");
     
         return self::$result;
     }
@@ -74,7 +74,7 @@ class EventInvite extends Base{
             WHERE id =$id");
         $myStatement->execute();
         self::$result->setSuccess(true);
-        self::$result->addMessage(1,"updated $myStatement->rowCount() rows (may include relationships)");
+        self::$result->addMessage(1,"updated ".$myStatement->rowCount()." rows (may include relationships)");
     
         return self::$result;
     }

@@ -55,7 +55,7 @@ function updateInviteStatuses(){
     $myResult = new Result();
     $successCount = $failCount = 0;
     foreach($myUpdates as $update){
-        $tempResult = EventInvite::update($update["id"], $update["newStatus"]);
+        $tempResult = EventInvite::updateStatus($update["id"], $update["newStatus"]);
         if($tempResult->getSuccess()) $successCount++;
         else $failCount++;
     }

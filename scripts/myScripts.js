@@ -109,6 +109,7 @@ function initAccordions(){
     for (i = 0; i < coll.length; i++) {
       coll[i].addEventListener("click", function() {
         this.classList.toggle("accordionActive");
+        this.innerText = this.classList.contains("accordionActive")?"Close " + this.value:this.value;
         var content = this.nextElementSibling;
         if (content.style.display === "block") {
           content.style.display = "none";
@@ -164,7 +165,9 @@ async function maintainEventAddInvitees(){
 function maintainEventAutoSelectInviteRow(member){
     maintainEventEventName = member.value;
     let ii = extractElementIdNumber(member.id);
-    document.getElementById(generateElementId("evtInviteCheck",ii)).checked = true;
+    let checkbox = document.getElementById(generateElementId("evtInviteCheck",ii));
+    checkbox.checked = true;
+    maintainEventActivateEventButtons(checkbox);
 }
 function maintainEventClearEventInputs(){
     maintainEventEventName = null;
@@ -172,7 +175,7 @@ function maintainEventClearEventInputs(){
     document.getElementById("addEvent").disabled = true;
 }
 function maintainEventCreateEventTable(eventArray){
-    let text = "<table style='width:500;'>";
+    let text = "<table class='tableCenter' style='width:500;'>";
     text += "<thead><th>Select</th><th>Name</th><th>Start Date</th><th>End Date</th></thead>"
 
     for (let ii = 0; ii < eventArray.length; ii++) {
@@ -194,7 +197,7 @@ async function maintainEventCreateInviteTable(){
         await retrieveEventInviteStatuses();
     }
     eventArray = await callAjax('getAllEventRelationships');
-    let text = "<table style='width:500;'>";
+    let text = "<table class='tableCenter' style='width:500;'>";
     text += "<thead><th>Sel</th><th>Event</th><th>Invitee</th><th>Status</th></thead>"
 
     for (let ii = 0; ii < eventArray.length; ii++) {
@@ -206,7 +209,7 @@ async function maintainEventCreateInviteTable(){
             + " onchange='maintainEventActivateEventButtons(this)'></td>";
             text += "<td>" + member.eventName + "</td>";
             text += "<td>" + member.fullName + "</td>";
-            text += "<td>" + generateIdSelector(eventInviteStatuses, member.statusId, selId, "maintainEventAutoSelectInviteRow(this)") + "</td>";
+            text += "<td>" + generateIdSelector(eventInviteStatuses, member.statusId, selId,"name", "maintainEventAutoSelectInviteRow(this)") + "</td>";
             text += '</tr>';
     }
     text += "</table>";

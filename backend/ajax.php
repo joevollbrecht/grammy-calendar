@@ -29,6 +29,9 @@ function deleteFamilyMember(){
 function deleteFamilyRelationship(){
     echo FamilyRelationship::delete(json_decode($_GET['ids']))->getResultString();
 }
+function deleteInvites(){
+    echo EventInvite::delete(json_decode($_GET['ids']))->getResultString();
+}
 function getAllEventRelationships(){
     echo EventInvite::getAllRelationships()->getResultString();
 }
@@ -46,6 +49,19 @@ function getFamilyRelationshipTypes(){
 }
 function getFamilyMembers(){
     echo FamilyMember::getAll()->getResultString();
+}
+function updateInviteStatuses(){
+    $myUpdates = json_decode($_GET["updates"]);
+    $myResult = new Result();
+    $successCount = $failCount = 0;
+    foreach($myUpdates as $update){
+        $tempResult = EventInvite::update($update["id"], $update["newStatus"]);
+        if($tempResult->getSuccess()) $successCount++;
+        else $failCount++;
+    }
+    $myResult->setSuccess(true);
+    $myResult->addMessage(1,"update complete, $successCount worked, $failCount failed");
+    echo $myResult->getResultString();
 }
 Base::createResult();
 try {
@@ -71,6 +87,9 @@ switch ($_GET['action']){
     case 'deleteEvents':
         deleteEvents();
         break;
+    case 'deleteInvites':
+        deleteInvites();
+        break;
     case 'deleteFamilyMember':
         deleteFamilyMember();
         break;
@@ -94,6 +113,9 @@ switch ($_GET['action']){
         break;
     case 'getFamilyRelationshipTypes':
         getFamilyRelationshipTypes();
+        break;
+    case 'updateInviteStatuses':
+        updateInviteStatuses();
         break;
     default:
         $badResult = new Result();

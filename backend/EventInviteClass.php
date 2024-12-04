@@ -17,7 +17,7 @@ class EventInvite extends Base{
             WHERE id IN (".implode(",",$ids).")");
         $myStatement->execute();
         self::$result->setSuccess(true);
-        self::$result->addMessage(1,"deleted ".$myStatement->rowCount()." rows (may include relationships)");
+        self::$result->addMessage(1,"deleted $myStatement->rowCount() rows (may include relationships)");
     
         return self::$result;
     }
@@ -68,16 +68,14 @@ class EventInvite extends Base{
         self::$result->addMessage(1,"inserted ".$myStatement->rowCount()." rows");
         return self::$result;
     }
-    static public function getByMemberIds(int $familyMemberId1, int $familyMemberId2){
-        $queryString = "SELECT * FROM EventInvite where ".
-            "(familyMemberId1 = ".$familyMemberId1." AND familyMemberId2 = ".$familyMemberId2.")".
-            " OR (familyMemberId1 = ".$familyMemberId2." AND familyMemberId2 = ".$familyMemberId1.")";
-        $myStatement = self::$conn->prepare($queryString);
+    static public function updateStatus(int $id, int $newStatus){
+        $myStatement = self::$conn->prepare("UPDATE `EventInvite`
+            SET eventInviteStatusId = $newStatus 
+            WHERE id =$id");
         $myStatement->execute();
-        $retVal = null;
-        while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
-            $retVal = new FamilyRelationShip($row["id"],$row["familyMemberId1"],$row["familyMemberId2"],$row["familyRelationshipTypeId"]);
-        }
-        return $retVal;
+        self::$result->setSuccess(true);
+        self::$result->addMessage(1,"updated $myStatement->rowCount() rows (may include relationships)");
+    
+        return self::$result;
     }
 }

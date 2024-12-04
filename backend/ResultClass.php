@@ -4,6 +4,9 @@ class Result{
     function __construct(){
         $this->result = array("success"=>true,"body"=>array(),"messages"=>array());
     }
+    public function getSuccess(){
+        return $this->result["success"];
+    }
     public function setSuccess($value = true ){
         $this->result["success"] = $value;
     }

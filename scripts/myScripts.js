@@ -94,6 +94,11 @@ function generateIdSelector(options, selectedId, idString="", nameString = ""){
     });
     retVal += "</select>";
 }
+function getCheckedValueAndIdsForName(name){
+    boxes = document.getElementsByName(name);
+    return Object.entries(boxes).filter((key, element)=>key[1].checked).map((key,element) => 
+        {val={"id":key[1].id,"value":key[1].value}; return val});
+}
 function getCheckedValuesForName(name){
     boxes = document.getElementsByName(name);
     return Object.entries(boxes).filter((key, element)=>key[1].checked).map((key,element) => key[1].value);
@@ -154,36 +159,13 @@ async function maintainEventAddInvitees(){
         inviteeIds.push( getValueFromJson(invitees[ii].value,"id"));
     }
     values.familyIds = JSON.stringify(inviteeIds);
-    let addResponse = callAjax("addInvites", values);
+    let addResponse = await callAjax("addInvites", values);
+    maintainEventCreateInviteTable();
 }
 function maintainEventClearEventInputs(){
     maintainEventEventName = null;
     document.getElementById('eventName').value = null;
     document.getElementById("addEvent").disabled = true;
-}
-async function maintainEventDeleteEvents(){
-    idsArray = getCheckedValuesForName("eventCheckbox");
-    values = {};
-    values.ids = JSON.stringify(idsArray);
-    deleteResponse = await callAjax('deleteEvents', values);
-    maintainEventLoadEventData();
-    maintainEventCreateInviteTable();
-}
-function maintainEventEventChanged(member){
-    maintainEventEventName = member.value;
-    document.getElementById("addEvent").disabled = maintainEventEventName != null?false:true;
-}
-function maintainEventEventSelected(){
-    items = document.getElementById("eventSelect").selectedOptions;
-    document.getElementById("inviteeSelect").disabled = items.length?false:true;
-}
-function maintainEventInviteeSelected(){
-    items = document.getElementById("inviteeSelect").selectedOptions;
-    document.getElementById("addInvitees").disabled = items.length?false:true;
-}
-async function maintainEventLoadFamilyData(){
-    let familyArray = await callAjax('getFamilyMembers');
-    populateFamilySelecter(familyArray,"inviteeSelect");
 }
 function maintainEventCreateEventTable(eventArray){
     let text = "<table style='width:500;'>";
@@ -222,6 +204,52 @@ async function maintainEventCreateInviteTable(){
     }
     text += "</table>";
     document.getElementById("showInvites").innerHTML = text;
+}
+async function maintainEventDeleteEvents(){
+    idsArray = getCheckedValuesForName("eventCheckbox");
+    values = {};
+    values.ids = JSON.stringify(idsArray);
+    deleteResponse = await callAjax('deleteEvents', values);
+    maintainEventLoadEventData();
+    maintainEventCreateInviteTable();
+}
+async function maintainEventDeleteInvites(){
+    idsArray = getCheckedValuesForName("eventInviteCheckbox");
+    values = {};
+    values.ids = JSON.stringify(idsArray);
+    deleteResponse = await callAjax('deleteInvites', values);
+    maintainEventCreateInviteTable();
+}
+function maintainEventEventChanged(member){
+    maintainEventEventName = member.value;
+    document.getElementById("addEvent").disabled = maintainEventEventName != null?false:true;
+}
+function maintainEventEventSelected(){
+    items = document.getElementById("eventSelect").selectedOptions;
+    document.getElementById("inviteeSelect").disabled = items.length?false:true;
+}
+function maintainEventInviteeSelected(){
+    items = document.getElementById("inviteeSelect").selectedOptions;
+    document.getElementById("addInvitees").disabled = items.length?false:true;
+}
+async function maintainEventLoadFamilyData(){
+    let familyArray = await callAjax('getFamilyMembers');
+    populateFamilySelecter(familyArray,"inviteeSelect");
+}
+async function maintainEventUpdateInvites(){
+    idsArray = getCheckedValueAndIdsForName("eventInviteCheckbox");
+    myRegEx = new RegExp(/[^_]{1,}$/);
+    updates = [];
+    for(let ii = 0;ii<idsArray.length;ii++){
+        let elementId = myRegEx.exec(idsArray[ii].id);
+        let selIdString = generateElementId("inviteStatusSelect", elementId);
+        let selId = document.getElementById(selIdString).value;
+        updates.push({"id":idsArray.value,"newStatus":selId})
+    }
+    values = {};
+    values.updates = JSON.stringify(updates);
+    deleteResponse = await callAjax('updateInvites', values);
+    maintainEventCreateInviteTable();
 }
 async function maintainEventLoadEventData(){
     let eventArray = await callAjax('getEvents');

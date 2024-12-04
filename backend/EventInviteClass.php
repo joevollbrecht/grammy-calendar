@@ -39,7 +39,7 @@ class EventInvite extends Base{
             t.type 
             FROM `EventInvite` invite 
             JOIN FamilyMember fm on fm.id = invite.familyMemberId
-            JOIN Event ev on ev.id = invite.eventStatus 
+            JOIN Event ev on ev.id = invite.eventId 
             JOIN EventInviteStatus t on t.id = invite.eventInviteStatus
             ORDER BY ev.id, t.id, fm.id;");
         $myStatement->execute();

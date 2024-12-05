@@ -1,8 +1,10 @@
+let dateStatuses = null;
 let eventInviteStatuses = null;
 let extractElementIdNumberRegEx = new RegExp(/[^_]{1,}$/);
+let maintainEventEventName = null;
 let maintainFamilyFirstName = null;
 let maintainFamilyLastName = null;
-let maintainEventEventName = null;
+let maintainInviteDatesNoSelection = true;
 let relationshipType = 1;
 
 async function callAjax(type, values = {}){
@@ -14,6 +16,7 @@ async function callAjax(type, values = {}){
         .join('&');
     switch(type){
         case 'addEvent':
+        case 'addEventPlanningDates':
         case 'addFamilyMember':
         case 'addFamilyRelationship':
         case 'addInvites':
@@ -23,9 +26,12 @@ async function callAjax(type, values = {}){
         case 'deleteFamilyRelationship':
         case 'getAllEventRelationships':
         case 'getAllRelationships':
+        case 'getDateStatuses':
         case 'getEventInviteStatuses':
         case 'getEvents':
+        case 'getEventsByFamilyMember':
         case 'getFamilyMembers':
+        case 'getFamilyMembersByEvent':
         case 'getFamilyRelationshipTypes':
         case 'updateInviteStatuses':
             myUrl += '?' + queryString;
@@ -117,14 +123,24 @@ function initAccordions(){
           content.style.display = "block";
         }
       });
-    }}
-
-function populateFamilySelecter(familyArray,elementName){
+    }
+}
+function populateEventSelector(eventArray,elementName){    
+    let eventSelect = document.getElementById(elementName);
+    eventSelect.length = 1;
+    eventArray.forEach((element, key) => {
+        eventSelect[eventSelect.options.length] = new Option(element.name, element.id);
+    });
+}
+function populateFamilySelector(familyArray,elementName){
     let select = document.getElementById(elementName);
     select.length = 1;
     familyArray.forEach((element, key) => {
         select[select.options.length] = new Option(element.fullName, JSON.stringify(element));
     });
+}
+async function retrieveDateStatuses() {
+    eventInviteStatuses = await callAjax("getDateStatuses");
 }
 async function retrieveEventInviteStatuses() {
     eventInviteStatuses = await callAjax("getEventInviteStatuses");
@@ -257,7 +273,7 @@ function maintainEventInviteeSelected(){
 }
 async function maintainEventLoadFamilyData(){
     let familyArray = await callAjax('getFamilyMembers');
-    populateFamilySelecter(familyArray,"inviteeSelect");
+    populateFamilySelector(familyArray,"inviteeSelect");
 }
 async function maintainEventUpdateInvites(){
     idsArray = getCheckedValueAndIdsForName("eventInviteCheckbox");
@@ -277,11 +293,7 @@ async function maintainEventUpdateInvites(){
 async function maintainEventLoadEventData(){
     let eventArray = await callAjax('getEvents');
     maintainEventCreateEventTable(eventArray);
-    let eventSelect = document.getElementById("eventSelect");
-    eventSelect.length = 1;
-    eventArray.forEach((element, key) => {
-        eventSelect[eventSelect.options.length] = new Option(element.name, element.id);
-    });
+    populateEventSelector(eventArray, "eventSelect");
 }
 async function maintainFamilyInit(){
     initAccordions();
@@ -293,17 +305,75 @@ async function maintainFamilyInit(){
     relationArray.forEach((element, key) => {
         relationString +="<label><input type='radio' name='relationship' value='"+element.id
             + "' id='"+element.type + "'"
-            + " onChange='selectRelationshipType(this)'";
+            + " onChange='maintainFamilySelectRelationshipType(this)'";
         if(element.id == 1) relationString +=" checked";
         relationString += ">" + element.type + "</label>";
     });
     relationSelect.innerHTML = relationString;
 }
+function maintainFamilyActivateDeleteFamilyButton(checkbox){
+    idsArray = getCheckedValuesForName(checkbox.name);
+    document.getElementById("deleteFamilyMembers").disabled = idsArray.length==0?true:false;
+}
+function maintainFamilyActivateDeleteRelationshipButton(checkbox){
+    idsArray = getCheckedValuesForName(checkbox.name);
+    document.getElementById("deleteFamilyRelations").disabled = idsArray.length==0?true:false;
+}
+async function maintainFamilyAddFamilyMember(){
+    let values = {};
+    values.firstName = maintainFamilyFirstName;
+    values.lastName = maintainFamilyLastName;
+    let insertResponse = await callAjax('addFamilyMember',values);
+    maintainFamilyLoadFamilyData();
+    maintainFamilyClearFamilyNameInputs();
+}
+function maintainFamilyChildSelected(){
+    let child = document.getElementById("childSelect");
+    let button = document.getElementById("setRelationship");
+    button.disabled = child.value !== -1?false:true;
+}
+function maintainFamilyClearFamilyNameInputs(){
+    maintainFamilyFirstName = maintainFamilyLastName = null;
+    document.getElementById('firstName').value = null;
+    document.getElementById('lastName').value = null;
+    document.getElementById("addFamilyMember").disabled = true;
+}
+function maintainFamilyCreateFamilyMemberTable(familyArray){
+    let text = "<table class='tableCenter' style='width:225;'>";
+    text += "<thead><th>Delete</th><th>Name</th></thead>"
+
+    for (let ii = 0; ii < familyArray.length; ii++) {
+        text += '<tr>';
+        let member = familyArray[ii];
+        text += "<td class='tdCenter'><input type='checkbox' name='familyMemberCheckbox' id='" 
+            + generateElementId("relcheck",ii) + "' value=" + member.id 
+            + " onchange='maintainFamilyActivateDeleteFamilyButton(this)'></td>";
+        text += "<td>" + member.fullName + "</td>";
+        text += '</tr>';
+    }
+    text += "</table>";
+    document.getElementById("showFamilyMembers").innerHTML = text;
+}
+async function maintainFamilyDeleteFamilyMember(){
+    idsArray = getCheckedValuesForName("familyMemberCheckbox");
+    values = {};
+    values.ids = JSON.stringify(idsArray);
+    deleteResponse = await callAjax('deleteFamilyMember', values);
+    maintainFamilyLoadFamilyData();
+    maintainFamilyLoadFamilyRelationships();
+}
+async function maintainFamilyDeleteRelationship(){
+    idsArray = getCheckedValuesForName("familyRelationshipCheckbox");
+    values = {};
+    values.ids = JSON.stringify(idsArray);
+    deleteResponse = await callAjax('deleteFamilyRelationship', values);
+    maintainFamilyLoadFamilyRelationships();
+}
 async function maintainFamilyLoadFamilyData(){
     let familyArray = await callAjax('getFamilyMembers');
     maintainFamilyCreateFamilyMemberTable(familyArray);
-    populateFamilySelecter(familyArray,"parentSelect");
-    populateFamilySelecter(familyArray,"childSelect");
+    populateFamilySelector(familyArray,"parentSelect");
+    populateFamilySelector(familyArray,"childSelect");
 }
 async function maintainFamilyLoadFamilyRelationships(){
     let familyArray = await callAjax('getAllRelationships');
@@ -324,44 +394,12 @@ async function maintainFamilyLoadFamilyRelationships(){
     text += "</table>";
     document.getElementById("showFamilyRelations").innerHTML = text;
 }
-function maintainFamilyActivateDeleteRelationshipButton(checkbox){
-    idsArray = getCheckedValuesForName(checkbox.name);
-    document.getElementById("deleteFamilyRelations").disabled = idsArray.length==0?true:false;
-}
-function maintainFamilyCreateFamilyMemberTable(familyArray){
-    let text = "<table class='tableCenter' style='width:225;'>";
-    text += "<thead><th>Delete</th><th>Name</th></thead>"
-
-    for (let ii = 0; ii < familyArray.length; ii++) {
-        text += '<tr>';
-        let member = familyArray[ii];
-        text += "<td class='tdCenter'><input type='checkbox' name='familyMemberCheckbox' id='" 
-            + generateElementId("relcheck",ii) + "' value=" + member.id 
-            + " onchange='maintainFamilyActivateDeleteFamilyButton(this)'></td>";
-        text += "<td>" + member.fullName + "</td>";
-        text += '</tr>';
-    }
-    text += "</table>";
-    document.getElementById("showFamilyMembers").innerHTML = text;
-}
-function maintainFamilyActivateDeleteFamilyButton(checkbox){
-    idsArray = getCheckedValuesForName(checkbox.name);
-    document.getElementById("deleteFamilyMembers").disabled = idsArray.length==0?true:false;
-}
-async function maintainFamilyDeleteFamilyMember(){
-    idsArray = getCheckedValuesForName("familyMemberCheckbox");
-    values = {};
-    values.ids = JSON.stringify(idsArray);
-    deleteResponse = await callAjax('deleteFamilyMember', values);
-    maintainFamilyLoadFamilyData();
-    maintainFamilyLoadFamilyRelationships();
-}
-async function maintainFamilyDeleteRelationship(){
-    idsArray = getCheckedValuesForName("familyRelationshipCheckbox");
-    values = {};
-    values.ids = JSON.stringify(idsArray);
-    deleteResponse = await callAjax('deleteFamilyRelationship', values);
-    maintainFamilyLoadFamilyRelationships();
+function maintainFamilyNameChanged(member){
+    if(member.id == 'firstName') maintainFamilyFirstName = member.value;
+    if(member.id == 'lastName') maintainFamilyLastName = member.value;
+    if(maintainFamilyFirstName!=null && maintainFamilyLastName != null){
+        document.getElementById("addFamilyMember").disabled = false;
+    } else document.getElementById("addFamilyMember").disabled = true;
 }
 function maintainFamilyParentSelected(){
     let parent = document.getElementById("parentSelect");
@@ -378,10 +416,18 @@ function maintainFamilyParentSelected(){
         }
     }
 }
-function maintainFamilyChildSelected(){
-    let child = document.getElementById("childSelect");
-    let button = document.getElementById("setRelationship");
-    button.disabled = child.value !== -1?false:true;
+function maintainFamilySelectRelationshipType(selection){
+    relationshipType = selection.value;
+    parent = document.getElementById("parentLabel");
+    child = document.getElementById("childLabel");
+    if(relationshipType == 1){
+        parent.innerText = "Parent";
+        child.innerText = "Child";
+    }
+    else{
+        parent.innerText = "Spouse A";
+        child.innerText = "Spouse B";
+    }
 }
 async function maintainFamilySetRelationShip(){
     let parent = document.getElementById("parentSelect");
@@ -395,40 +441,72 @@ async function maintainFamilySetRelationShip(){
     let insertResponse = await callAjax('addFamilyRelationship', values);
     maintainFamilyLoadFamilyRelationships()
 }
-async function maintainFamilyAddFamilyMember(){
+async function maintainInviteDatesInit(){
+    initAccordions();
+    retrieveEventInviteStatuses();
+    maintainEventLoadFamilyData();
+    maintainEventLoadEventData();
+}
+async function maintainInviteDatesAddDates(){
+    let startDate = document.getElementById("startDate");
+    let endDate = document.getElementById("endDate");
+    let eventSelect = document.getElementById("eventSelect");
+    let personSelect = document.getElementById("inviteeSelect");
     let values = {};
-    values.firstName = maintainFamilyFirstName;
-    values.lastName = maintainFamilyLastName;
-    let insertResponse = await callAjax('addFamilyMember',values);
-/* 
-after creation, reload family member list and null out the name fields
-*/
-    maintainFamilyLoadFamilyData();
-    clearFamilyNameInputs();
+    values.startDate = startDate.value;
+    values.endDate = endDate.value;
+    values.eventId = eventSelect.value;
+    values.familyMemberId = personSelect.value;
+    let addResponse = callAjax('addEventPlanningDates',values);
 }
-function maintainFamilyNameChanged(member){
-    if(member.id == 'firstName') maintainFamilyFirstName = member.value;
-    if(member.id == 'lastName') maintainFamilyLastName = member.value;
-    if(maintainFamilyFirstName!=null && maintainFamilyLastName != null){
-        document.getElementById("addFamilyMember").disabled = false;
-    } else document.getElementById("addFamilyMember").disabled = true;
+function maintainInviteDatesDateChanged(date){
+    maintainInviteDatesSetAddDatesButton();
 }
-function clearFamilyNameInputs(){
-    maintainFamilyFirstName = maintainFamilyLastName = null;
-    document.getElementById('firstName').value = null;
-    document.getElementById('lastName').value = null;
-    document.getElementById("addFamilyMember").disabled = true;
-}
-function selectRelationshipType(selection){
-    relationshipType = selection.value;
-    parent = document.getElementById("parentLabel");
-    child = document.getElementById("childLabel");
-    if(relationshipType == 1){
-        parent.innerText = "Parent";
-        child.innerText = "Child";
+async function maintainInviteDatesEventSelected(item){
+    if(maintainInviteDatesNoSelection){
+        maintainInviteDatesNoSelection=false;
+        values = {};
+        values.eventId = item.value;
+        let familyArray = await callAjax('getFamilyMembersByEvent',values);
+        populateFamilySelector(familyArray,"inviteeSelect");
     }
-    else{
-        parent.innerText = "Spouse A";
-        child.innerText = "Spouse B";
+    maintainInviteDatesSetAddDatesButton();
+}
+async function maintainInviteDatesInviteeSelected(item){
+    if(maintainInviteDatesNoSelection){
+        maintainInviteDatesNoSelection=false;
+        values = {};
+        values.familyMemberId = item.value;
+        let eventArray = await callAjax('getEventsByFamilyMember',values);
+        populateEventSelector(eventArray,"eventSelect");
     }
+    maintainInviteDatesSetAddDatesButton();
+}
+async function maintainInviteDatesLoadDateStatuses(){
+    let relationArray = await callAjax('getDateStatuses');
+    let relationSelect = document.getElementById('relationType');
+    let relationString = ""
+    relationArray.forEach((element, key) => {
+        relationString +="<label><input type='radio' name='relationship' value='"+element.id
+            + "' id='"+element.type + "'"
+            + " onChange='maintainInviteDatesSelectDateType(this)'";
+        if(element.id == 1) relationString +=" checked";
+        relationString += ">" + element.type + "</label>";
+    });
+    relationSelect.innerHTML = relationString;
+}
+async function maintainInviteDatesReset(){
+    maintainEventLoadFamilyData();
+    maintainEventLoadEventData();
+    maintainInviteDatesNoSelection = true;
+}
+function maintainInviteDatesSelectDateType(selection){
+}
+function maintainInviteDatesSetAddDatesButton(){
+    startDate = document.getElementById("startDate");
+    endDate = document.getElementById("endDate");
+    eventSelect = document.getElementById("eventSelect");
+    personSelect = document.getElementById("inviteeSelect");
+    document.getElementById("addDateButton").disabled =
+        !startDate.value || !endDate.value || !eventSelect.selected || !personSelect.selected?true:false;
 }

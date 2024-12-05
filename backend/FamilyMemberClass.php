@@ -33,6 +33,19 @@ class FamilyMember extends Base{
         self::$result->setBody($retVal);
         return self::$result;
     }
+    static public function getByEvent(int $eventId){
+        $myStatement = self::$conn->prepare("SELECT e.* FROM FamilyMember e
+            JOIN EventInvite ei on e.id = ei.familyMemberId
+            WHERE ei.eventId = $eventId");
+        $myStatement->execute();
+        $retVal = array();
+        while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
+            array_push($retVal,$row);
+        }
+        self::$result->setSuccess(true);
+        self::$result->setBody($retVal);
+        return self::$result;        
+    }
     static public function insert(string $firstName, string $lastName){
         $member = self::getByFirstLast($firstName,$lastName);
         if(is_null($member)){

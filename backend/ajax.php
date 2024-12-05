@@ -2,14 +2,34 @@
 require_once 'dbConnect.php';
 include_once 'ResultClass.php';
 include_once 'BaseClass.php';
+include_once 'DateStatusClass.php';
 include_once 'EventClass.php';
 include_once 'EventInviteClass.php';
 include_once 'EventInviteStatusClass.php';
+include_once 'EventPlanningDatesClass.php';
 include_once 'FamilyMemberClass.php';
 include_once 'FamilyRelationshipClass.php';
 include_once 'FamilyRelationshipTypeClass.php';
 function addEvent(){
     echo Event::insert($_GET['name'])->getResultString();
+}
+function addEventPlanningDates(){
+    $eventId = $_GET['eventId'];
+    $familyMemberId = $_GET['familyMemberId'];
+    $startDate = $_GET['startDate'];
+    $endDate = $_GET['endDate'];
+    $retResult = EventPlanningDates::getOverlappingDates($eventId, $familyMemberId, $startDate, $endDate);
+    if(count($retResult->body)){
+        $row = $retResult->body[0];
+        $event = $row->eventName;
+        $name = $row->fullName;
+        $badResult = new Result();
+        $badResult->setSuccess(false);
+        $badResult->addMessage(3,"overlapping date exists for $name and $event, not created");
+        echo $badResult->getResultString();
+        return;
+    }
+    echo EventPlanningDates::insert($eventId, $familyMemberId, $startDate, $endDate)->getResultString();
 }
 function addFamilyMember(){
     echo FamilyMember::insert($_GET['firstName'],$_GET['lastName'])->getResultString();
@@ -38,17 +58,26 @@ function getAllEventRelationships(){
 function getAllRelationships(){
     echo FamilyRelationship::getAllRelationships()->getResultString();
 }
+function getDateStatuses(){
+    echo DateStatus::getAll()->getResultString();
+}
 function getEventInviteStatuses(){
     echo EventInviteStatus::getAll()->getResultString();
 }
 function getEvents(){
     echo Event::getAll()->getResultString();
 }
+function getEventsByFamilyMember(){
+    echo Event::getByFamilyMember(json_decode($_GET['familyMemberId']))->getResultString();
+}
 function getFamilyRelationshipTypes(){
     echo FamilyRelationshipType::getAll()->getResultString();
 }
 function getFamilyMembers(){
     echo FamilyMember::getAll()->getResultString();
+}
+function getFamilyMembersByEvent(){
+    echo FamilyMember::getByEvent(json_decode($_GET['eventId']))->getResultString();
 }
 function updateInviteStatuses(){
     $myUpdates = json_decode($_GET["updates"]);
@@ -74,6 +103,9 @@ try {
 switch ($_GET['action']){
     case 'addEvent':
         addEvent();
+        break;
+    case 'addEventPlanningDates':
+        addEventPlanningDates();
         break;
     case 'addInvites':
         addInvites();
@@ -102,13 +134,22 @@ switch ($_GET['action']){
     case 'getAllRelationships':
         getAllRelationships();
         break;
+    case 'getDateStatuses':
+        getDateStatuses();
+        break;
     case 'getEventInviteStatuses':
         getEventInviteStatuses();
         break;
     case 'getEvents':
         getEvents();
         break;
+    case 'getEventsByFamilyMember':
+        getEventsByFamilyMember();
+        break;
     case 'getFamilyMembers':
+        getFamilyMembers();
+        break;
+    case 'getFamilyMembersByEvent':
         getFamilyMembers();
         break;
     case 'getFamilyRelationshipTypes':

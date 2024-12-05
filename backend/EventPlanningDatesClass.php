@@ -1,20 +1,21 @@
 <?php
 include_once 'BaseClass.php';
-class Event extends Base{
+class EventPlanningDates extends Base{
     public int $id;
-    public string $name;
+    public int $familyMemberId;
+    public int $eventId;
     public string $startDate;
     public string $endDate;
-
-    function __construct(int $id, string $name, string $startDate, string $endDate){
+    function __construct(int $id, int $eventId,  int $familyMemberId, string $startDate, string $endDate){
         parent::__construct();
         $this->id = $id;
-        $this->name = $name;
+        $this->eventId = $eventId;
+        $this->familyMemberId = $familyMemberId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
     }
     static public function delete(array $ids){
-        $myStatement = self::$conn->prepare("DELETE FROM `Event` 
+        $myStatement = self::$conn->prepare("DELETE FROM `EventPlanningDates` 
             WHERE id IN (".implode(",",$ids).")");
         $myStatement->execute();
         self::$result->setSuccess(true);
@@ -23,7 +24,7 @@ class Event extends Base{
         return self::$result;
     }
     static public function getAll(){
-        $myStatement = self::$conn->prepare("SELECT * FROM Event");
+        $myStatement = self::$conn->prepare("SELECT * FROM EventPlanningDates");
         $myStatement->execute();
         $retVal = array();
         while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
@@ -33,10 +34,13 @@ class Event extends Base{
         self::$result->setBody($retVal);
         return self::$result;
     }
-    static public function getByFamilyMember(int $familyMemberId){
-        $myStatement = self::$conn->prepare("SELECT e.* FROM Event e
-            JOIN EventInvite ei on e.id = ei.eventId
-            WHERE ei.familyMemberId = $familyMemberId");
+    static public function getOverlappingDates(int $eventId, int $familyMemberId, string $startDate, string $endDate){
+        $myStatement = self::$conn->prepare("SELECT a.*, f.fullName, e.name as eventName
+            FROM EventPlanningDates a
+            JOIN familyMember f on f.id = a.familyMemberId
+            JOIN event e on e.id = a.eventId
+            WHERE eventId = $eventId AND familyMemberId = $familyMemberId
+                AND $startDate <= endDate AND $endDate >= startDate");
         $myStatement->execute();
         $retVal = array();
         while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
@@ -44,27 +48,16 @@ class Event extends Base{
         }
         self::$result->setSuccess(true);
         self::$result->setBody($retVal);
-        return self::$result;        
+        return self::$result;
     }
-    static public function insert(string $name){
-        $myStatement = self::$conn->prepare("INSERT INTO `Event` 
-            (`name`) 
-            VALUES ('".$name."')");
+    static public function insert(int $eventId, int $familyMemberId, string $startDate, string $endDate){
+        $sqlQuery = "INSERT IGNORE INTO `EventPlanningDates` 
+            (eventId, familyMemberId, startDate, endDate)
+            VALUES ($eventId, $familyMemberId, $startDate, $endDate)";
+        $myStatement = self::$conn->prepare($sqlQuery);
         $myStatement->execute();
         self::$result->setSuccess(true);
         self::$result->addMessage(1,"inserted ".$myStatement->rowCount()." rows");
         return self::$result;
     }
-    static public function getByFirstLast(string $firstName, string $lastName){
-        $queryString = "SELECT * FROM Event where ".
-            "firstname = '".$firstName."' AND lastname = '".$lastName."'";
-        $myStatement = self::$conn->prepare($queryString);
-        $myStatement->execute();
-        $retVal = null;
-        while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
-            $retVal = new Event($row["id"],$row["firstname"],$row["lastname"],$row["fullName"]);
-        }
-        return $retVal;
-    }
-
 }

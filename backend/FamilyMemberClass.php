@@ -29,9 +29,17 @@ class FamilyMember extends Base{
         while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
             array_push($retVal,$row);
         }
-        self::$result->setSuccess(true);
-        self::$result->setBody($retVal);
-        return self::$result;
+        return $retVal;
+    }
+    static public function getAllWithInvites(){
+        $myStatement = self::$conn->prepare("SELECT * FROM FamilyMember
+            WHERE id in (SELECT familyMemberId from EventInvite");
+        $myStatement->execute();
+        $retVal = array();
+        while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
+            array_push($retVal,$row);
+        }
+        return self::$retVal;
     }
     static public function getByEvent(int $eventId){
         $myStatement = self::$conn->prepare("SELECT e.* FROM FamilyMember e
@@ -47,19 +55,13 @@ class FamilyMember extends Base{
         return self::$result;        
     }
     static public function insert(string $firstName, string $lastName){
-        $member = self::getByFirstLast($firstName,$lastName);
-        if(is_null($member)){
-            $myStatement = self::$conn->prepare("INSERT INTO `FamilyMember` 
-                (`firstName`, `lastName`) 
-                VALUES ('".$firstName."','".$lastName."')");
-            $myStatement->execute();
-            self::$result->setSuccess(true);
-            self::$result->addMessage(1,"inserted ".$myStatement->rowCount()." rows");
-        }
-        else{
-            self::$result->setSuccess(false);
-            self::$result->addmessage(2,"family member already exists");
-        }
+        $myStatement = self::$conn->prepare("INSERT INTO `FamilyMember` 
+            (`firstName`, `lastName`) 
+            VALUES ('".$firstName."','".$lastName."')");
+        $myStatement->execute();
+        self::$result->setSuccess(true);
+        self::$result->addMessage(1,"inserted ".$myStatement->rowCount()." rows");
+        
         return self::$result;
     }
     static public function getByFirstLast(string $firstName, string $lastName){

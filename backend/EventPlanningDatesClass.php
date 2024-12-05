@@ -4,13 +4,15 @@ class EventPlanningDates extends Base{
     public int $id;
     public int $familyMemberId;
     public int $eventId;
+    public int $dateStatusId;
     public string $startDate;
     public string $endDate;
-    function __construct(int $id, int $eventId,  int $familyMemberId, string $startDate, string $endDate){
+    function __construct(int $id, int $eventId,  int $familyMemberId, int $dateStatusId, string $startDate, string $endDate){
         parent::__construct();
         $this->id = $id;
         $this->eventId = $eventId;
         $this->familyMemberId = $familyMemberId;
+        $this->dateStatusId = $dateStatusId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
     }
@@ -37,8 +39,11 @@ class EventPlanningDates extends Base{
     static public function getOverlappingDates(int $eventId, int $familyMemberId, string $startDate, string $endDate){
         $myStatement = self::$conn->prepare("SELECT a.*, f.fullName, e.name as eventName
             FROM EventPlanningDates a
-            JOIN familyMember f on f.id = a.familyMemberId
-            JOIN event e on e.id = a.eventId
+            JOIN EventInvite ei on ei.id = a.eventInviteId
+                AND ei.familyMemberId = $familyMemberId
+                AND ei.eventId = $eventId
+            JOIN Event e on e.id = ei.eventId
+            JOIN FamilyMember f on f.id = ei.familyMemberId
             WHERE eventId = $eventId AND familyMemberId = $familyMemberId
                 AND $startDate <= endDate AND $endDate >= startDate");
         $myStatement->execute();
@@ -50,10 +55,10 @@ class EventPlanningDates extends Base{
         self::$result->setBody($retVal);
         return self::$result;
     }
-    static public function insert(int $eventId, int $familyMemberId, string $startDate, string $endDate){
+    static public function insert(int $eventId, int $familyMemberId, int $dateStatusId, string $startDate, string $endDate){
         $sqlQuery = "INSERT IGNORE INTO `EventPlanningDates` 
-            (eventId, familyMemberId, startDate, endDate)
-            VALUES ($eventId, $familyMemberId, $startDate, $endDate)";
+            (eventId, familyMemberId, dateStatusId, startDate, endDate)
+            VALUES ($eventId, $familyMemberId, $dateStatusId, $startDate, $endDate)";
         $myStatement = self::$conn->prepare($sqlQuery);
         $myStatement->execute();
         self::$result->setSuccess(true);

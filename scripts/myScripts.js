@@ -30,8 +30,10 @@ async function callAjax(type, values = {}){
         case 'getEventInviteStatuses':
         case 'getEvents':
         case 'getEventsByFamilyMember':
+        case 'getEventsWithInvites':
         case 'getFamilyMembers':
         case 'getFamilyMembersByEvent':
+        case 'getFamilyMembersWithInvites':
         case 'getFamilyRelationshipTypes':
         case 'updateInviteStatuses':
             myUrl += '?' + queryString;
@@ -444,8 +446,9 @@ async function maintainFamilySetRelationShip(){
 async function maintainInviteDatesInit(){
     initAccordions();
     retrieveEventInviteStatuses();
-    maintainEventLoadFamilyData();
-    maintainEventLoadEventData();
+    maintainInviteDatesLoadFamilyData();
+    maintainInviteDatesLoadEventData();
+    maintainInviteDatesLoadDateStatuses();
 }
 async function maintainInviteDatesAddDates(){
     let startDate = document.getElementById("startDate");
@@ -457,6 +460,7 @@ async function maintainInviteDatesAddDates(){
     values.endDate = endDate.value;
     values.eventId = eventSelect.value;
     values.familyMemberId = personSelect.value;
+    values.dateStatus = relationshipType;
     let addResponse = callAjax('addEventPlanningDates',values);
 }
 function maintainInviteDatesDateChanged(date){
@@ -476,7 +480,7 @@ async function maintainInviteDatesInviteeSelected(item){
     if(maintainInviteDatesNoSelection){
         maintainInviteDatesNoSelection=false;
         values = {};
-        values.familyMemberId = item.value;
+        values.familyMemberId = getValueFromJson(item.value,"id");
         let eventArray = await callAjax('getEventsByFamilyMember',values);
         populateEventSelector(eventArray,"eventSelect");
     }
@@ -495,12 +499,23 @@ async function maintainInviteDatesLoadDateStatuses(){
     });
     relationSelect.innerHTML = relationString;
 }
+async function maintainInviteDatesLoadEventData(){
+    let eventArray = await callAjax('getEventsWithInvites');
+    maintainEventCreateEventTable(eventArray);
+    populateEventSelector(eventArray, "eventSelect");
+}
+async function maintainInviteDatesLoadFamilyData(){
+    let familyArray = await callAjax('getFamilyMembersWithInvites');
+    populateFamilySelector(familyArray,"inviteeSelect");
+}
 async function maintainInviteDatesReset(){
-    maintainEventLoadFamilyData();
-    maintainEventLoadEventData();
+    maintainInviteDatesLoadFamilyData();
+    maintainInviteDatesLoadEventData();
+    maintainInviteDatesSetAddDatesButton();
     maintainInviteDatesNoSelection = true;
 }
 function maintainInviteDatesSelectDateType(selection){
+    relationshipType = selection.value;
 }
 function maintainInviteDatesSetAddDatesButton(){
     startDate = document.getElementById("startDate");
@@ -508,5 +523,5 @@ function maintainInviteDatesSetAddDatesButton(){
     eventSelect = document.getElementById("eventSelect");
     personSelect = document.getElementById("inviteeSelect");
     document.getElementById("addDateButton").disabled =
-        !startDate.value || !endDate.value || !eventSelect.selected || !personSelect.selected?true:false;
+        startDate.value && endDate.value && eventSelect.value != -1 && personSelect.value != -1?false:true;
 }

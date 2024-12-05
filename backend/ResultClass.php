@@ -1,17 +1,20 @@
 <?php
 class Result{
     public $result = null;
-    function __construct(){
-        $this->result = array("success"=>true,"body"=>array(),"messages"=>array());
+    function __construct(bool $success = true){
+        $this->result = array("success"=>$success,"body"=>array(),"messages"=>array());
     }
     public function getSuccess(){
-        return $this->result["success"];
-    }
-    public function setSuccess($value = true ){
-        $this->result["success"] = $value;
+        return $this->result->success;
     }
     public function setBody($value = array()){
-        $this->result["body"] = $value;
+        $this->result->body = $value;
+    }
+    public function setMessages($value = array()){
+        $this->result->messages = $value;
+    }
+    public function setSuccess($value = true ){
+        $this->result->success = $value;
     }
     public function getResultString(){
         return json_encode($this->result);

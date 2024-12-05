@@ -18,7 +18,8 @@ function addEventPlanningDates(){
     $familyMemberId = $_GET['familyMemberId'];
     $startDate = $_GET['startDate'];
     $endDate = $_GET['endDate'];
-    $retResult = EventPlanningDates::getOverlappingDates($eventId, $familyMemberId, $startDate, $endDate);
+    $dateStatus = $_GET['dateStatus'];
+    $retResult = EventPlanningDates::getOverlappingDates($eventId, $familyMemberId, $dateStatus, $startDate, $endDate);
     if(count($retResult->body)){
         $row = $retResult->body[0];
         $event = $row->eventName;
@@ -70,14 +71,29 @@ function getEvents(){
 function getEventsByFamilyMember(){
     echo Event::getByFamilyMember(json_decode($_GET['familyMemberId']))->getResultString();
 }
+function getEventsWithInvites(){
+    $resultSet = Event::getAllWithInvites();
+    $result = new Result(true);
+    $result->setBody($resultSet);
+    echo $result->getResultString();
+}
 function getFamilyRelationshipTypes(){
     echo FamilyRelationshipType::getAll()->getResultString();
 }
 function getFamilyMembers(){
-    echo FamilyMember::getAll()->getResultString();
+    $resultSet =  FamilyMember::getAll();
+    $result = new Result(true);
+    $result->setBody($resultSet);
+    echo $result->getResultString();
 }
 function getFamilyMembersByEvent(){
     echo FamilyMember::getByEvent(json_decode($_GET['eventId']))->getResultString();
+}
+function getFamilyMembersWithInvites(){
+    $resultSet = FamilyMember::getAllWithInvites();
+    $result = new Result(true);
+    $result->setBody($resultSet);
+    echo $result->getResultString();
 }
 function updateInviteStatuses(){
     $myUpdates = json_decode($_GET["updates"]);
@@ -146,11 +162,17 @@ switch ($_GET['action']){
     case 'getEventsByFamilyMember':
         getEventsByFamilyMember();
         break;
+    case 'getEventsWithInvites':
+        getEventsWithInvites();
+        break;
     case 'getFamilyMembers':
         getFamilyMembers();
         break;
     case 'getFamilyMembersByEvent':
         getFamilyMembers();
+        break;
+    case 'getFamilyMembersWithInvites':
+        getFamilyMembersWithInvites();
         break;
     case 'getFamilyRelationshipTypes':
         getFamilyRelationshipTypes();

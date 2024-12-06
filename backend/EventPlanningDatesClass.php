@@ -35,12 +35,12 @@ class EventPlanningDates extends Base{
         return $retVal;
     }
     static public function getByEvent(int $eventId){
-        $myStatement = self::$conn->prepare("SELECT epd.*, ei.familyMemberId, fm.fullName, ei.eventId, ei.name as eventName
+        $myStatement = self::$conn->prepare("SELECT epd.*, ei.familyMemberId, fm.fullName, ei.eventId, e.name as eventName
             FROM EventPlanningDates epd
             JOIN EventInvite ei on ei.id = epd.eventInviteId
             JOIN Event e on e.id = ei.eventId
             JOIN FamilyMember fm on fm.id = ei.familyMemberId
-            WHERE ei.eventInviteId = $eventId
+            WHERE ei.eventId = $eventId
         ");
         $myStatement->execute();
         $retVal = array();

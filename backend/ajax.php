@@ -20,8 +20,8 @@ function addEventPlanningDates(){
     $endDate = $_GET['endDate'];
     $dateStatusId = $_GET['dateStatus'];
     $retResult = EventPlanningDates::getOverlappingDates($eventId, $familyMemberId, $startDate, $endDate);
-    if(count($retResult->body)){
-        $row = $retResult->body[0];
+    if(count($retResult)){
+        $row = $retResult[0];
         $event = $row['eventName'];
         $name = $row['fullName'];
         $badResult = new Result();
@@ -66,7 +66,10 @@ function getEventInviteStatuses(){
     echo EventInviteStatus::getAll()->getResultString();
 }
 function getEventPlanningDatesByEvent(){
-    echo EventPlanningDates::getByEvent(json_decode($_GET['eventId']));
+    $response = EventPlanningDates::getByEvent(json_decode($_GET['eventId']));
+    $return = new Result(true);
+    $return->setBody($response);
+    echo $return->getResultString();
 }
 function getEvents(){
     echo Event::getAll()->getResultString();

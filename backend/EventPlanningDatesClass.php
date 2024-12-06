@@ -66,6 +66,27 @@ class EventPlanningDates extends Base{
         }
         return $retVal;
     }
+    static public function getOverlappingDatesExcludeId(int $id, string $startDate, string $endDate){
+        $myStatement = self::$conn->prepare("SELECT epd.*, f.fullName, e.name as eventName, epd.startDate as startDate, epd.endDate as endDate
+            FROM EventPlanningDates epd
+            JOIN EventInvite ei on ei.id = epd.eventInviteId
+            JOIN Event e on e.id = ei.eventId
+            JOIN FamilyMember f on f.id = ei.familyMemberId
+            WHERE eventId = (SELECT eventId from EventInvite ei
+                JOIN EventPlanningDates epd on ei.id = epd.eventInviteId
+                WHERE epd.id = $id)
+            AND familyMemberId = (SELECT familyMemberId from EventInvite ei
+                JOIN EventPlanningDates epd on ei.id = epd.eventInviteId
+                WHERE epd.id = $id)
+            AND '$startDate' <= a.endDate AND '$endDate' >= a.startDate
+            AND epd.id != $id");
+        $myStatement->execute();
+        $retVal = array();
+        while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
+            array_push($retVal,$row);
+        }
+        return $retVal;
+    }
     static public function insert(int $eventId, int $familyMemberId, int $dateStatusId, string $startDate, string $endDate){
         $sqlQuery = "INSERT IGNORE INTO `EventPlanningDates` 
             (eventInviteId, dateStatusId, startDate, endDate)
@@ -75,6 +96,16 @@ class EventPlanningDates extends Base{
         $myStatement->execute();
         self::$result->setSuccess(true);
         self::$result->addMessage(1,"inserted ".$myStatement->rowCount()." rows");
+        return self::$result;
+    }
+    static function update(int $id, $startDate, $endDate, $dateStatusId){
+        $sqlQuery = "UPDATE EventPlanningDates
+            SET startDate = $startDate, endDate =$endDate, dateStatusId = $dateStatusId
+            where id = $id";
+        $myStatement = self::$conn->prepare($sqlQuery);
+        $myStatement->execute();
+        self::$result->setSuccess(true);
+        self::$result->addMessage(1,"updated ".$myStatement->rowCount()." row");
         return self::$result;
     }
 }

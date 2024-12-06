@@ -21,6 +21,7 @@ async function callAjax(type, values = {}){
         case 'addFamilyRelationship':
         case 'addInvites':
         case 'deleteEvents':
+        case 'deleteEventPlanningDates':
         case 'deleteInvites':
         case 'deleteFamilyMember':
         case 'deleteFamilyRelationship':
@@ -36,6 +37,7 @@ async function callAjax(type, values = {}){
         case 'getFamilyMembersByEvent':
         case 'getFamilyMembersWithInvites':
         case 'getFamilyRelationshipTypes':
+        case 'updateEventPlanningDates':
         case 'updateInviteStatuses':
             myUrl += '?' + queryString;
             break;
@@ -74,7 +76,7 @@ function extractElementIdNumber(id){
     return extractElementIdNumberRegEx.exec(id);
 }
 function generateDateSelector( dateString, idString="", nameString = "", onChange=""){
-    let myFunction = onChange==""?onChange:"onchange='"+onChange+"'";
+    let myFunction = onChange==""?onChange:"onchange=\""+onChange+"\"";
     let retVal = "<input type='date' value='" + dateString + "' id='" + idString + "' name='" + nameString + "' " + myFunction + ">";
     return retVal;
 }
@@ -82,7 +84,7 @@ function generateElementId(prefix,ii){
     return prefix + "__" + ii;
 }
 function generateIdSelector(options, selectedId, idString="", nameString = "", onChange=""){
-    let myFunction = onChange==""?onChange:"onchange='"+onChange+"'";
+    let myFunction = onChange==""?onChange:"onchange=\""+onChange+"\"";
     let retVal = "<select id='" + idString + "' name='" + nameString + "' " + myFunction + ">";
     let selected = "";
     options.forEach((element, key) => {
@@ -475,18 +477,21 @@ async function maintainFamilySetRelationShip(){
 }
 async function maintainInviteDatesInit(){
     initAccordions();
-    retrieveEventInviteStatuses();
+    retrieveDateStatuses();
     maintainInviteDatesLoadFamilyData();
     maintainInviteDatesLoadEventData();
     maintainInviteDatesLoadDateStatuses();
 }
 function maintainInviteDatesActivateUpdateDeleteButton(element){
-    document.getElementById('deleteInvites').disabled = false;
-    document.getElementById('updateInvites').disabled = false;
+    setButtonStatusForName(element.name);
 }
 async function maintainInviteDatesAddDates(){
     let startDate = document.getElementById("startDate");
     let endDate = document.getElementById("endDate");
+    if(startDate.value>endDate.value){
+        alert("Start date must be less than or equal to end date");
+        return;
+    }
     let eventSelect = document.getElementById("eventSelect");
     let personSelect = document.getElementById("inviteeSelect");
     let values = {};
@@ -507,8 +512,19 @@ function maintainInviteDatesAutoSelectInviteRow(member){
 function maintainInviteDatesDateChanged(date){
     maintainInviteDatesSetAddDatesButton();
 }
-async function maintainInviteDatesDelete(){
-    alert("maintainInviteDatesDelete is under construction");
+async function maintainInviteDatesDelete(button){
+    let selected = getCheckedValuesForName(button.name);
+    let values = {};
+    let ids = [];
+    for(let ii = 0;ii<selected.length;ii++){
+        ids.push(selected[ii].value);
+    }
+    values.ids = ids;
+    let deleteResponse = callAjax('deleteEventPlanningDates', values);
+    values = {};
+    values.eventId = document.getElementById('eventSelect1').value;
+    inviteDatesArray = await callAjax('deleteEventPlanningDates', values);
+    maintainInviteDatesPopulateMaintainDatesTable(inviteDatesArray);
 }
 async function maintainInviteDatesEventSelected(item){
     if(maintainInviteDatesNoSelection){
@@ -571,7 +587,7 @@ function maintainInviteDatesPopulateMaintainDatesTable(datesArray){
     for (let ii = 0; ii < datesArray.length; ii++) {
         text += '<tr>';
         let member = datesArray[ii];
-        let selId = generateElementId("dateStatusSelect", ii);
+        let dateStatusId = generateElementId("dateStatusSelect", ii);
         let startDateId = generateElementId("updateStartDate",ii);
         let endDateId = generateElementId("updateEndDate", ii);
         text += "<td class='tdCenter'><input type='checkbox' name='maintainInviteDates' id='" 
@@ -579,9 +595,9 @@ function maintainInviteDatesPopulateMaintainDatesTable(datesArray){
             + " onchange='maintainInviteDatesActivateUpdateDeleteButton(this)'></td>";
         text += "<td>" + member.eventName + "</td>";
         text += "<td>" + member.fullName + "</td>";
-        text += "<td>" + generateIdSelector(eventInviteStatuses, member.dateStatusId, selId,"name", "setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
-        text += "<td>" + generateDateSelector(member.startDate, startDateId,"startDate","setTableCheckbox(this,'inviteDateCheckbox'") + "</td>";
-        text += "<td>" + generateDateSelector(member.endDate, endDateId,"startDate","setTableCheckbox(this,'inviteDateCheckbox'") + "</td>";
+        text += "<td>" + generateIdSelector(eventInviteStatuses, member.dateStatusId, dateStatusId,"name", "setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
+        text += "<td>" + generateDateSelector(member.startDate, startDateId,"startDate","setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
+        text += "<td>" + generateDateSelector(member.endDate, endDateId,"startDate","setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
         text += '</tr>';
     }
     text += "</tbody></table>";
@@ -599,5 +615,26 @@ function maintainInviteDatesSetAddDatesButton(){
         startDate.value && endDate.value && eventSelect.value != -1 && personSelect.value != -1?false:true;
 }
 async function maintainInviteDatesUpdate(){
-    alert("maintainInviteDatesUpdate is under construction");
+    let selected = getCheckedValuesForName(button.name);
+    let values = {};
+    let updates = [];
+    for(let ii = 0;ii<selected.length;ii++){
+        let value={};
+        value.id = selected[ii].value;
+        index = extractElementIdNumber(selected[ii].id);
+        value.startDate = document.getElementById(generateElementId('updateStartDate',index)).value;
+        value.endDate = document.getElementById(generateElementId('updateEndDate',index)).value;
+        value.dateStatus = document.getElementById(generateElementId('dateStatusSelect',index)).value;
+        if(value.startDate>value.endDate){
+            alert("Start date can not be greater than end date, update cancelled");
+            return;
+        }
+        updates.push(value);
+    }
+    values.updates = updates;
+    callAjax('updateEventPlanningDates', values);
+    values = {};
+    values.eventId = document.getElementById('eventSelect1').value;
+    inviteDatesArray = await callAjax('deleteEventPlanningDates', values);
+    maintainInviteDatesPopulateMaintainDatesTable(inviteDatesArray);
 }

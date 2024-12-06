@@ -44,6 +44,9 @@ function addInvites(){
 function deleteEvents(){
     echo Event::delete(json_decode($_GET['ids']))->getResultString();
 }
+function deleteEventPlanningDates(){
+    echo EventPlanningDate::delete(json_decode($_GET['ids']))->getResultString();
+}
 function deleteFamilyMember(){
     echo FamilyMember::delete(json_decode($_GET['ids']))->getResultString();
 }
@@ -101,6 +104,35 @@ function getFamilyMembersWithInvites(){
     $result->setBody($resultSet);
     echo $result->getResultString();
 }
+function updateEventPlanningDates(){    
+    $myUpdates = json_decode($_GET["updates"]);
+    $myResult = new Result();
+    $successCount = $failCount = 0;
+    foreach($myUpdates as $update){
+        $retResult = EventPlanningDates::getOverlappingDatesExcludeId($update->id, $update->startDate, $update->endDate);
+        if(count($retResult)){
+            $row = $retResult[0];
+            $event = $row['eventName'];
+            $name = $row['fullName'];
+            $startDate = $row['startDate'];
+            $endDate = $row['endDate'];
+            $badResult = new Result();
+            $badResult->setSuccess(false);
+            $messageString = "overlapping date exists for 
+                '$name' and '$event'. New:$update->startDate - $update->endDate,
+                 Old:$startDate - $endDate. Update skipped";
+            $myResult->addMessage(3,$messageString);
+            $failCount++;
+        }
+        $tempResult = EventPlanningDates::update($update->id, 
+            $update->startDate, $update->endDate, $update->dateStatus);
+        if($tempResult->getSuccess()) $successCount++;
+        else $failCount++;
+    }
+    $myResult->setSuccess(true);
+    $myResult->addMessage(1,"update complete, $successCount worked, $failCount failed");
+    echo $myResult->getResultString();
+}
 function updateInviteStatuses(){
     $myUpdates = json_decode($_GET["updates"]);
     $myResult = new Result();
@@ -140,6 +172,9 @@ switch ($_GET['action']){
         break;
     case 'deleteEvents':
         deleteEvents();
+        break;
+    case 'deleteEventPlanningDates';
+        deleteEventPlanningDates();
         break;
     case 'deleteInvites':
         deleteInvites();
@@ -185,6 +220,9 @@ switch ($_GET['action']){
         break;
     case 'getFamilyRelationshipTypes':
         getFamilyRelationshipTypes();
+        break;
+    case 'updateEventPlanningDates':
+        updateEventPlanningDates();
         break;
     case 'updateInviteStatuses':
         updateInviteStatuses();

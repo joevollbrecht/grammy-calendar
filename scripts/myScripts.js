@@ -28,6 +28,7 @@ async function callAjax(type, values = {}){
         case 'getAllRelationships':
         case 'getDateStatuses':
         case 'getEventInviteStatuses':
+        case 'getEventPlanningDatesByEvent':
         case 'getEvents':
         case 'getEventsByFamilyMember':
         case 'getEventsWithInvites':
@@ -71,6 +72,11 @@ function displayMessages(messageArray){
 }
 function extractElementIdNumber(id){
     return extractElementIdNumberRegEx.exec(id);
+}
+function generateDateSelector( dateString, idString="", nameString = "", onChange=""){
+    let myFunction = onChange==""?onChange:"onchange='"+onChange+"'";
+    let retVal = "<input type='date' value='" + dateString + "' id='" + idString + "' name='" + nameString + "' " + myFunction + ">";
+    return retVal;
 }
 function generateElementId(prefix,ii){
     return prefix + "__" + ii;
@@ -450,6 +456,10 @@ async function maintainInviteDatesInit(){
     maintainInviteDatesLoadEventData();
     maintainInviteDatesLoadDateStatuses();
 }
+function maintainInviteDatesActivateUpdateDeleteButton(element){
+    document.getElementById('deleteInvites').disabled = false;
+    document.getElementById('updateInvites').disabled = false;
+}
 async function maintainInviteDatesAddDates(){
     let startDate = document.getElementById("startDate");
     let endDate = document.getElementById("endDate");
@@ -459,12 +469,22 @@ async function maintainInviteDatesAddDates(){
     values.startDate = startDate.value;
     values.endDate = endDate.value;
     values.eventId = eventSelect.value;
-    values.familyMemberId = personSelect.value;
+    values.familyMemberId = getValueFromJson(personSelect.value, "id");
     values.dateStatus = relationshipType;
     let addResponse = callAjax('addEventPlanningDates',values);
 }
+function maintainInviteDatesAutoSelectInviteRow(member){
+    maintainEventEventName = member.value;
+    let ii = extractElementIdNumber(member.id);
+    let checkbox = document.getElementById(generateElementId("inviteDateCheckbox",ii));
+    checkbox.checked = true;
+    maintainInviteDatesActivateUpdateDeleteButton(checkbox);
+}
 function maintainInviteDatesDateChanged(date){
     maintainInviteDatesSetAddDatesButton();
+}
+async function maintainInviteDatesDelete(){
+    alert("maintainInviteDatesDelete is under construction");
 }
 async function maintainInviteDatesEventSelected(item){
     if(maintainInviteDatesNoSelection){
@@ -486,6 +506,12 @@ async function maintainInviteDatesInviteeSelected(item){
     }
     maintainInviteDatesSetAddDatesButton();
 }
+async function maintainInviteDatesEventSelectedForMaintain(item){
+    values = {};
+    values.eventId = item.value;
+    inviteDatesArray = await callAjax('getEventPlanningDatesByEvent', values);
+    maintainInviteDatesPopulateMaintainDatesTable(inviteDatesArray);
+}
 async function maintainInviteDatesLoadDateStatuses(){
     let relationArray = await callAjax('getDateStatuses');
     let relationSelect = document.getElementById('relationType');
@@ -501,8 +527,8 @@ async function maintainInviteDatesLoadDateStatuses(){
 }
 async function maintainInviteDatesLoadEventData(){
     let eventArray = await callAjax('getEventsWithInvites');
-    maintainEventCreateEventTable(eventArray);
     populateEventSelector(eventArray, "eventSelect");
+    populateEventSelector(eventArray, "eventSelect1");
 }
 async function maintainInviteDatesLoadFamilyData(){
     let familyArray = await callAjax('getFamilyMembersWithInvites');
@@ -514,6 +540,27 @@ async function maintainInviteDatesReset(){
     maintainInviteDatesSetAddDatesButton();
     maintainInviteDatesNoSelection = true;
 }
+function maintainInviteDatesPopulateMaintainDatesTable(datesArray){
+    alert("maintainInviteDatesPopulateMaintainDatesTable needs coding");
+    let text = "<table class='tableCenter' style='width:500;'>";
+    text += "<thead><th>Sel</th><th>Event</th><th>Name</th><th>Status</th><th>Start Date</th><th>End Date</th></thead>"
+    for (let ii = 0; ii < datesArray.length; ii++) {
+        text += '<tr>';
+        let member = datesArray[ii];
+        let selId = generateElementId("dateStatusSelect", ii);
+        let startDateId = generateElementId("updStartDate",ii);
+        let endDateId = generateElementId("updateEndDate", ii);
+        text += "<td class='tdCenter'><input type='checkbox' name='inviteDateCheckbox' id='" 
+            + generateElementId("inviteDateCheckbox",ii) +"' value=" + member.id
+            + " onchange='maintainInviteDatesActivateUpdateDeleteButton(this)'></td>";
+        text += "<td>" + member.eventName + "</td>";
+        text += "<td>" + member.fullName + "</td>";
+        text += "<td>" + generateIdSelector(eventInviteStatuses, member.dateStatusId, selId,"name", "maintainEventAutoSelectInviteRow(this)") + "</td>";
+        text += "<td>" + generateDateSelector(member.startDate, startDateId) + "</td>";
+        text += "<td>" + generateDateSelector(member.endDate, endDateId) + "</td>";
+        text += '</tr>';
+    }
+}
 function maintainInviteDatesSelectDateType(selection){
     relationshipType = selection.value;
 }
@@ -524,4 +571,7 @@ function maintainInviteDatesSetAddDatesButton(){
     personSelect = document.getElementById("inviteeSelect");
     document.getElementById("addDateButton").disabled =
         startDate.value && endDate.value && eventSelect.value != -1 && personSelect.value != -1?false:true;
+}
+async function maintainInviteDatesUpdate(){
+    alert("maintainInviteDatesUpdate is under construction");
 }

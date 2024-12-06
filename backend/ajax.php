@@ -18,19 +18,19 @@ function addEventPlanningDates(){
     $familyMemberId = $_GET['familyMemberId'];
     $startDate = $_GET['startDate'];
     $endDate = $_GET['endDate'];
-    $dateStatus = $_GET['dateStatus'];
-    $retResult = EventPlanningDates::getOverlappingDates($eventId, $familyMemberId, $dateStatus, $startDate, $endDate);
+    $dateStatusId = $_GET['dateStatus'];
+    $retResult = EventPlanningDates::getOverlappingDates($eventId, $familyMemberId, $startDate, $endDate);
     if(count($retResult->body)){
         $row = $retResult->body[0];
-        $event = $row->eventName;
-        $name = $row->fullName;
+        $event = $row['eventName'];
+        $name = $row['fullName'];
         $badResult = new Result();
         $badResult->setSuccess(false);
-        $badResult->addMessage(3,"overlapping date exists for $name and $event, not created");
+        $badResult->addMessage(3,"overlapping date exists for '$name' and '$event', not created");
         echo $badResult->getResultString();
         return;
     }
-    echo EventPlanningDates::insert($eventId, $familyMemberId, $startDate, $endDate)->getResultString();
+    echo EventPlanningDates::insert($eventId, $familyMemberId, $dateStatusId, $startDate, $endDate)->getResultString();
 }
 function addFamilyMember(){
     echo FamilyMember::insert($_GET['firstName'],$_GET['lastName'])->getResultString();
@@ -64,6 +64,9 @@ function getDateStatuses(){
 }
 function getEventInviteStatuses(){
     echo EventInviteStatus::getAll()->getResultString();
+}
+function getEventPlanningDatesByEvent(){
+    echo EventPlanningDates::getByEvent(json_decode($_GET['eventId']));
 }
 function getEvents(){
     echo Event::getAll()->getResultString();
@@ -156,6 +159,9 @@ switch ($_GET['action']){
     case 'getEventInviteStatuses':
         getEventInviteStatuses();
         break;
+    case 'getEventPlanningDatesByEvent':
+        getEventPlanningDatesByEvent();
+        break;
     case 'getEvents':
         getEvents();
         break;
@@ -169,7 +175,7 @@ switch ($_GET['action']){
         getFamilyMembers();
         break;
     case 'getFamilyMembersByEvent':
-        getFamilyMembers();
+        getFamilyMembersByEvent();
         break;
     case 'getFamilyMembersWithInvites':
         getFamilyMembersWithInvites();

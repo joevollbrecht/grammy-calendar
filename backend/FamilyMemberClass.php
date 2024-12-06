@@ -33,13 +33,13 @@ class FamilyMember extends Base{
     }
     static public function getAllWithInvites(){
         $myStatement = self::$conn->prepare("SELECT * FROM FamilyMember
-            WHERE id in (SELECT familyMemberId from EventInvite");
+            WHERE id in (SELECT familyMemberId from EventInvite)");
         $myStatement->execute();
         $retVal = array();
         while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
             array_push($retVal,$row);
         }
-        return self::$retVal;
+        return $retVal;
     }
     static public function getByEvent(int $eventId){
         $myStatement = self::$conn->prepare("SELECT e.* FROM FamilyMember e

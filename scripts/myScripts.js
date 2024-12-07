@@ -1,3 +1,4 @@
+let bodySelect = null;
 let dateStatuses = null;
 let eventInviteStatuses = null;
 let extractElementIdNumberRegEx = new RegExp(/[^_]{1,}$/);
@@ -5,8 +6,87 @@ let maintainEventEventName = null;
 let maintainFamilyFirstName = null;
 let maintainFamilyLastName = null;
 let maintainInviteDatesNoSelection = true;
+let messageSpaceContainer = null;
 let relationshipType = 1;
 
+
+function myInit(initFunctionName){
+    bodySelect = document.querySelector("body");
+    buildNavBar();
+    messageSpaceContainer = new MessageSpace();
+    switch(initFunctionName){
+        case "initIndex":
+            initIndex();
+            break;
+        case "maintainEventsInit":
+            maintainEventsInit();
+            break;
+        case "maintainFamilyInit":
+            maintainFamilyInit();
+            break;
+        case "maintainInviteDatesInit":
+            maintainInviteDatesInit();
+            break;
+        default:
+            alert("bad init function:" + initFunctionName);
+    }
+}
+async function initIndex(){
+    // document.getElementById("messageSpace").innerText = "here I am in the init function";
+    messageSpaceContainer.appendToBody();
+    messageSpaceContainer.setText("here I set the message space as a class");
+}
+class MessageSpace{
+    constructor(){
+        this.container = document.createElement("div");
+        this.container.id = 'messageSpaceContainer';
+        this.div = document.createElement("div");
+        this.div.id = "messageSpace";
+        this.container.appendChild(this.div);
+        this.button = document.createElement("button");
+        this.button.id = "clearMessageSpaceButton";
+        this.button.text = "Clear Messages";
+        this.button.hidden = true;
+        this.container.appendChild(this.button);
+        this.button.addEventListener('click', this.clear.bind(this));
+    }
+    appendToBody(){
+        bodySelect.appendChild(this.container);
+    }
+    clear(){
+        this.setText("");
+    }
+    getContainer(){return this.container}
+    hideButton(){this.button.hidden = true}
+    setButton(){
+        this.button.hidden = this.div.innerHTML.length || this.div.textContent.length?false:true;
+    }
+    setInnerHTML(inString){
+        this.div.innerHTML = inString;
+        this.setButton();
+    }
+    setText(inString){
+        this.div.textContent = inString;
+        this.setButton();
+    }
+    showButton(){this.button.hidden = false};
+} 
+function buildNavBar(){
+    function createAnchor(url,text){
+        let span = document.createElement("span");
+        let anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.text = text;
+        span.appendChild(anchor);
+        return span;
+    }
+    let nav = document.createElement("nav");
+    nav.appendChild(createAnchor("/index.html","Home"));
+    nav.appendChild(createAnchor("/html/maintainFamily.html","Maintain Family"));
+    nav.appendChild(createAnchor("/html/maintainEvents.html","Maintain Events"));
+    nav.appendChild(createAnchor("/html/maintainPlanningDates.html","Maintain Planning Dates"));
+    bodySelect.insertBefore(nav, body.firstChild);
+}
 async function callAjax(type, values = {}){
     let myUrl = '/backend/ajax.php';
     let responseHandler = getStandardDbResponse;

@@ -501,6 +501,12 @@ async function maintainInviteDatesAddDates(){
     values.familyMemberId = getValueFromJson(personSelect.value, "id");
     values.dateStatus = relationshipType;
     let addResponse = callAjax('addEventPlanningDates',values);
+    if(eventSelect.value == document.getElementById("eventSelect1").value){
+        values = {};
+        values.eventId = eventSelect.value;
+        inviteDatesArray = await callAjax('getEventPlanningDatesByEvent', values);
+        maintainInviteDatesPopulateMaintainDatesTable(inviteDatesArray);
+    }
 }
 function maintainInviteDatesAutoSelectInviteRow(member){
     maintainEventEventName = member.value;
@@ -517,13 +523,13 @@ async function maintainInviteDatesDelete(button){
     let values = {};
     let ids = [];
     for(let ii = 0;ii<selected.length;ii++){
-        ids.push(selected[ii].value);
+        ids.push(selected[ii]);
     }
-    values.ids = ids;
+    values.ids = JSON.stringify(ids);
     let deleteResponse = callAjax('deleteEventPlanningDates', values);
     values = {};
     values.eventId = document.getElementById('eventSelect1').value;
-    inviteDatesArray = await callAjax('deleteEventPlanningDates', values);
+    inviteDatesArray = await callAjax('getEventPlanningDatesByEvent', values);
     maintainInviteDatesPopulateMaintainDatesTable(inviteDatesArray);
 }
 async function maintainInviteDatesEventSelected(item){
@@ -614,8 +620,8 @@ function maintainInviteDatesSetAddDatesButton(){
     document.getElementById("addDateButton").disabled =
         startDate.value && endDate.value && eventSelect.value != -1 && personSelect.value != -1?false:true;
 }
-async function maintainInviteDatesUpdate(){
-    let selected = getCheckedValuesForName(button.name);
+async function maintainInviteDatesUpdate(button){
+    let selected = getCheckedValueAndIdsForName(button.name);
     let values = {};
     let updates = [];
     for(let ii = 0;ii<selected.length;ii++){
@@ -631,10 +637,10 @@ async function maintainInviteDatesUpdate(){
         }
         updates.push(value);
     }
-    values.updates = updates;
+    values.updates = JSON.stringify(updates);
     callAjax('updateEventPlanningDates', values);
     values = {};
     values.eventId = document.getElementById('eventSelect1').value;
-    inviteDatesArray = await callAjax('deleteEventPlanningDates', values);
+    inviteDatesArray = await callAjax('getEventPlanningDatesByEvent', values);
     maintainInviteDatesPopulateMaintainDatesTable(inviteDatesArray);
 }

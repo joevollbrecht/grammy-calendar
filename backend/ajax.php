@@ -45,7 +45,7 @@ function deleteEvents(){
     echo Event::delete(json_decode($_GET['ids']))->getResultString();
 }
 function deleteEventPlanningDates(){
-    echo EventPlanningDate::delete(json_decode($_GET['ids']))->getResultString();
+    echo EventPlanningDates::delete(json_decode($_GET['ids']))->getResultString();
 }
 function deleteFamilyMember(){
     echo FamilyMember::delete(json_decode($_GET['ids']))->getResultString();

@@ -78,7 +78,7 @@ class EventPlanningDates extends Base{
             AND familyMemberId = (SELECT familyMemberId from EventInvite ei
                 JOIN EventPlanningDates epd on ei.id = epd.eventInviteId
                 WHERE epd.id = $id)
-            AND '$startDate' <= a.endDate AND '$endDate' >= a.startDate
+            AND '$startDate' <= epd.endDate AND '$endDate' >= epd.startDate
             AND epd.id != $id");
         $myStatement->execute();
         $retVal = array();
@@ -100,7 +100,7 @@ class EventPlanningDates extends Base{
     }
     static function update(int $id, $startDate, $endDate, $dateStatusId){
         $sqlQuery = "UPDATE EventPlanningDates
-            SET startDate = $startDate, endDate =$endDate, dateStatusId = $dateStatusId
+            SET startDate = '$startDate', endDate ='$endDate', dateStatusId = $dateStatusId
             where id = $id";
         $myStatement = self::$conn->prepare($sqlQuery);
         $myStatement->execute();

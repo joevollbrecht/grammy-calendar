@@ -42,6 +42,7 @@ label{
 
 .accordionActive, .accordion:hover {
   background-color: #555;
+  /*color:rgb(0, 236, 75)*/
 }
 
 .accordionContent {

@@ -74,6 +74,12 @@ function getEventPlanningDatesByEvent(){
     $return->setBody($response);
     echo $return->getResultString();
 }
+function getEventPlanningMinDatesByEvent(){
+    $response = EventPlanningDates::getByEventWithMinDates(json_decode($_GET['eventId']));
+    $return = new Result(true);
+    $return->setBody($response);
+    echo $return->getResultString();
+}
 function getEvents(){
     echo Event::getAll()->getResultString();
 }
@@ -199,6 +205,9 @@ switch ($_GET['action']){
         break;
     case 'getEventPlanningDatesByEvent':
         getEventPlanningDatesByEvent();
+        break;
+    case 'getEventPlanningMinDatesByEvent':
+        getEventPlanningMinDatesByEvent();
         break;
     case 'getEvents':
         getEvents();

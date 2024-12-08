@@ -36,34 +36,107 @@ function myInit(initFunctionName){
     }
     messageSpaceContainer.appendToBody();
 }
-class PlanningDatesTable{
+class Table{
     constructor(id, name){
+        if(document.getElementById(id)){
+            alert("Reused id " + id + ", try again");
+            throw "Duplicate id " + id;
+        }
         this.container = document.createElement("div");
         this.container.id = id;
         this.tableSelector = document.createElement("table");
         this.tableSelector.id = id + "_table";
         this.tableSelector.name = name;
-        this.tableSelector.classList.add("tableCenter");
-        this.tableSelector.style.width = "800";
-
-        let text = "<table class='tableCenter' style='width:800;' name='maintainInviteDates'>";
-        text += "<thead><th>Sel</th><th>Event</th><th>Name</th><th>Status</th><th>Start Date</th><th>End Date</th></thead>";
-        text += '<tbody>';        
+        this.columns = [];
+    }
+    addTableToContainer(){
+        this.container.appendChild(this.tableSelector);
+    }
+    addToElement(id=""){
+        let element = id == ""?bodySelect:document.getElementById(id);
+        element.appendChild(this.container);
+    }
+    createBody(){
+        this.tableBody = document.createElement("tbody");
+        this.tableSelector.appendChild(this.tableBody);
+    }
+    createHead(){       
         let head = document.createElement("thead");
-        ["Sel","Event","Name","Status","Start Date","End Date"].forEach((element) => 
+        this.columns.forEach((element) => 
             {
                 let th=document.createElement("th");
                 th.textContent = element;
                 head.appendChild(th);
         });
         this.tableSelector.appendChild(head);
-        this.tableBody = document.createElement("tbody");
-        this.tableSelector.appendChild(this.tableBody);
-        this.container.appendChild(this.tableSelector);
     }
-    append(id=""){
-        let element=id==""?bodySelect:document.getElementById(id);
-        element.appendChild(this.container);
+}
+class PlanningDatesTable extends Table{
+    constructor(id, name, includeSelect = false){
+        super(id, name);
+        this.planningDatesArray = [];
+        this.eventSelector = null;
+        this.familySelector = null;
+        this.selectedEvent = -1;
+        this.tableSelector.classList.add("tableCenter");
+        this.tableSelector.style.width = "800";
+        this.includeSelect = includeSelect;
+        if(includeSelect){
+            this.columns = ["Sel","Event","Name","Status","Start Date","End Date"];
+        }
+        else{
+            this.columns = ["Event","Name","Status","Start Date","End Date"]
+        }
+        this.createHead();
+        this.createBody();
+        this.createSelectors();
+        this.loadEvents();
+        this.addTableToContainer();
+        // this.container.appendChild(this.tableSelector);
+    }
+    createSelectors(){
+        div = document.createElement("div");
+        this.eventSelector = document.createElement("select");
+        this.eventSelector.id = this.id + "_eventSelect";
+        this.eventSelector.disabled = true;
+        this.eventSelector.addEventListener('change', this.eventSelected(this).bind(this));
+        option = document.createElement("option");
+        option.value = -1;
+        option.textContent = "None";
+        eventSelect.appendChild(option);
+        div.appendChild(this.eventSelector);
+        this.familySelector = document.createElement("select");
+        this.familySelector.id = this.id + "_familySelect";
+        this.familySelector.disabled = true;
+        this.familySelector.multiple = true;
+        this.familySelector.addEventListener('change', this.familySelected(this).bind(this));
+        option = document.createElement("option");
+        option.value = -1;
+        option.textContent = "None";
+        eventSelect.appendChild(option);
+        div.appendChild(this.familySelector);
+        this.container.appendChild(div);
+    }
+    eventSelected(item){
+        this.selectedEvent = item.value;
+        this.familySelector.disabled = false;
+        this.loadPlanningDates();
+    }
+    familySelected(item){
+        alert("familySelected needs code" + item.value);
+    }
+    async loadEvents(){
+        let eventArray = await callAjax('getEvents');
+        populateEventSelector(eventArray, this.eventSelector.id);
+        this.eventSelector.disabled = false;
+    }
+    async loadPlanningDates(){
+        if(this.selectedEvent<0){
+            alert("Must select event first");
+            return;
+        }
+        values = {id:this.selectedEvent};
+        this.planningDatesArray = await callAjax('getEventPlanningMinDatesByEvent',values);
     }
 }
 class MessageSpace{
@@ -148,6 +221,7 @@ async function callAjax(type, values = {}){
         case 'getDateStatuses':
         case 'getEventInviteStatuses':
         case 'getEventPlanningDatesByEvent':
+        case 'getEventPlanningMinDatesByEvent':
         case 'getEvents':
         case 'getEventsByFamilyMember':
         case 'getEventsWithInvites':
@@ -179,6 +253,7 @@ function defaultDisplay(response){
     document.getElementById("message_space").innerText = response;
 }
 function displayMessages(messageArray){
+    if(!messageArray.length) return;
     let displayHtml = Object.keys(messageArray)
         .map(k =>"<span " + messageCss[messageArray[k].type] + ">" + messageArray[k].message + "</span>")
         .join('<br>');
@@ -603,7 +678,7 @@ async function maintainInviteDatesInit(){
     maintainInviteDatesLoadEventData();
     maintainInviteDatesLoadDateStatuses();
     analyzeDatesTable = new PlanningDatesTable("analyzeDates", "analyzeDates");
-    analyzeDatesTable.append('showAnalyzeTable');
+    analyzeDatesTable.addToElement('showAnalyzeTable');
 }
 function maintainInviteDatesActivateUpdateDeleteButton(element){
     setButtonStatusForName(element.name);

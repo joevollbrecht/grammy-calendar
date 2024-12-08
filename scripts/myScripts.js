@@ -1,11 +1,15 @@
 let bodySelect = null;
-let dateStatuses = null;
+let dateStatusArray = null;
 let eventInviteStatuses = null;
 let extractElementIdNumberRegEx = new RegExp(/[^_]{1,}$/);
 let maintainEventEventName = null;
 let maintainFamilyFirstName = null;
 let maintainFamilyLastName = null;
 let maintainInviteDatesNoSelection = true;
+let messageCss = [];
+    messageCss[1] = 'class="messageInfo"';
+    messageCss[2] = 'class="messageWarning"';
+    messageCss[3] = 'class="messageError"';
 let messageSpaceContainer = null;
 let relationshipType = 1;
 
@@ -30,14 +34,44 @@ function myInit(initFunctionName){
         default:
             alert("bad init function:" + initFunctionName);
     }
-}
-async function initIndex(){
-    // document.getElementById("messageSpace").innerText = "here I am in the init function";
     messageSpaceContainer.appendToBody();
-    messageSpaceContainer.setText("here I set the message space as a class");
+}
+class PlanningDatesTable{
+    constructor(id, name){
+        this.container = document.createElement("div");
+        this.container.id = id;
+        this.tableSelector = document.createElement("table");
+        this.tableSelector.id = id + "_table";
+        this.tableSelector.name = name;
+        this.tableSelector.classList.add("tableCenter");
+        this.tableSelector.style.width = "800";
+
+        let text = "<table class='tableCenter' style='width:800;' name='maintainInviteDates'>";
+        text += "<thead><th>Sel</th><th>Event</th><th>Name</th><th>Status</th><th>Start Date</th><th>End Date</th></thead>";
+        text += '<tbody>';        
+        let head = document.createElement("thead");
+        ["Sel","Event","Name","Status","Start Date","End Date"].forEach((element) => 
+            {
+                let th=document.createElement("th");
+                th.textContent = element;
+                head.appendChild(th);
+        });
+        this.tableSelector.appendChild(head);
+        this.tableBody = document.createElement("tbody");
+        this.tableSelector.appendChild(this.tableBody);
+        this.container.appendChild(this.tableSelector);
+    }
+    append(id=""){
+        let element=id==""?bodySelect:document.getElementById(id);
+        element.appendChild(this.container);
+    }
 }
 class MessageSpace{
     constructor(){
+        this.messageCss = [];
+        this.messageCss[1] = 'class="messageInfo"';
+        this.messageCss[2] = 'class="messageWarning"';
+        this.messageCss[3] = 'class="messageError"';
         this.container = document.createElement("div");
         this.container.id = 'messageSpaceContainer';
         this.div = document.createElement("div");
@@ -45,13 +79,17 @@ class MessageSpace{
         this.container.appendChild(this.div);
         this.button = document.createElement("button");
         this.button.id = "clearMessageSpaceButton";
-        this.button.text = "Clear Messages";
+        this.button.textContent = "Clear Messages";
         this.button.hidden = true;
         this.container.appendChild(this.button);
         this.button.addEventListener('click', this.clear.bind(this));
     }
     appendToBody(){
         bodySelect.appendChild(this.container);
+    }
+    apppendToHtml(inString){
+        this.div.innerHTML += "<br>" + inString;
+        this.showButton();
     }
     clear(){
         this.setText("");
@@ -61,7 +99,7 @@ class MessageSpace{
     setButton(){
         this.button.hidden = this.div.innerHTML.length || this.div.textContent.length?false:true;
     }
-    setInnerHTML(inString){
+    setInnerHTML(inString, level){
         this.div.innerHTML = inString;
         this.setButton();
     }
@@ -84,8 +122,8 @@ function buildNavBar(){
     nav.appendChild(createAnchor("/index.html","Home"));
     nav.appendChild(createAnchor("/html/maintainFamily.html","Maintain Family"));
     nav.appendChild(createAnchor("/html/maintainEvents.html","Maintain Events"));
-    nav.appendChild(createAnchor("/html/maintainPlanningDates.html","Maintain Planning Dates"));
-    bodySelect.insertBefore(nav, body.firstChild);
+    nav.appendChild(createAnchor("/html/maintainInviteDates.html","Maintain Planning Dates"));
+    bodySelect.insertBefore(nav, bodySelect.firstChild);
 }
 async function callAjax(type, values = {}){
     let myUrl = '/backend/ajax.php';
@@ -124,33 +162,32 @@ async function callAjax(type, values = {}){
         default:
             console.log("in default with type="+type);
             response = "hit the default with type="+type;
-            document.getElementById("messageSpace").innerText = response;
+            messageSpaceContainer.setText(response);
+            // document.getElementById("messageSpace").innerText = response;
             return;
-        }
+    }
     myObject = await fetch(myUrl);
     response = await myObject.text();
     return responseHandler(response);
 }
 function clearMessageSpace(){
-    document.getElementById("messageSpace").innerHTML = "";
-    document.getElementById("clearMessageSpaceButton").hidden = true;
+    messageSpaceContainer.clear();
+    /*document.getElementById("messageSpace").innerHTML = "";
+    document.getElementById("clearMessageSpaceButton").hidden = true;*/
 }
 function defaultDisplay(response){
     document.getElementById("message_space").innerText = response;
 }
 function displayMessages(messageArray){
-    let messageCss = [];
-    messageCss[1] = 'class="messageInfo"';
-    messageCss[2] = 'class="messageWarning"';
-    messageCss[3] = 'class="messageError"';
     let displayHtml = Object.keys(messageArray)
         .map(k =>"<span " + messageCss[messageArray[k].type] + ">" + messageArray[k].message + "</span>")
         .join('<br>');
-    let element = document.getElementById("messageSpace");
+    messageSpaceContainer.apppendToHtml(displayHtml);
+    /*let element = document.getElementById("messageSpace");
     if( element.innerHTML.length && displayHtml.length){
         element.innerHTML = element.innerHTML + '<br>' + displayHtml;
     } else if(displayHtml.length) element.innerHTML = displayHtml;
-    document.getElementById("clearMessageSpaceButton").hidden = element.innerHTML.length?false:true;
+    document.getElementById("clearMessageSpaceButton").hidden = element.innerHTML.length?false:true;*/
 }
 function extractElementIdNumber(id){
     return extractElementIdNumberRegEx.exec(id);
@@ -223,6 +260,10 @@ function initAccordions(){
       });
     }
 }
+async function initIndex(){
+    // messageSpaceContainer.appendToBody();
+    // messageSpaceContainer.setText("here I set the message space as a class");
+}
 function populateEventSelector(eventArray,elementName){    
     let eventSelect = document.getElementById(elementName);
     eventSelect.length = 1;
@@ -238,7 +279,7 @@ function populateFamilySelector(familyArray,elementName){
     });
 }
 async function retrieveDateStatuses() {
-    eventInviteStatuses = await callAjax("getDateStatuses");
+    dateStatusArray = await callAjax("getDateStatuses");
 }
 async function retrieveEventInviteStatuses() {
     eventInviteStatuses = await callAjax("getEventInviteStatuses");
@@ -561,6 +602,8 @@ async function maintainInviteDatesInit(){
     maintainInviteDatesLoadFamilyData();
     maintainInviteDatesLoadEventData();
     maintainInviteDatesLoadDateStatuses();
+    analyzeDatesTable = new PlanningDatesTable("analyzeDates", "analyzeDates");
+    analyzeDatesTable.append('showAnalyzeTable');
 }
 function maintainInviteDatesActivateUpdateDeleteButton(element){
     setButtonStatusForName(element.name);
@@ -681,7 +724,7 @@ function maintainInviteDatesPopulateMaintainDatesTable(datesArray){
             + " onchange='maintainInviteDatesActivateUpdateDeleteButton(this)'></td>";
         text += "<td>" + member.eventName + "</td>";
         text += "<td>" + member.fullName + "</td>";
-        text += "<td>" + generateIdSelector(eventInviteStatuses, member.dateStatusId, dateStatusId,"name", "setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
+        text += "<td>" + generateIdSelector(dateStatusArray, member.dateStatusId, dateStatusId,"name", "setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
         text += "<td>" + generateDateSelector(member.startDate, startDateId,"startDate","setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
         text += "<td>" + generateDateSelector(member.endDate, endDateId,"startDate","setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
         text += '</tr>';

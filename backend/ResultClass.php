@@ -5,7 +5,8 @@ class Result{
         $this->result = array("success"=>$success,"body"=>array(),"messages"=>array());
     }
     public function getSuccess(){
-        return $this->result->success;
+        return $this->result["success"];
+        
     }
     public function setBody($value = array()){
         $this->result["body"] = $value;

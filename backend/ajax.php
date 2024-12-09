@@ -75,7 +75,7 @@ function getEventPlanningDatesByEvent(){
     echo $return->getResultString();
 }
 function getEventPlanningMinDatesByEvent(){
-    $response = EventPlanningDates::getByEventWithMinDates(json_decode($_GET['eventId']));
+    $response = EventPlanningDates::getByEventWithMinDates(json_decode($_GET['id']));
     $return = new Result(true);
     $return->setBody($response);
     echo $return->getResultString();

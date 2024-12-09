@@ -44,6 +44,7 @@ class Table{
         }
         this.container = document.createElement("div");
         this.container.id = id;
+        this.tableBody = null;
         this.tableSelector = document.createElement("table");
         this.tableSelector.id = id + "_table";
         this.tableSelector.name = name;
@@ -70,6 +71,11 @@ class Table{
         });
         this.tableSelector.appendChild(head);
     }
+    createTd(text){
+        td = document.createElement("td");
+        td.textContent = text;
+        return td;
+    }
 }
 class PlanningDatesTable extends Table{
     constructor(id, name, includeSelect = false){
@@ -95,12 +101,12 @@ class PlanningDatesTable extends Table{
         // this.container.appendChild(this.tableSelector);
     }
     createSelectors(){
-        div = document.createElement("div");
+        let div = document.createElement("div");
         this.eventSelector = document.createElement("select");
         this.eventSelector.id = this.id + "_eventSelect";
         this.eventSelector.disabled = true;
-        this.eventSelector.addEventListener('change', this.eventSelected(this).bind(this));
-        option = document.createElement("option");
+        this.eventSelector.addEventListener('change', this.eventSelected.bind(this));
+        let option = document.createElement("option");
         option.value = -1;
         option.textContent = "None";
         eventSelect.appendChild(option);
@@ -108,8 +114,9 @@ class PlanningDatesTable extends Table{
         this.familySelector = document.createElement("select");
         this.familySelector.id = this.id + "_familySelect";
         this.familySelector.disabled = true;
+        this.familySelector.hidden = true;
         this.familySelector.multiple = true;
-        this.familySelector.addEventListener('change', this.familySelected(this).bind(this));
+        this.familySelector.addEventListener('change', this.familySelected.bind(this));
         option = document.createElement("option");
         option.value = -1;
         option.textContent = "None";
@@ -117,12 +124,13 @@ class PlanningDatesTable extends Table{
         div.appendChild(this.familySelector);
         this.container.appendChild(div);
     }
-    eventSelected(item){
-        this.selectedEvent = item.value;
+    eventSelected(){
+        this.selectedEvent = this.eventSelector.value;
         this.familySelector.disabled = false;
         this.loadPlanningDates();
+        this.loadFamilySelector();
     }
-    familySelected(item){
+    familySelected(){
         alert("familySelected needs code" + item.value);
     }
     async loadEvents(){
@@ -130,13 +138,48 @@ class PlanningDatesTable extends Table{
         populateEventSelector(eventArray, this.eventSelector.id);
         this.eventSelector.disabled = false;
     }
+    async loadFamilySelector(){
+        let values = {eventId:this.selectedEvent};
+        let familyArray = await callAjax('getFamilyMembersByEvent',values);
+        populateFamilySelector(familyArray, this.familySelector.id);
+        this.familySelector.disabled = false;
+        this.familySelector.hidden = false;
+    }
     async loadPlanningDates(){
         if(this.selectedEvent<0){
             alert("Must select event first");
             return;
         }
-        values = {id:this.selectedEvent};
+        let values = {id:this.selectedEvent};
         this.planningDatesArray = await callAjax('getEventPlanningMinDatesByEvent',values);
+        this.populatePlanningDates();
+    }
+    populatePlanningDates(){
+        let size = this.planningDatesArray.length;
+        for (let ii = 0; ii < size; ii++) {
+            // text += '<tr>';
+            let tr = document.createElement("tr");
+            tr.appendChild(this.createTd(member.eventName));
+            tr.appendChild(this.createTd(member.fullName));
+            tr.appendChild(this.createTd(dateStatusArray[member.dateStatusId]));
+            tr.appendChild(this.createTd(member.startDate));
+            tr.appendChild(this.createTd(member.endDate));
+            this.tableBody.appendChild(tr);
+
+            let member = this.planningDatesArray[ii];
+            let dateStatusId = generateElementId("dateStatusSelect", ii);
+            let startDateId = generateElementId("updateStartDate",ii);
+            let endDateId = generateElementId("updateEndDate", ii);
+            // text += "<td class='tdCenter'><input type='checkbox' name='maintainInviteDates' id='" 
+            //     + generateElementId("inviteDateCheckbox",ii) +"' value=" + member.id
+            //     + " onchange='maintainInviteDatesActivateUpdateDeleteButton(this)'></td>";
+            text += "<td>" + member.eventName + "</td>";
+            text += "<td>" + member.fullName + "</td>";
+            text += "<td>" + generateIdSelector(dateStatusArray, member.dateStatusId, dateStatusId,"name", "setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
+            text += "<td>" + generateDateSelector(member.startDate, startDateId,"startDate","setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
+            text += "<td>" + generateDateSelector(member.endDate, endDateId,"startDate","setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
+            text += '</tr>';
+        }
     }
 }
 class MessageSpace{

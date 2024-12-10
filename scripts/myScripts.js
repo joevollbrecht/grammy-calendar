@@ -1,5 +1,6 @@
 let bodySelect = null;
 let dateStatusArray = null;
+let dateStatusValueArray = [];
 let eventInviteStatuses = null;
 let extractElementIdNumberRegEx = new RegExp(/[^_]{1,}$/);
 let maintainEventEventName = null;
@@ -72,7 +73,7 @@ class Table{
         this.tableSelector.appendChild(head);
     }
     createTd(text){
-        td = document.createElement("td");
+        let td = document.createElement("td");
         td.textContent = text;
         return td;
     }
@@ -158,27 +159,27 @@ class PlanningDatesTable extends Table{
         let size = this.planningDatesArray.length;
         for (let ii = 0; ii < size; ii++) {
             // text += '<tr>';
+            let member = this.planningDatesArray[ii];
             let tr = document.createElement("tr");
             tr.appendChild(this.createTd(member.eventName));
             tr.appendChild(this.createTd(member.fullName));
-            tr.appendChild(this.createTd(dateStatusArray[member.dateStatusId]));
+            tr.appendChild(this.createTd(dateStatusValueArray[member.dateStatusId]));
             tr.appendChild(this.createTd(member.startDate));
             tr.appendChild(this.createTd(member.endDate));
             this.tableBody.appendChild(tr);
 
-            let member = this.planningDatesArray[ii];
-            let dateStatusId = generateElementId("dateStatusSelect", ii);
-            let startDateId = generateElementId("updateStartDate",ii);
-            let endDateId = generateElementId("updateEndDate", ii);
-            // text += "<td class='tdCenter'><input type='checkbox' name='maintainInviteDates' id='" 
-            //     + generateElementId("inviteDateCheckbox",ii) +"' value=" + member.id
-            //     + " onchange='maintainInviteDatesActivateUpdateDeleteButton(this)'></td>";
-            text += "<td>" + member.eventName + "</td>";
-            text += "<td>" + member.fullName + "</td>";
-            text += "<td>" + generateIdSelector(dateStatusArray, member.dateStatusId, dateStatusId,"name", "setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
-            text += "<td>" + generateDateSelector(member.startDate, startDateId,"startDate","setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
-            text += "<td>" + generateDateSelector(member.endDate, endDateId,"startDate","setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
-            text += '</tr>';
+            // let dateStatusId = generateElementId("dateStatusSelect", ii);
+            // let startDateId = generateElementId("updateStartDate",ii);
+            // let endDateId = generateElementId("updateEndDate", ii);
+            // // text += "<td class='tdCenter'><input type='checkbox' name='maintainInviteDates' id='" 
+            // //     + generateElementId("inviteDateCheckbox",ii) +"' value=" + member.id
+            // //     + " onchange='maintainInviteDatesActivateUpdateDeleteButton(this)'></td>";
+            // text += "<td>" + member.eventName + "</td>";
+            // text += "<td>" + member.fullName + "</td>";
+            // text += "<td>" + generateIdSelector(dateStatusArray, member.dateStatusId, dateStatusId,"name", "setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
+            // text += "<td>" + generateDateSelector(member.startDate, startDateId,"startDate","setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
+            // text += "<td>" + generateDateSelector(member.endDate, endDateId,"startDate","setTableCheckbox(this,'inviteDateCheckbox')") + "</td>";
+            // text += '</tr>';
         }
     }
 }
@@ -398,6 +399,9 @@ function populateFamilySelector(familyArray,elementName){
 }
 async function retrieveDateStatuses() {
     dateStatusArray = await callAjax("getDateStatuses");
+    dateStatusArray.forEach((element, key) => {
+        dateStatusValueArray[element.id] = element.value;
+    });
 }
 async function retrieveEventInviteStatuses() {
     eventInviteStatuses = await callAjax("getEventInviteStatuses");

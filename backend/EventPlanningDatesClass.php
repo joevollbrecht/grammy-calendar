@@ -16,6 +16,51 @@ class EventPlanningDates extends Base{
         $this->startDate = $startDate;
         $this->endDate = $endDate;
     }
+    static function calcMinDates($eventArray, $dateArray){
+        $retVal = array();
+        $newEventsArray = array();
+        foreach($eventArray as $key => $element){
+            ['startDate' => $startDate, 'endDate' => $endDate] = $element;
+            for($i = 0, $size = count($dateArray); $i < $size; ++$i) {
+                ['startDate' => $tStart, 'endDate' => $tEnd] = $tempArray[$i];
+                error_log("entry - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  retVal(count:".count($retVal).")");
+
+                if($endDate<$tStart){
+                    $retVal[] = $element;
+                    error_log("endDate < startDate - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  retVal(count:".count($retVal).print_r($retVal[count($retVal)-1],true).")");
+                    break;
+                } 
+                if($startDate>=$tStart && $endDate<=$tEnd){ //completely contained
+                    $retVal[] = $element;
+                    error_log("element completely contained - should pick up later ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  retVal(count:".count($retVal).")");
+                    break;
+                }
+                if($startDate >= $tStart && $startDate<$endDate){ //overlap start
+                    $newElement = $element;
+                    $newElement['endDate'] = $tEnd;
+                    $retVal[] = $newElement;
+                    $element['startDate'] = self::incDate($tEnd);
+                    $newEventsArray[] = $element;
+                    error_log("start>end continue - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  retVal(count:".count($retVal).")");
+                    break;
+                }
+            }
+        }
+        if(count($newEventsArray)){
+            $retVal = array_merge($retVal,self::calcMinDates($newEventsArray,$dateArray));
+        }
+        return $retVal;
+    }
+    static function incDate($inDate){
+        $date=date_create($inDate);
+        date_add($date,date_interval_create_from_date_string("1 days"));
+        return date_format($date,"Y-m-d");
+    }
+    static function decDate($inDate){
+        $date=date_create($inDate);
+        date_sub($date,date_interval_create_from_date_string("1 days"));
+        return date_format($date,"Y-m-d");
+    }
     static public function delete(array $ids){
         $myStatement = self::$conn->prepare("DELETE FROM `EventPlanningDates` 
             WHERE id IN (".implode(",",$ids).")");
@@ -53,20 +98,10 @@ class EventPlanningDates extends Base{
     static function getByEventWithMinDates(int $eventId){
         $array = self::getByEvent($eventId);
         $dateArray = self::getMinDateRangesByEvent($eventId);
-        function sorter(array $a, array $b) {
+        function getByEventWithMinDatesSorter(array $a, array $b) {
             return [$a['startDate'], $a['endDate'], $a['fullName'] ] <=> [$b['startDate'], $b['endDate'], $b['fullName'] ];
         }
-        function incDate($inDate){
-            $date=date_create($inDate);
-            date_add($date,date_interval_create_from_date_string("1 days"));
-            return date_format($date,"Y-m-d");
-        }
-        function decDate($inDate){
-            $date=date_create($inDate);
-            date_sub($date,date_interval_create_from_date_string("1 days"));
-            return date_format($date,"Y-m-d");
-        }
-        usort($array,"sorter");
+        usort($array,"getByEventWithMinDatesSorter");
         $retVal = array();
         foreach($array as $key => $element){
             ['startDate' => $startDate, 'endDate' => $endDate] = $element;
@@ -87,13 +122,13 @@ class EventPlanningDates extends Base{
                     $newElement['startDate'] = $tStart;
                     $newElement['endDate'] = $tEnd;
                     $retVal[] = $newElement;
-                    $element['startDate'] = incDate(tEnd); //endDate+1
+                    $element['startDate'] = self::incDate($tEnd); //endDate+1
                     $startDate = $element['startDate'];
                     continue;
                 }
                 if($startDate<$tStart){ //endDate included in current
                     $newElement = $element;
-                    $newElement['endDate'] = decDate($startDate); //startDate-1
+                    $newElement['endDate'] = self::decDate($startDate); //startDate-1
                     $retVal[] = $newElement;
                     $element['startDate'] = $tStart;
                     $startDate = $element['startDate'];
@@ -104,26 +139,16 @@ class EventPlanningDates extends Base{
                 $newElement = $element;
                 $newElement['endDate'] = $tEnd;
                 $retVal[] = $newElement;
-                $element['startDate'] = incDate($tEnd);
+                $element['startDate'] = self::incDate($tEnd);
                 $startDate = $element['startDate'];
             }
         }
-        usort($retVal, "sorter");
+        usort($retVal, "getByEventWithMinDatesSorter");
         return $retVal;
     }
     static public function getMinDateRangesByEvent(int $eventId){
-        function sorter(array $a, array $b) {
+        function getMinDateRangesByEventSorter(array $a, array $b) {
             return [$a['startDate'], $a['endDate'] ] <=> [$b['startDate'], $b['endDate'] ];
-        }
-        function incDate($inDate){
-            $date=date_create($inDate);
-            date_add($date,date_interval_create_from_date_string("1 days"));
-            return date_format($date,"Y-m-d");
-        }
-        function decDate($inDate){
-            $date=date_create($inDate);
-            date_sub($date,date_interval_create_from_date_string("1 days"));
-            return date_format($date,"Y-m-d");
         }
         $myStatement = self::$conn->prepare("SELECT UNIQUE epd.startDate, epd.endDate
             FROM EventPlanningDates epd
@@ -136,48 +161,50 @@ class EventPlanningDates extends Base{
         while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
             array_push($tempArray,$row);
         }
-        $retVal = array();
-        foreach($tempArray as $key => $element){
-            ['startDate' => $startDate, 'endDate' => $endDate] = $element;
-            for($i = 0, $size = count($tempArray); $i < $size; ++$i) {
-                ['startDate' => $tStart, 'endDate' => $tEnd] = $tempArray[$i];
-                if($endDate<$tStart 
-                || ($startDate>=$tStart && $endDate<=$tEnd)){ //completely contained
-                    $retVal[] = $element;
-                    break;
-                }
-                if($startDate > $tEnd){
-                    continue;
-                }
-                if($startDate<$tStart && $endDate>$tEnd){ //element extends past on both sides
-                    $newElement = $element;
-                    $newElement['endDate'] = decDate($startDate); //startDate-1
-                    $retVal[] = $newElement;
-                    $newElement['startDate'] = $tStart;
-                    $newElement['endDate'] = $tEnd;
-                    $retVal[] = $newElement;
-                    $element['startDate'] = incDate(tEnd); //endDate+1
-                    $startDate = $element['startDate'];
-                    continue;
-                }
-                if($startDate<$tStart){ //endDate included in current
-                    $newElement = $element;
-                    $newElement['endDate'] = decDate($startDate); //startDate-1
-                    $retVal[] = $newElement;
-                    $element['startDate'] = $tStart;
-                    $startDate = $element['startDate'];
-                    $retVal[] = $element;
-                    break;
-                }
-                //start date included in current
-                $newElement = $element;
-                $newElement['endDate'] = $tEnd;
-                $retVal[] = $newElement;
-                $element['startDate'] = incDate($tEnd);
-                $startDate = $element['startDate'];
-            }
-        }
-        usort($retVal, "sorter");
+        // $retVal = array();
+        // foreach($tempArray as $key => $element){
+        //     ['startDate' => $startDate, 'endDate' => $endDate] = $element;
+        //     for($i = 0, $size = count($tempArray); $i < $size; ++$i) {
+        //         ['startDate' => $tStart, 'endDate' => $tEnd] = $tempArray[$i];
+        //         if($endDate<$tStart 
+        //         || ($startDate>=$tStart && $endDate<=$tEnd)){ //completely contained
+        //             $retVal[] = $element;
+        //             break;
+        //         }
+        //         if($startDate > $tEnd){
+        //             continue;
+        //         }
+        //         if($startDate<$tStart && $endDate>$tEnd){ //element extends past on both sides
+        //             $newElement = $element;
+        //             $newElement['endDate'] = decDate($startDate); //startDate-1
+        //             $retVal[] = $newElement;
+        //             $newElement['startDate'] = $tStart;
+        //             $newElement['endDate'] = $tEnd;
+        //             $retVal[] = $newElement;
+        //             $element['startDate'] = self::incDate($tEnd); //endDate+1
+        //             $startDate = $element['startDate'];
+        //             continue;
+        //         }
+        //         if($startDate<$tStart){ //endDate included in current
+        //             $newElement = $element;
+        //             $newElement['endDate'] = self::decDate($startDate); //startDate-1
+        //             $retVal[] = $newElement;
+        //             $element['startDate'] = $tStart;
+        //             $startDate = $element['startDate'];
+        //             $retVal[] = $element;
+        //             break;
+        //         }
+        //         //start date included in current
+        //         $newElement = $element;
+        //         $newElement['endDate'] = $tEnd;
+        //         $retVal[] = $newElement;
+        //         $element['startDate'] = self::incDate($tEnd);
+        //         $startDate = $element['startDate'];
+        //     }
+        // }
+        $retVal = self::calcMinDates($tempArray, $tempArray);
+        $retVal = array_unique($retVal, SORT_REGULAR);
+        usort($retVal, "getMinDateRangesByEventSorter");
         return $retVal;
     }
     static public function getOverlappingDates(int $eventId, int $familyMemberId, string $startDate, string $endDate){

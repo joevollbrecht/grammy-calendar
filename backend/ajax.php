@@ -45,7 +45,9 @@ function deleteEvents(){
     echo Event::delete(json_decode($_GET['ids']))->getResultString();
 }
 function deleteEventPlanningDates(){
-    echo EventPlanningDates::delete(json_decode($_GET['ids']))->getResultString();
+    $ids = json_decode($_GET['ids']);
+    $deleteResult = EventPlanningDates::delete($ids);
+    echo $deleteResult->getResultString();
 }
 function deleteFamilyMember(){
     echo FamilyMember::delete(json_decode($_GET['ids']))->getResultString();
@@ -75,8 +77,22 @@ function getEventPlanningDatesByEvent(){
     echo $return->getResultString();
 }
 function getEventPlanningMinDatesByEvent(){
-    $response = EventPlanningDates::getByEventWithMinDates(json_decode($_GET['id']));
+    $eventId =json_decode($_GET['id']);
+    $familyMemberIds = [];
+    $familyMemberCount = 0;
+    if(array_key_exists('familyMemberIds',$_GET)){
+        $familyMemberIds = json_decode($_GET['familyMemberIds']);
+        $familyMemberCount = count($familyMemberIds);
+    }
+    else{
+        $familyMemberCount = count(FamilyMember::getByEvent($eventId));
+    }
+
+    $response = EventPlanningDates::getByEventWithMinDates($eventId, $familyMemberIds);
     $return = new Result(true);
+    $dateSummaryArray = EventPlanningDates::summarizeDateInfo($reponse);
+    $tempObj = ["familyCount" => $familyMemberCount,
+        "resultArray" => $response, "dateSummaryArray" => $dateSummaryArray];
     $return->setBody($response);
     echo $return->getResultString();
 }
@@ -102,7 +118,10 @@ function getFamilyMembers(){
     echo $result->getResultString();
 }
 function getFamilyMembersByEvent(){
-    echo FamilyMember::getByEvent(json_decode($_GET['eventId']))->getResultString();
+    $resultSet = FamilyMember::getByEvent(json_decode($_GET['eventId']));
+    $result = new Result(true);
+    $result->setBody($resultSet);
+    echo $result->getResultString();
 }
 function getFamilyMembersWithInvites(){
     $resultSet = FamilyMember::getAllWithInvites();

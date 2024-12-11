@@ -103,6 +103,24 @@ nav > span:nth-child(odd){
 .messageError {
   background: red
 }
+.planningTableAllSelectAllGo {
+  background-color: green;
+}
+.planningTableAllSelectNoneGo {
+  background-color: red;
+}
+.planningTableAllSelectSomeGo {
+  background-color: yellow;
+}
+.planningTableSomeSelectAllGo {
+  background-color: lightgreen;
+}
+.planningTableSomeSelectNoneGo {
+  background-color: palevioletred;
+}
+.planningTableSomeSelectSomeGo {
+  background-color: lightyellow;
+}
 .row {
   display: flex;
   margin-right:-5px;

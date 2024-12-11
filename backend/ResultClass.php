@@ -4,9 +4,15 @@ class Result{
     function __construct(bool $success = true){
         $this->result = array("success"=>$success,"body"=>array(),"messages"=>array());
     }
+    public function getMessages(){
+        return $this->result['messages'];
+    }
     public function getSuccess(){
         return $this->result["success"];
         
+    }
+    public function mergeMessages($messageArray){
+        $this->result['messages'] = array_merge($this->result['messages'], $messageArray);
     }
     public function setBody($value = array()){
         $this->result["body"] = $value;

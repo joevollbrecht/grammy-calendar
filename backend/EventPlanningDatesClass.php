@@ -16,47 +16,98 @@ class EventPlanningDates extends Base{
         $this->startDate = $startDate;
         $this->endDate = $endDate;
     }
-    static function calcMinDates($eventArray, $dateArray){
+    static private function calcMinDates($eventArray, $dateArray, $firstCall=false){
+        if(!function_exists('p')){
+            function p($array){
+                $size = count($array);
+                if($size){
+                    ['startDate' => $startDate, 'endDate' => $endDate] = $array[$size-1];
+                    return "size: $size ($startDate - $endDate)";
+                }
+                else return "empty array";
+            }
+        }
+        static $entryCount = 0;
+        if($firstCall){
+            $entryCount = 0;
+            error_log("first entry to calc, date array:".print_r($dateArray,true));
+        }
+        $entryCount++;
         $retVal = array();
         $newEventsArray = array();
+        $eventArraySize = count($eventArray);
+        error_log("entry #$entryCount eventsArray:$eventArraySize ".print_r($eventArray,true));
         foreach($eventArray as $key => $element){
             ['startDate' => $startDate, 'endDate' => $endDate] = $element;
+            $didSplit = false;
             for($i = 0, $size = count($dateArray); $i < $size; ++$i) {
-                ['startDate' => $tStart, 'endDate' => $tEnd] = $tempArray[$i];
-                error_log("entry - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  retVal(count:".count($retVal).")");
+                ['startDate' => $tStart, 'endDate' => $tEnd] = $dateArray[$i];
+                error_log("entry - element ($key: $startDate - $endDate) dates ($i: $tStart - $tEnd)  retVal(count:".count($retVal).")");
+                if($startDate > $tEnd){
+                    error_log("$startDate > $tEnd, check next date - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  retVal(count:".count($retVal).")");
+                    continue;
+                }
 
                 if($endDate<$tStart){
-                    $retVal[] = $element;
-                    error_log("endDate < startDate - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  retVal(count:".count($retVal).print_r($retVal[count($retVal)-1],true).")");
-                    break;
-                } 
-                if($startDate>=$tStart && $endDate<=$tEnd){ //completely contained
-                    $retVal[] = $element;
-                    error_log("element completely contained - should pick up later ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  retVal(count:".count($retVal).")");
+                    // $retVal[] = $element;
+                    $didSplit = true;
+                    $newEventsArray[] = $element;
+                    error_log("$endDate < $tStart, add to retVal - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent(".p($newEventsArray).")");
                     break;
                 }
-                if($startDate >= $tStart && $startDate<$endDate){ //overlap start
+                if($startDate < $tStart && $endDate >= $tStart){
+                    $didSplit = true;
+                    $newElement = $element;
+                    $newElement['endDate'] = self::decDate($tStart);
+                    $newEventsArray[] = $newElement;
+                    error_log("$startDate < $tStart && $endDate >= $tStart, split newEvent - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent=".p($newEventsArray).")");
+                    // $retVal[] = $newElement;
+                    $element['startDate'] = $tStart;
+                    $newEventsArray[] = $element;
+                    error_log("$startDate < $tStart && $endDate >= $tStart, split modifiedOrigEvent - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent=".p($newEventsArray).")");
+                    break;
+                }
+                if($startDate>=$tStart && $endDate<=$tEnd){ //completely contained
+                    //$retVal[] = $element;
+                    error_log("element completely contained - should pick up later ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  retVal(count:".count($retVal).")");
+                    // shouldn't need this, the didSplit logic should handle
+                    // if(($key+1)==$eventArraySize){
+                    //     // $retVal[]=$element;
+                    //     $newEventsArray[]=$element;
+                    //     error_log("at end, add it: retVal(".p($newEventsArray).")");
+                    // }
+                    continue;
+                }
+                if($startDate >= $tStart && $startDate<$tEnd){ //overlap start
+                    $didSplit = true;
                     $newElement = $element;
                     $newElement['endDate'] = $tEnd;
-                    $retVal[] = $newElement;
+                    $newEventsArray[] = $newElement;
+                    error_log("$startDate >= $tStart && $startDate<$tEnd overlap newElement - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent=".p($newEventsArray).")");
+                    // $retVal[] = $newElement;
                     $element['startDate'] = self::incDate($tEnd);
                     $newEventsArray[] = $element;
-                    error_log("start>end continue - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  retVal(count:".count($retVal).")");
+                    error_log("$startDate >= $tStart && $startDate<$tEnd overlap revisedOrig - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent=".p($newEventsArray).")");
                     break;
                 }
             }
+            if(!$didSplit){
+                $newEventsArray[] = $element;
+                error_log("$didSplit no split, add element - element ($key: $startDate-$endDate) newEvent=".p($newEventsArray).")");
+            }
         }
-        if(count($newEventsArray)){
-            $retVal = array_merge($retVal,self::calcMinDates($newEventsArray,$dateArray));
+        error_log("through loop#$entryCount , newEntrys size:".count($newEventsArray)."\n".print_r($newEventsArray,true));
+        // if(count($newEventsArray) && $entryCount<10){
+        if($eventArraySize != count($newEventsArray) && $entryCount<40){
+            // $retVal = array_merge($retVal,self::calcMinDates($newEventsArray,$dateArray));
+            error_log("rentry, entry size:$eventArraySize, new array size:".count($newEventsArray));
+            $newEventsArray = self::calcMinDates($newEventsArray,$dateArray);
         }
-        return $retVal;
+        error_log("exit#$entryCount , newEventsArray size:".count($newEventsArray));
+        $entryCount--;
+        return $newEventsArray;
     }
-    static function incDate($inDate){
-        $date=date_create($inDate);
-        date_add($date,date_interval_create_from_date_string("1 days"));
-        return date_format($date,"Y-m-d");
-    }
-    static function decDate($inDate){
+    static private function decDate($inDate){
         $date=date_create($inDate);
         date_sub($date,date_interval_create_from_date_string("1 days"));
         return date_format($date,"Y-m-d");
@@ -95,60 +146,47 @@ class EventPlanningDates extends Base{
         }
         return $retVal;
     }
-    static function getByEventWithMinDates(int $eventId){
-        $array = self::getByEvent($eventId);
-        $dateArray = self::getMinDateRangesByEvent($eventId);
+    static public function getByEventAndFamilyMembers(int $eventId, array $familyMemberIds){
+        $myStatement = self::$conn->prepare("SELECT epd.*, ei.familyMemberId, 
+                fm.fullName, ei.eventId, 
+                e.name as eventName
+            FROM EventPlanningDates epd
+            JOIN EventInvite ei on ei.id = epd.eventInviteId
+            JOIN Event e on e.id = ei.eventId
+            JOIN FamilyMember fm on fm.id = ei.familyMemberId
+            WHERE ei.eventId = $eventId
+            AND ei.familyMemberId in (".implode(",", $familyMemberIds).")
+            ORDER BY fm.fullname, epd.startDate
+        ");
+        $myStatement->execute();
+        $retVal = array();
+        while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
+            array_push($retVal,$row);
+        }
+        return $retVal;
+    }
+    static function getByEventWithMinDates(int $eventId, array $familyMemberIds = []){
+        if(count($familyMemberIds)){
+            $array =self::getByEventAndFamilyMembers($eventId, $familyMemberIds);
+            $dateArray = self::getMinDateRangesByEventAndFamilyMembers($eventId, $familyMemberIds);
+        }
+        else{
+            $array = self::getByEvent($eventId);
+            $dateArray = self::getMinDateRangesByEvent($eventId);
+        }
         function getByEventWithMinDatesSorter(array $a, array $b) {
             return [$a['startDate'], $a['endDate'], $a['fullName'] ] <=> [$b['startDate'], $b['endDate'], $b['fullName'] ];
         }
         usort($array,"getByEventWithMinDatesSorter");
-        $retVal = array();
-        foreach($array as $key => $element){
-            ['startDate' => $startDate, 'endDate' => $endDate] = $element;
-            for($i = 0, $size = count($dateArray); $i < $size; ++$i) {
-                ['startDate' => $tStart, 'endDate' => $tEnd] = $dateArray[$i];
-                if($endDate<$tStart 
-                || ($startDate>=$tStart && $endDate<=$tEnd)){ //completely contained
-                    $retVal[] = $element;
-                    break;
-                }
-                if($startDate > $tEnd){
-                    continue;
-                }
-                if($startDate<$tStart && $endDate>$tEnd){ //element extends past on both sides
-                    $newElement = $element;
-                    $newElement['endDate'] = decDate($startDate); //startDate-1
-                    $retVal[] = $newElement;
-                    $newElement['startDate'] = $tStart;
-                    $newElement['endDate'] = $tEnd;
-                    $retVal[] = $newElement;
-                    $element['startDate'] = self::incDate($tEnd); //endDate+1
-                    $startDate = $element['startDate'];
-                    continue;
-                }
-                if($startDate<$tStart){ //endDate included in current
-                    $newElement = $element;
-                    $newElement['endDate'] = self::decDate($startDate); //startDate-1
-                    $retVal[] = $newElement;
-                    $element['startDate'] = $tStart;
-                    $startDate = $element['startDate'];
-                    $retVal[] = $element;
-                    break;
-                }
-                //start date included in current
-                $newElement = $element;
-                $newElement['endDate'] = $tEnd;
-                $retVal[] = $newElement;
-                $element['startDate'] = self::incDate($tEnd);
-                $startDate = $element['startDate'];
-            }
-        }
+        $retVal = self::calcMinDates($array, $dateArray, true);
         usort($retVal, "getByEventWithMinDatesSorter");
         return $retVal;
     }
     static public function getMinDateRangesByEvent(int $eventId){
-        function getMinDateRangesByEventSorter(array $a, array $b) {
-            return [$a['startDate'], $a['endDate'] ] <=> [$b['startDate'], $b['endDate'] ];
+        if(!function_exists('getMinDateRangesByEventSorter')){
+            function getMinDateRangesByEventSorter(array $a, array $b) {
+                return [$a['startDate'], $a['endDate'] ] <=> [$b['startDate'], $b['endDate'] ];
+            }
         }
         $myStatement = self::$conn->prepare("SELECT UNIQUE epd.startDate, epd.endDate
             FROM EventPlanningDates epd
@@ -207,6 +245,30 @@ class EventPlanningDates extends Base{
         usort($retVal, "getMinDateRangesByEventSorter");
         return $retVal;
     }
+    static public function getMinDateRangesByEventAndFamilyMembers(int $eventId, array $familyMemberIds){
+        if(!function_exists('getMinDateRangesByEventSorter')){
+            function getMinDateRangesByEventSorter(array $a, array $b) {
+                return [$a['startDate'], $a['endDate'] ] <=> [$b['startDate'], $b['endDate'] ];
+            }
+        }
+        $myStatement = self::$conn->prepare("SELECT UNIQUE epd.startDate, epd.endDate
+            FROM EventPlanningDates epd
+            JOIN EventInvite ei on ei.id = epd.eventInviteId
+            WHERE ei.eventId = $eventId
+            AND ei.familyMemberId in (".implode(",", $familyMemberIds).")
+            ORDER BY epd.startDate, epd.endDate
+        ");
+        $myStatement->execute();
+        $tempArray = array();
+        while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
+            array_push($tempArray,$row);
+        }
+
+        $retVal = self::calcMinDates($tempArray, $tempArray);
+        $retVal = array_unique($retVal, SORT_REGULAR);
+        usort($retVal, "getMinDateRangesByEventSorter");
+        return $retVal;
+    }
     static public function getOverlappingDates(int $eventId, int $familyMemberId, string $startDate, string $endDate){
         $myStatement = self::$conn->prepare("SELECT a.*, f.fullName, e.name as eventName
             FROM EventPlanningDates a
@@ -245,6 +307,11 @@ class EventPlanningDates extends Base{
         }
         return $retVal;
     }
+    static private function incDate($inDate){
+        $date=date_create($inDate);
+        date_add($date,date_interval_create_from_date_string("1 days"));
+        return date_format($date,"Y-m-d");
+    }
     static public function insert(int $eventId, int $familyMemberId, int $dateStatusId, string $startDate, string $endDate){
         $sqlQuery = "INSERT IGNORE INTO `EventPlanningDates` 
             (eventInviteId, dateStatusId, startDate, endDate)
@@ -255,6 +322,23 @@ class EventPlanningDates extends Base{
         self::$result->setSuccess(true);
         self::$result->addMessage(1,"inserted ".$myStatement->rowCount()." rows");
         return self::$result;
+    }
+    static function summarizeDateInfo(array $inArray){
+        $dataSummaryArray = [];
+        $s = 'statusCountArray';
+        foreach($inArray as $element){
+            $startDate = $element['startDate'];
+            $dateStatusId = $element['dateStatusId'];
+            if(!array_key_exists($startDate,$dataSummaryArray)){
+                $dataSummaryArray[$startDate] = ["count"=>0, $s=>[]];
+            }
+            $dataSummaryArray[$startDate]['count']++;
+            if(!array_key_exists($dataSummaryArray[$startDate][$s][$dateStatusId])){
+                $dataSummaryArray[$startDate][$s][$dateStatusId] = 0;
+            }
+            $dataSummaryArray[$startDate][$s][$dateStatusId]++;
+        }
+        return $dataSummaryArray;
     }
     static function update(int $id, $startDate, $endDate, $dateStatusId){
         $sqlQuery = "UPDATE EventPlanningDates

@@ -75,6 +75,13 @@ nav > span:nth-child(odd){
 .box {
   border: 1px solid black;
 }
+caption {
+  caption-side: top;
+  text-align: center;
+  padding-bottom: 10px;
+  font-weight: bold;
+}
+
 .column {
   flex: 30%;
   padding: 5px;
@@ -119,7 +126,15 @@ nav > span:nth-child(odd){
   background-color: palevioletred;
 }
 .planningTableSomeSelectSomeGo {
-  background-color: lightyellow;
+  background-color: #ecec74;
+}
+.planningTableCenter {
+  margin-left: auto;
+  margin-right: auto;
+}
+.planningTdCenter{
+  text-align: center;
+  vertical-align: middle;
 }
 .row {
   display: flex;
@@ -138,7 +153,7 @@ nav > span:nth-child(odd){
   text-align: center;
   vertical-align: middle;
 }
-tr:nth-child(even) {
+tr.tableCenter:nth-child(even) {
   background-color: #D6EEEE;
 }
 table {

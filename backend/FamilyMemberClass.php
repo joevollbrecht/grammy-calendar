@@ -50,7 +50,7 @@ class FamilyMember extends Base{
         while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
             array_push($retVal,$row);
         }
-        return self::$result;        
+        return $retVal;        
     }
     static public function insert(string $firstName, string $lastName){
         $myStatement = self::$conn->prepare("INSERT INTO `FamilyMember` 

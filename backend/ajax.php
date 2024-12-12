@@ -84,16 +84,16 @@ function getEventPlanningMinDatesByEvent(){
         $familyMemberIds = json_decode($_GET['familyMemberIds']);
         $familyMemberCount = count($familyMemberIds);
     }
-    else{
+    if($familyMemberCount == 0){
         $familyMemberCount = count(FamilyMember::getByEvent($eventId));
     }
 
     $response = EventPlanningDates::getByEventWithMinDates($eventId, $familyMemberIds);
     $return = new Result(true);
-    $dateSummaryArray = EventPlanningDates::summarizeDateInfo($reponse);
+    $dateSummaryArray = EventPlanningDates::summarizeDateInfo($response);
     $tempObj = ["familyCount" => $familyMemberCount,
         "resultArray" => $response, "dateSummaryArray" => $dateSummaryArray];
-    $return->setBody($response);
+    $return->setBody($tempObj);
     echo $return->getResultString();
 }
 function getEvents(){

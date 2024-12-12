@@ -49,6 +49,8 @@ class Table{
         this.tableSelector = document.createElement("table");
         this.tableSelector.id = id + "_table";
         this.tableSelector.name = name;
+        this.caption = document.createElement('caption');
+        this.tableSelector.appendChild(this.caption);
         this.columns = [];
     }
     addTableToContainer(){
@@ -77,6 +79,12 @@ class Table{
         td.textContent = text;
         return td;
     }
+    setCaptionHtml(element){
+        this.caption.innerHTML = element;
+    }
+    setCaptionText(text){
+        this.caption.textContent = text;
+    }
 }
 class PlanningDatesTable extends Table{
     constructor(id, name, includeSelect = false){
@@ -85,14 +93,16 @@ class PlanningDatesTable extends Table{
         this.eventSelector = null;
         this.familySelector = null;
         this.selectedEvent = -1;
-        this.tableSelector.classList.add("tableCenter");
+        this.tableSelector.classList.add("planningTableCenter");
         this.tableSelector.style.width = "800";
         this.includeSelect = includeSelect;
         if(includeSelect){
-            this.columns = ["Sel","Event","Name","Status","Start Date","End Date"];
+            // this.columns = ["Start Date","End Date","Sel","Event","Name","Status"];
+            this.columns = ["Start Date","End Date","Sel","Name","Status"];
         }
         else{
-            this.columns = ["Event","Name","Status","Start Date","End Date"]
+            // this.columns = ["Start Date","End Date","Event","Name","Status"]
+            this.columns = ["Start Date","End Date","Name","Status"]
         }
         this.createHead();
         this.createBody();
@@ -116,8 +126,8 @@ class PlanningDatesTable extends Table{
         this.familySelector = document.createElement("select");
         this.familySelector.id = this.id + "_familySelect";
         this.familySelector.disabled = true;
-        this.familySelector.hidden = true;
-        this.familySelector.multiple = true;
+        this.familySelector.hidden = false;
+        this.familySelector.multiple = false;
         this.familySelector.addEventListener('change', this.familySelected.bind(this));
         option = document.createElement("option");
         option.value = -1;
@@ -129,28 +139,30 @@ class PlanningDatesTable extends Table{
     createTableKey(){
         let fragment = new DocumentFragment();
         let span = fragment.appendChild(document.createElement('span'));
-        span.textContent('Table key:');
+        span.textContent = 'Table key:';
         span = fragment.appendChild(document.createElement('span'));
         span.classList.add('planningTableAllSelectAllGo');
-        span.textContent('All select, all go');
+        span.textContent = 'All select, all go';
         span = fragment.appendChild(document.createElement('span'));
         span.classList.add('planningTableAllSelectNoneGo');
-        span.textContent('All select, none go');
+        span.textContent = 'All select, none go';
         span = fragment.appendChild(document.createElement('span'));
         span.classList.add('planningTableAllSelectSomeGo');
-        span.textContent('All select, some go');
+        span.textContent = 'All select, some go';
         span = fragment.appendChild(document.createElement('span'));
         span.classList.add('planningTableSomeSelectAllGo');
-        span.textContent('Some select, all go');
+        span.textContent = 'Some select, all go';
         span = fragment.appendChild(document.createElement('span'));
         span.classList.add('planningTableSomeSelectNoneGo');
-        span.textContent('None select, none go');
+        span.textContent = 'None select, none go';
         span = fragment.appendChild(document.createElement('span'));
         span.classList.add('planningTableSomeSelectSomeGo');
-        span.textContent('None select, some go');
+        span.textContent = 'None select, some go';
     }
     eventSelected(){
         this.selectedEvent = this.eventSelector.value;
+        // sel.options[sel.selectedIndex].text
+        this.setCaptionText("Combined Dates for "+this.eventSelector.options[this.eventSelector.selectedIndex].text);
         this.loadPlanningDates();
         this.loadFamilySelector();
     }
@@ -163,28 +175,30 @@ class PlanningDatesTable extends Table{
         this.loadPlanningDates(inviteeIds);
     }
     getStatusClass(dateStatusObject, familyCount){
+        let retVal = "";
         let dateCount = dateStatusObject.count;
         let statusArray = dateStatusObject.statusCountArray;
         let count1 = 1 in statusArray?statusArray[1]:0; //available
-        let count2 = 1 in statusArray?statusArray[2]:0; //unavailable
-        let count3 = 1 in statusArray?statusArray[3]:0; //preferred
-        let count4 = 1 in statusArray?statusArray[4]:0; //going
-        let count5 = 1 in statusArray?statusArray[5]:0; //disfavored
+        let count2 = 2 in statusArray?statusArray[2]:0; //unavailable
+        let count3 = 3 in statusArray?statusArray[3]:0; //preferred
+        let count4 = 4 in statusArray?statusArray[4]:0; //going
+        let count5 = 5 in statusArray?statusArray[5]:0; //disfavored
         if(dateCount!=familyCount){ //no date for some invited
             if(!count2 && !count5 ){ //no can't comes
-                return 'planningTableAllSelectSomeGo';
+                retVal = 'planningTableSomeSelectSomeGo';
             } else if(!count1 && !count3 && !count4){ //no came comes
-                return 'planningTableSomeSelectNoneGo';
-            } else return 'planningTableSomeSelectSomeGo'; // some yes, some no
+                retVal = 'planningTableSomeSelectNoneGo';
+            } else retVal = 'planningTableSomeSelectSomeGo'; // some yes, some no
         }
         else{  //all invited have something on current date 
             if((count1+count3+count4) == familyCount){ //all can go
-                return 'planningTableAllSelectAllGo';
+                retVal = 'planningTableAllSelectAllGo';
             }
             else if((count2+count5) == familyCount){ //none can go
-                return 'planningTableAllSelectNoneGo';
-            } else return 'planningTableAllSelectSomeGo'; //some yes, some no
+                retVal = 'planningTableAllSelectNoneGo';
+            } else retVal = 'planningTableAllSelectSomeGo'; //some yes, some no
         }
+        return retVal;
     }
     async loadEvents(){
         let eventArray = await callAjax('getEvents');
@@ -197,13 +211,15 @@ class PlanningDatesTable extends Table{
         populateFamilySelector(familyArray, this.familySelector.id);
         this.familySelector.disabled = false;
         this.familySelector.hidden = false;
+        this.familySelector.multiple = familyArray.length > 0?true:false;
+        this.familySelector.size = familyArray.length > 3?4:familyArray.length;
     }
-    async loadPlanningDates(familyEventIds = []){
+    async loadPlanningDates(familyMemberIds = []){
         if(this.selectedEvent<0){
             alert("Must select event first");
             return;
         }
-        let values = {id:this.selectedEvent, familyEventIds:JSON.stringify(familyEventIds)};
+        let values = {id:this.selectedEvent, familyMemberIds:JSON.stringify(familyMemberIds)};
         this.planningDatesArray = await callAjax('getEventPlanningMinDatesByEvent',values);
         this.populatePlanningDates();
     }
@@ -212,11 +228,14 @@ class PlanningDatesTable extends Table{
         this.tableBody.textContent = "";
         let workingDate = "";
         let workingColor = "white";
+        let dateFamilyCount = 1;
+        let dateRangesAppended = false;
         let datesArray = this.planningDatesArray['dateSummaryArray'];
         let familyCount = this.planningDatesArray['familyCount'];
         if(size){
-            workingDate = this.planningDatesArray['resultArray'][ii]['startDate'];
-            workingColor = getStatusClass(datesArray[workingDate], familyCount);
+            workingDate = this.planningDatesArray['resultArray'][0]['startDate'];
+            workingColor = this.getStatusClass(datesArray[workingDate], familyCount);
+            dateFamilyCount = datesArray[workingDate].count
         }
         for (let ii = 0; ii < size; ii++) {
             // text += '<tr>';
@@ -224,14 +243,37 @@ class PlanningDatesTable extends Table{
             if(workingDate != member.startDate){
                 workingDate = member.startDate;
                 workingColor = this.getStatusClass(datesArray[workingDate],familyCount);
+                dateRangesAppended = false;
+                dateFamilyCount = datesArray[workingDate].count
             }
             let tr = document.createElement("tr");
             tr.classList.add( workingColor);
-            tr.appendChild(this.createTd(member.eventName));
-            tr.appendChild(this.createTd(member.fullName));
-            tr.appendChild(this.createTd(dateStatusValueArray[member.dateStatusId]));
-            tr.appendChild(this.createTd(member.startDate));
-            tr.appendChild(this.createTd(member.endDate));
+            if(dateFamilyCount == 1){
+                tr.appendChild(this.createTd(member.startDate));
+                tr.appendChild(this.createTd(member.endDate));
+                // tr.appendChild(this.createTd(member.eventName));
+                tr.appendChild(this.createTd(member.fullName));
+                tr.appendChild(this.createTd(dateStatusValueArray[member.dateStatusId]));
+            }
+            else{
+                if(dateRangesAppended == false){
+                    let child = this.createTd(member.endDate);
+                    child.rowSpan = dateFamilyCount;
+                    tr.appendChild(tr);
+                    child = this.createTd(member.endDate);
+                    child.rowSpan = dateFamilyCount;
+                    tr.appendChild(tr);
+                    // tr.appendChild(this.createTd(member.eventName));
+                    tr.appendChild(this.createTd(member.fullName));
+                    tr.appendChild(this.createTd(dateStatusValueArray[member.dateStatusId]));
+                    dateRangesAppended = true;
+                }
+                else{
+                    // tr.appendChild(this.createTd(member.eventName));
+                    tr.appendChild(this.createTd(member.fullName));
+                    tr.appendChild(this.createTd(dateStatusValueArray[member.dateStatusId]));
+                }
+            }
             this.tableBody.appendChild(tr);
         }
     }
@@ -453,7 +495,7 @@ function populateFamilySelector(familyArray,elementName){
 async function retrieveDateStatuses() {
     dateStatusArray = await callAjax("getDateStatuses");
     dateStatusArray.forEach((element, key) => {
-        dateStatusValueArray[element.id] = element.value;
+        dateStatusValueArray[element.id] = element.type;
     });
 }
 async function retrieveEventInviteStatuses() {

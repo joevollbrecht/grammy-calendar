@@ -49,7 +49,6 @@ class EventPlanningDates extends Base{
                 }
 
                 if($endDate<$tStart){
-                    // $retVal[] = $element;
                     $didSplit = true;
                     $newEventsArray[] = $element;
                     error_log("$endDate < $tStart, add to retVal - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent(".p($newEventsArray).")");
@@ -61,21 +60,13 @@ class EventPlanningDates extends Base{
                     $newElement['endDate'] = self::decDate($tStart);
                     $newEventsArray[] = $newElement;
                     error_log("$startDate < $tStart && $endDate >= $tStart, split newEvent - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent=".p($newEventsArray).")");
-                    // $retVal[] = $newElement;
                     $element['startDate'] = $tStart;
                     $newEventsArray[] = $element;
                     error_log("$startDate < $tStart && $endDate >= $tStart, split modifiedOrigEvent - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent=".p($newEventsArray).")");
                     break;
                 }
                 if($startDate>=$tStart && $endDate<=$tEnd){ //completely contained
-                    //$retVal[] = $element;
                     error_log("element completely contained - should pick up later ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  retVal(count:".count($retVal).")");
-                    // shouldn't need this, the didSplit logic should handle
-                    // if(($key+1)==$eventArraySize){
-                    //     // $retVal[]=$element;
-                    //     $newEventsArray[]=$element;
-                    //     error_log("at end, add it: retVal(".p($newEventsArray).")");
-                    // }
                     continue;
                 }
                 if($startDate >= $tStart && $startDate<$tEnd){ //overlap start
@@ -84,7 +75,6 @@ class EventPlanningDates extends Base{
                     $newElement['endDate'] = $tEnd;
                     $newEventsArray[] = $newElement;
                     error_log("$startDate >= $tStart && $startDate<$tEnd overlap newElement - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent=".p($newEventsArray).")");
-                    // $retVal[] = $newElement;
                     $element['startDate'] = self::incDate($tEnd);
                     $newEventsArray[] = $element;
                     error_log("$startDate >= $tStart && $startDate<$tEnd overlap revisedOrig - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent=".p($newEventsArray).")");
@@ -97,9 +87,7 @@ class EventPlanningDates extends Base{
             }
         }
         error_log("through loop#$entryCount , newEntrys size:".count($newEventsArray)."\n".print_r($newEventsArray,true));
-        // if(count($newEventsArray) && $entryCount<10){
         if($eventArraySize != count($newEventsArray) && $entryCount<40){
-            // $retVal = array_merge($retVal,self::calcMinDates($newEventsArray,$dateArray));
             error_log("rentry, entry size:$eventArraySize, new array size:".count($newEventsArray));
             $newEventsArray = self::calcMinDates($newEventsArray,$dateArray);
         }
@@ -199,47 +187,6 @@ class EventPlanningDates extends Base{
         while ($row = $myStatement->fetch(PDO::FETCH_ASSOC)){
             array_push($tempArray,$row);
         }
-        // $retVal = array();
-        // foreach($tempArray as $key => $element){
-        //     ['startDate' => $startDate, 'endDate' => $endDate] = $element;
-        //     for($i = 0, $size = count($tempArray); $i < $size; ++$i) {
-        //         ['startDate' => $tStart, 'endDate' => $tEnd] = $tempArray[$i];
-        //         if($endDate<$tStart 
-        //         || ($startDate>=$tStart && $endDate<=$tEnd)){ //completely contained
-        //             $retVal[] = $element;
-        //             break;
-        //         }
-        //         if($startDate > $tEnd){
-        //             continue;
-        //         }
-        //         if($startDate<$tStart && $endDate>$tEnd){ //element extends past on both sides
-        //             $newElement = $element;
-        //             $newElement['endDate'] = decDate($startDate); //startDate-1
-        //             $retVal[] = $newElement;
-        //             $newElement['startDate'] = $tStart;
-        //             $newElement['endDate'] = $tEnd;
-        //             $retVal[] = $newElement;
-        //             $element['startDate'] = self::incDate($tEnd); //endDate+1
-        //             $startDate = $element['startDate'];
-        //             continue;
-        //         }
-        //         if($startDate<$tStart){ //endDate included in current
-        //             $newElement = $element;
-        //             $newElement['endDate'] = self::decDate($startDate); //startDate-1
-        //             $retVal[] = $newElement;
-        //             $element['startDate'] = $tStart;
-        //             $startDate = $element['startDate'];
-        //             $retVal[] = $element;
-        //             break;
-        //         }
-        //         //start date included in current
-        //         $newElement = $element;
-        //         $newElement['endDate'] = $tEnd;
-        //         $retVal[] = $newElement;
-        //         $element['startDate'] = self::incDate($tEnd);
-        //         $startDate = $element['startDate'];
-        //     }
-        // }
         $retVal = self::calcMinDates($tempArray, $tempArray);
         $retVal = array_unique($retVal, SORT_REGULAR);
         usort($retVal, "getMinDateRangesByEventSorter");
@@ -333,7 +280,7 @@ class EventPlanningDates extends Base{
                 $dataSummaryArray[$startDate] = ["count"=>0, $s=>[]];
             }
             $dataSummaryArray[$startDate]['count']++;
-            if(!array_key_exists($dataSummaryArray[$startDate][$s][$dateStatusId])){
+            if(!array_key_exists($dateStatusId, $dataSummaryArray[$startDate][$s])){
                 $dataSummaryArray[$startDate][$s][$dateStatusId] = 0;
             }
             $dataSummaryArray[$startDate][$s][$dateStatusId]++;

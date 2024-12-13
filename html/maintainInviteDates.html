@@ -8,10 +8,14 @@
         <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
     </head>
     <body onload="myInit('maintainInviteDatesInit')">
+        <button type="button" class="accordion" id="analyzeInvitesAccordion" value="Analyze Invite Dates">Close Analyze Invite Dates</button>
+        <div class="accordionContent" style="display: block">
+            <div id="showAnalyzeTable" class="fixTableHead"></div>        
+        </div>  
         <button type="button" class="accordion accordionActive" id="addInvitesAccordion" value="Add Dates">Close Add Dates</button>
         <div class="accordionContent" style="display: block;">
             <div id="addInvites" class="divBox">
-                <h2>Add Invites</h2>
+                <h2>Add Invite Planning Dates</h2>
                 <div id="relationType"></div>
                 <button id="resetButton" onclick="maintainInviteDatesReset()">Reset Selects</button>
                 <span id="eventLabel">Event</span>
@@ -48,11 +52,7 @@
                 <button id="updateInvites" name='maintainInviteDates' onclick="maintainInviteDatesUpdate(this)" disabled>Update Selected</button>
             </span>
             <div id="showInviteDates" class="fixTableHead"></div>
-        </div>
-        <button type="button" class="accordion" id="analyzeInvitesAccordion" value="Analyze Invites">Analyze Invite Dates</button>
-        <div class="accordionContent">
-            <div id="showAnalyzeTable" class="fixTableHead"></div>        
-        </div>        
+        </div>      
         <!--
         <div id="messageSpace"></div>
         <button id="clearMessageSpaceButton" onclick="clearMessageSpace()" hidden>

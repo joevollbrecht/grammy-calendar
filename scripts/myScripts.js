@@ -43,6 +43,7 @@ class Table{
             alert("Reused id " + id + ", try again");
             throw "Duplicate id " + id;
         }
+        this.id = id;
         this.container = document.createElement("div");
         this.container.id = id;
         this.tableBody = null;
@@ -110,10 +111,16 @@ class PlanningDatesTable extends Table{
         this.createTableKey();
         this.loadEvents();
         this.addTableToContainer();
-        // this.container.appendChild(this.tableSelector);
+        this.dialog = new Dialog(this.id);
+        this.container.appendChild(this.dialog.openButton);
+        this.dialog.openButton.textContent = "Explain This";
+        this.dialog.setText("yeah, need better words here for analyze");
     }
+
     createSelectors(){
         let div = document.createElement("div");
+        let label = document.createElement("label");
+        label.textContent = "Select Event";
         this.eventSelector = document.createElement("select");
         this.eventSelector.id = this.id + "_eventSelect";
         this.eventSelector.disabled = true;
@@ -121,8 +128,11 @@ class PlanningDatesTable extends Table{
         let option = document.createElement("option");
         option.value = -1;
         option.textContent = "None";
-        eventSelect.appendChild(option);
-        div.appendChild(this.eventSelector);
+        this.eventSelector.appendChild(option);
+        label.appendChild(this.eventSelector);
+        div.appendChild(label);
+        label = document.createElement("label");
+        label.textContent = "Select Family (optional)";
         this.familySelector = document.createElement("select");
         this.familySelector.id = this.id + "_familySelect";
         this.familySelector.disabled = true;
@@ -132,8 +142,9 @@ class PlanningDatesTable extends Table{
         option = document.createElement("option");
         option.value = -1;
         option.textContent = "None";
-        eventSelect.appendChild(option);
-        div.appendChild(this.familySelector);
+        this.familySelector.appendChild(option);
+        label.appendChild(this.familySelector);
+        div.appendChild(label);
         this.container.appendChild(div);
     }
     createTableKey(){
@@ -141,30 +152,30 @@ class PlanningDatesTable extends Table{
         let span = fragment.appendChild(document.createElement('span'));
         span.textContent = 'Table key:';
         span = fragment.appendChild(document.createElement('span'));
-        span.classList.add('planningTableAllSelectAllGo');
-        span.textContent = 'All select, all go';
+        span.classList.add('planningTableAllSelectAllGo','key');
+        span.textContent = 'All have date, all go';
         span = fragment.appendChild(document.createElement('span'));
-        span.classList.add('planningTableAllSelectNoneGo');
-        span.textContent = 'All select, none go';
+        span.classList.add('planningTableAllSelectNoneGo','key');
+        span.textContent = 'All have date, none go';
         span = fragment.appendChild(document.createElement('span'));
-        span.classList.add('planningTableAllSelectSomeGo');
-        span.textContent = 'All select, some go';
+        span.classList.add('planningTableAllSelectSomeGo','key');
+        span.textContent = 'All have date, some go';
         span = fragment.appendChild(document.createElement('span'));
-        span.classList.add('planningTableSomeSelectAllGo');
-        span.textContent = 'Some select, all go';
+        span.classList.add('planningTableSomeSelectAllGo','key');
+        span.textContent = 'Some have date, all go';
         span = fragment.appendChild(document.createElement('span'));
-        span.classList.add('planningTableSomeSelectNoneGo');
-        span.textContent = 'None select, none go';
+        span.classList.add('planningTableSomeSelectNoneGo','key');
+        span.textContent = 'Some have date, none go';
         span = fragment.appendChild(document.createElement('span'));
-        span.classList.add('planningTableSomeSelectSomeGo');
-        span.textContent = 'None select, some go';
+        span.classList.add('planningTableSomeSelectSomeGo','key');
+        span.textContent = 'Some have date, some go';
+        this.container.appendChild(fragment);
     }
-    eventSelected(){
+    async eventSelected(){
         this.selectedEvent = this.eventSelector.value;
-        // sel.options[sel.selectedIndex].text
-        this.setCaptionText("Combined Dates for "+this.eventSelector.options[this.eventSelector.selectedIndex].text);
         this.loadPlanningDates();
-        this.loadFamilySelector();
+        await this.loadFamilySelector();
+        this.setCaptionText("Combined Dates for "+this.eventSelector.options[this.eventSelector.selectedIndex].text+" with "+(this.familySelector.options.length-1)+" invites");
     }
     familySelected(){
         let invitees = this.familySelector.selectedOptions;
@@ -173,6 +184,7 @@ class PlanningDatesTable extends Table{
             inviteeIds.push( getValueFromJson(invitees[ii].value,"id"));
         }
         this.loadPlanningDates(inviteeIds);
+        this.setCaptionText("Combined Dates for "+this.eventSelector.options[this.eventSelector.selectedIndex].text+" with "+invitees.length+" selected of "+(this.familySelector.options.length-1)+" invites");
     }
     getStatusClass(dateStatusObject, familyCount){
         let retVal = "";
@@ -247,7 +259,7 @@ class PlanningDatesTable extends Table{
                 dateFamilyCount = datesArray[workingDate].count
             }
             let tr = document.createElement("tr");
-            tr.classList.add( workingColor);
+            tr.classList.add( workingColor, "planningDatesRow" );
             if(dateFamilyCount == 1){
                 tr.appendChild(this.createTd(member.startDate));
                 tr.appendChild(this.createTd(member.endDate));
@@ -257,12 +269,12 @@ class PlanningDatesTable extends Table{
             }
             else{
                 if(dateRangesAppended == false){
-                    let child = this.createTd(member.endDate);
+                    let child = this.createTd(member.startDate);
                     child.rowSpan = dateFamilyCount;
-                    tr.appendChild(tr);
+                    tr.appendChild(child);
                     child = this.createTd(member.endDate);
                     child.rowSpan = dateFamilyCount;
-                    tr.appendChild(tr);
+                    tr.appendChild(child);
                     // tr.appendChild(this.createTd(member.eventName));
                     tr.appendChild(this.createTd(member.fullName));
                     tr.appendChild(this.createTd(dateStatusValueArray[member.dateStatusId]));
@@ -814,13 +826,18 @@ async function maintainFamilySetRelationShip(){
     maintainFamilyLoadFamilyRelationships()
 }
 async function maintainInviteDatesInit(){
-    initAccordions();
     retrieveDateStatuses();
     maintainInviteDatesLoadFamilyData();
     maintainInviteDatesLoadEventData();
     maintainInviteDatesLoadDateStatuses();
+    let dialog = new Dialog();
+    dialog.setText("this is the add dates explainer");
+    let element = document.getElementById('addInvites');
+    element.insertBefore(dialog.openButton,element.firstChild);
+    dialog.openButton.textContent = "Explain This";
     analyzeDatesTable = new PlanningDatesTable("analyzeDates", "analyzeDates");
     analyzeDatesTable.addToElement('showAnalyzeTable');
+    initAccordions();
 }
 function maintainInviteDatesActivateUpdateDeleteButton(element){
     setButtonStatusForName(element.name);
@@ -983,4 +1000,42 @@ async function maintainInviteDatesUpdate(button){
     values.eventId = document.getElementById('eventSelect1').value;
     inviteDatesArray = await callAjax('getEventPlanningDatesByEvent', values);
     maintainInviteDatesPopulateMaintainDatesTable(inviteDatesArray);
+}
+class Dialog{
+    constructor(baseId){
+        this.id = baseId + "_dialog";
+        this.containerId = this.id + "_container";
+        this.closeButtonId = this.id + "_closeButton";
+        if(document.getElementById(this.id)){
+            alert("Reused id " + this.id + ", try again");
+            throw "Duplicate id " + this.id;
+        }
+        this.dialog = document.createElement("dialog");
+        this.container = document.createElement("div");        
+        this.closeButton = document.createElement("button");
+        closeButton.textContent = "Close";
+        closeButton.autofocus = true;
+        closeButton.addEventListener("click", this.close.bind(this));
+        this.dialog.appendChild(this.container);
+        this.dialog.appendChild(this.closeButton);
+        bodySelect.appendChild(this.dialog);
+        this.openButton = document.createElement("button");
+        this.openButton.textContent = "Explain This";
+        this.openButton.addEventListener("click", this.open.bind(this));
+    }
+    append(element){
+        element
+    }
+    close(){
+        this.dialog.close();
+    }
+    open(){
+        this.dialog.showModal();
+    }
+    setHtml(inElement){
+        this.container.innerHTML = inElement;
+    }
+    setText(inString){
+        this.container.textContent = inString;
+    }
 }

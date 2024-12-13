@@ -30,28 +30,23 @@ class EventPlanningDates extends Base{
         static $entryCount = 0;
         if($firstCall){
             $entryCount = 0;
-            error_log("first entry to calc, date array:".print_r($dateArray,true));
         }
         $entryCount++;
         $retVal = array();
         $newEventsArray = array();
         $eventArraySize = count($eventArray);
-        error_log("entry #$entryCount eventsArray:$eventArraySize ".print_r($eventArray,true));
         foreach($eventArray as $key => $element){
             ['startDate' => $startDate, 'endDate' => $endDate] = $element;
             $didSplit = false;
             for($i = 0, $size = count($dateArray); $i < $size; ++$i) {
                 ['startDate' => $tStart, 'endDate' => $tEnd] = $dateArray[$i];
-                error_log("entry - element ($key: $startDate - $endDate) dates ($i: $tStart - $tEnd)  retVal(count:".count($retVal).")");
                 if($startDate > $tEnd){
-                    error_log("$startDate > $tEnd, check next date - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  retVal(count:".count($retVal).")");
                     continue;
                 }
 
                 if($endDate<$tStart){
                     $didSplit = true;
                     $newEventsArray[] = $element;
-                    error_log("$endDate < $tStart, add to retVal - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent(".p($newEventsArray).")");
                     break;
                 }
                 if($startDate < $tStart && $endDate >= $tStart){
@@ -59,14 +54,11 @@ class EventPlanningDates extends Base{
                     $newElement = $element;
                     $newElement['endDate'] = self::decDate($tStart);
                     $newEventsArray[] = $newElement;
-                    error_log("$startDate < $tStart && $endDate >= $tStart, split newEvent - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent=".p($newEventsArray).")");
                     $element['startDate'] = $tStart;
                     $newEventsArray[] = $element;
-                    error_log("$startDate < $tStart && $endDate >= $tStart, split modifiedOrigEvent - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent=".p($newEventsArray).")");
                     break;
                 }
                 if($startDate>=$tStart && $endDate<=$tEnd){ //completely contained
-                    error_log("element completely contained - should pick up later ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  retVal(count:".count($retVal).")");
                     continue;
                 }
                 if($startDate >= $tStart && $startDate<$tEnd){ //overlap start
@@ -74,24 +66,18 @@ class EventPlanningDates extends Base{
                     $newElement = $element;
                     $newElement['endDate'] = $tEnd;
                     $newEventsArray[] = $newElement;
-                    error_log("$startDate >= $tStart && $startDate<$tEnd overlap newElement - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent=".p($newEventsArray).")");
                     $element['startDate'] = self::incDate($tEnd);
                     $newEventsArray[] = $element;
-                    error_log("$startDate >= $tStart && $startDate<$tEnd overlap revisedOrig - element ($key: $startDate-$endDate) dates ($i: $tStart $tEnd)  newEvent=".p($newEventsArray).")");
                     break;
                 }
             }
             if(!$didSplit){
                 $newEventsArray[] = $element;
-                error_log("$didSplit no split, add element - element ($key: $startDate-$endDate) newEvent=".p($newEventsArray).")");
             }
         }
-        error_log("through loop#$entryCount , newEntrys size:".count($newEventsArray)."\n".print_r($newEventsArray,true));
         if($eventArraySize != count($newEventsArray) && $entryCount<40){
-            error_log("rentry, entry size:$eventArraySize, new array size:".count($newEventsArray));
             $newEventsArray = self::calcMinDates($newEventsArray,$dateArray);
         }
-        error_log("exit#$entryCount , newEventsArray size:".count($newEventsArray));
         $entryCount--;
         return $newEventsArray;
     }

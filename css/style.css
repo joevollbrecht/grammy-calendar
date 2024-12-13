@@ -29,21 +29,10 @@ body {
   letter-spacing: 1px;
 }
   */
-label{
-  padding-right: 20px;
-}
-nav {
-    margin:1px;
-    /* border:2px grey; */
-    background:black;
-}
-nav > span {
-    margin:1px;
-    /* border:2px solid lightgreen; */
-    background:lightgray;
-}
-nav > span:nth-child(odd){
-    background:darkgray;
+.key  {
+    margin-right:3px;
+    border-style:solid;
+    border-width:2px;
 }
 .accordion {
   background-color: #777;
@@ -94,7 +83,7 @@ caption {
 
 .fixTableHead {
   overflow-y: auto;
-  height: 260px;
+  height: 360px;
 }
         
 .fixTableHead thead th {
@@ -109,6 +98,21 @@ caption {
 }
 .messageError {
   background: red
+}
+label{
+  padding-right: 20px;
+}
+nav {
+    margin:1px;
+    /* border:2px grey; */
+    background:black;
+    outline:solid grey 5px;
+}
+nav > span {
+    margin:5px;
+    outline:solid white 2px;
+    /* border:2px solid lightgreen; */
+    background:lightgray;
 }
 .planningTableAllSelectAllGo {
   background-color: green;
@@ -131,6 +135,10 @@ caption {
 .planningTableCenter {
   margin-left: auto;
   margin-right: auto;
+  border-collapse: collapse;
+}
+.planningTableRow{
+    border-bottom: 1pt solid black;
 }
 .planningTdCenter{
   text-align: center;
@@ -152,6 +160,9 @@ caption {
 .tdCenter{
   text-align: center;
   vertical-align: middle;
+}
+th{
+  text-align: left;
 }
 tr.tableCenter:nth-child(even) {
   background-color: #D6EEEE;

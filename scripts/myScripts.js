@@ -13,7 +13,17 @@ let messageCss = [];
     messageCss[3] = 'class="messageError"';
 let messageSpaceContainer = null;
 let relationshipType = 1;
-
+let pages = [{url:"/index.html",text:"Home",what:[]},
+    {url:"/html/maintainFamily.html",text:"Maintain Family",
+        what:["Add Family Member","Remove Family Member","Set Relationship (parent/child or spouse"]
+    },
+    {url:"/html/maintainEvents.html",text:"Maintain Events",
+        what:["Add Event","Remove Event","Set invitations", "Change Invitation Status"]
+    },
+    {url:"/html/maintainInviteDates.html",text:"Maintain Planning Dates",
+        what:["Assign Dates For Invitees", "Remove Dates", "Analyze Combined Dates"]
+    },
+    ];
 
 function myInit(initFunctionName){
     bodySelect = document.querySelector("body");
@@ -112,9 +122,8 @@ class PlanningDatesTable extends Table{
         this.loadEvents();
         this.addTableToContainer();
         this.dialog = new Dialog(this.id);
-        this.container.appendChild(this.dialog.openButton);
-        this.dialog.openButton.textContent = "Explain This";
-        this.dialog.setText("yeah, need better words here for analyze");
+        this.container.insertBefore(this.dialog.openButton, this.container.firstChild)
+        this.dialog.setHtml(this.formatExplainer());
     }
 
     createSelectors(){
@@ -175,7 +184,7 @@ class PlanningDatesTable extends Table{
         this.selectedEvent = this.eventSelector.value;
         this.loadPlanningDates();
         await this.loadFamilySelector();
-        this.setCaptionText("Combined Dates for "+this.eventSelector.options[this.eventSelector.selectedIndex].text+" with "+(this.familySelector.options.length-1)+" invites");
+        this.setCaptionText("Combined Dates for '"+this.eventSelector.options[this.eventSelector.selectedIndex].text+"' with "+(this.familySelector.options.length-1)+" invites");
     }
     familySelected(){
         let invitees = this.familySelector.selectedOptions;
@@ -184,7 +193,19 @@ class PlanningDatesTable extends Table{
             inviteeIds.push( getValueFromJson(invitees[ii].value,"id"));
         }
         this.loadPlanningDates(inviteeIds);
-        this.setCaptionText("Combined Dates for "+this.eventSelector.options[this.eventSelector.selectedIndex].text+" with "+invitees.length+" selected of "+(this.familySelector.options.length-1)+" invites");
+        this.setCaptionText("Combined Dates for '"+this.eventSelector.options[this.eventSelector.selectedIndex].text+"' with "+invitees.length+" selected of "+(this.familySelector.options.length-1)+" invites");
+    }
+    formatExplainer(){
+        let frag = document.createDocumentFragment();
+        let p = document.createElement("p");
+        p.textContent = "Select an event, and all the people who have set potential dates will be displayed, color coded to show a summary of availability for the date range.";
+        frag.appendChild(p);
+        p = document.createElement("p");
+        p.textContent = "Light colors indicate that not all of the people invited to the event have set a preference for the date range. Darker/brighter colors indicate that everyone has indicated their availability.";
+        frag.appendChild(p);
+        p = document.createElement("p");
+        p.textContent = "The persons invited to the event are selectable. If you select one or more, the light/dark colors indicate choices for those people on the dates. This allows a subgroup (e.g. Kim, Jake, and Charles) to check availability for just them.";
+        frag.appendChild(p);
     }
     getStatusClass(dateStatusObject, familyCount){
         let retVal = "";
@@ -259,7 +280,7 @@ class PlanningDatesTable extends Table{
                 dateFamilyCount = datesArray[workingDate].count
             }
             let tr = document.createElement("tr");
-            tr.classList.add( workingColor, "planningDatesRow" );
+            tr.classList.add( workingColor, "planningTableRow" );
             if(dateFamilyCount == 1){
                 tr.appendChild(this.createTd(member.startDate));
                 tr.appendChild(this.createTd(member.endDate));
@@ -334,19 +355,11 @@ class MessageSpace{
     showButton(){this.button.hidden = false};
 } 
 function buildNavBar(){
-    function createAnchor(url,text){
+    let nav = document.createElement("nav");for(let element of pages){
         let span = document.createElement("span");
-        let anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.text = text;
-        span.appendChild(anchor);
-        return span;
+        span.appendChild(createAnchor(element));
+        nav.appendChild(span);
     }
-    let nav = document.createElement("nav");
-    nav.appendChild(createAnchor("/index.html","Home"));
-    nav.appendChild(createAnchor("/html/maintainFamily.html","Maintain Family"));
-    nav.appendChild(createAnchor("/html/maintainEvents.html","Maintain Events"));
-    nav.appendChild(createAnchor("/html/maintainInviteDates.html","Maintain Planning Dates"));
     bodySelect.insertBefore(nav, bodySelect.firstChild);
 }
 async function callAjax(type, values = {}){
@@ -399,6 +412,12 @@ function clearMessageSpace(){
     messageSpaceContainer.clear();
     /*document.getElementById("messageSpace").innerHTML = "";
     document.getElementById("clearMessageSpaceButton").hidden = true;*/
+}
+function createAnchor(element){
+    let anchor = document.createElement("a");
+    anchor.href = element.url;
+    anchor.text = element.text;
+    return anchor;
 }
 function defaultDisplay(response){
     document.getElementById("message_space").innerText = response;
@@ -487,8 +506,22 @@ function initAccordions(){
     }
 }
 async function initIndex(){
-    // messageSpaceContainer.appendToBody();
-    // messageSpaceContainer.setText("here I set the message space as a class");
+    let mainList = document.createElement("ul");
+    for(let element of pages){
+        let mainLi = document.createElement("li");
+        mainLi.appendChild(createAnchor(element));
+        if(element.what.length){
+            let subList = document.createElement("ul");
+            for(let sub of element.what){
+                let subLi = document.createElement("li");
+                subLi.textContent = sub;
+                subList.appendChild(subLi);
+            }
+            mainLi.appendChild(subList);
+        }
+        mainList.appendChild(mainLi);
+    }
+    bodySelect.appendChild(mainList);
 }
 function populateEventSelector(eventArray,elementName){    
     let eventSelect = document.getElementById(elementName);
@@ -831,10 +864,9 @@ async function maintainInviteDatesInit(){
     maintainInviteDatesLoadEventData();
     maintainInviteDatesLoadDateStatuses();
     let dialog = new Dialog();
-    dialog.setText("this is the add dates explainer");
+    dialog.setHtml(maintainInviteDatesFormatAddExplainer());
     let element = document.getElementById('addInvites');
     element.insertBefore(dialog.openButton,element.firstChild);
-    dialog.openButton.textContent = "Explain This";
     analyzeDatesTable = new PlanningDatesTable("analyzeDates", "analyzeDates");
     analyzeDatesTable.addToElement('showAnalyzeTable');
     initAccordions();
@@ -898,6 +930,22 @@ async function maintainInviteDatesEventSelected(item){
         populateFamilySelector(familyArray,"inviteeSelect");
     }
     maintainInviteDatesSetAddDatesButton();
+}
+function maintainInviteDatesFormatAddExplainer(){
+    let frag = document.createDocumentFragment();
+    let p = document.createElement("p");
+    p.textContent = "This is where you assign planning dates for a person and event. Multiple dates can be set, althought they can't overlap.";
+    frag.appendChild(p);
+    p = document.createElement("p");
+    p.textContent = "Start by selecting either an event or a person. The other selector will populate with either the people invited to the event, or the events the person has been invited to.";
+    frag.appendChild(p);
+    p = document.createElement("p");
+    p.textContent = "Select the other option (person/event), the date range (start can equal end), and then click the 'Add Dates' button.";
+    frag.appendChild(p);
+    p = document.createElement("p");
+    p.textContent = "The 'Reset Selects' button clears both events and people, allowing you to do another set of dates.";
+    frag.appendChild(p);
+    return frag;
 }
 async function maintainInviteDatesInviteeSelected(item){
     if(maintainInviteDatesNoSelection){
@@ -1013,9 +1061,9 @@ class Dialog{
         this.dialog = document.createElement("dialog");
         this.container = document.createElement("div");        
         this.closeButton = document.createElement("button");
-        closeButton.textContent = "Close";
-        closeButton.autofocus = true;
-        closeButton.addEventListener("click", this.close.bind(this));
+        this.closeButton.textContent = "Close";
+        this.closeButton.autofocus = true;
+        this.closeButton.addEventListener("click", this.close.bind(this));
         this.dialog.appendChild(this.container);
         this.dialog.appendChild(this.closeButton);
         bodySelect.appendChild(this.dialog);

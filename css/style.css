@@ -136,6 +136,8 @@ nav > span {
   margin-left: auto;
   margin-right: auto;
   border-collapse: collapse;
+  font-size:.9rem;
+  width:600px;
 }
 .planningTableRow{
     border-bottom: 1pt solid black;

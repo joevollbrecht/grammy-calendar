@@ -157,6 +157,8 @@ nav > span {
 .tableCenter {
   margin-left: auto;
   margin-right: auto;
+  width: 50%;
+  background-color: lightgoldenrodyellow;
 }
 .tableCenter tr:nth-child(even) {
   background-color: #D6EEEE;
@@ -164,8 +166,6 @@ nav > span {
 .tdCenter{
   text-align: center;
   vertical-align: middle;
-  width: 50%;
-  background-color: lightgoldenrodyellow
 }
 th{
   text-align: left;

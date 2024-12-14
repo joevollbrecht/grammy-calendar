@@ -108,11 +108,9 @@ class PlanningDatesTable extends Table{
         this.tableSelector.style.width = "800";
         this.includeSelect = includeSelect;
         if(includeSelect){
-            // this.columns = ["Start Date","End Date","Sel","Event","Name","Status"];
             this.columns = ["Start Date","End Date","Sel","Name","Status"];
         }
         else{
-            // this.columns = ["Start Date","End Date","Event","Name","Status"]
             this.columns = ["Start Date","End Date","Name","Status"]
         }
         this.createHead();
@@ -198,7 +196,7 @@ class PlanningDatesTable extends Table{
     formatExplainer(){
         let frag = document.createDocumentFragment();
         let p = document.createElement("p");
-        p.textContent = "Select an event, and all the people who have set potential dates will be displayed, color coded to show a summary of availability for the date range.";
+        p.textContent = "Select an event, and all the invited people who have set potential dates will be displayed, color coded to show a summary of availability for the date range.";
         frag.appendChild(p);
         p = document.createElement("p");
         p.textContent = "Light colors indicate that not all of the people invited to the event have set a preference for the date range. Darker/brighter colors indicate that everyone has indicated their availability.";
@@ -206,6 +204,7 @@ class PlanningDatesTable extends Table{
         p = document.createElement("p");
         p.textContent = "The persons invited to the event are selectable. If you select one or more, the light/dark colors indicate choices for those people on the dates. This allows a subgroup (e.g. Kim, Jake, and Charles) to check availability for just them.";
         frag.appendChild(p);
+        return frag;
     }
     getStatusClass(dateStatusObject, familyCount){
         let retVal = "";
@@ -271,7 +270,6 @@ class PlanningDatesTable extends Table{
             dateFamilyCount = datesArray[workingDate].count
         }
         for (let ii = 0; ii < size; ii++) {
-            // text += '<tr>';
             let member = this.planningDatesArray['resultArray'][ii];
             if(workingDate != member.startDate){
                 workingDate = member.startDate;
@@ -284,7 +282,6 @@ class PlanningDatesTable extends Table{
             if(dateFamilyCount == 1){
                 tr.appendChild(this.createTd(member.startDate));
                 tr.appendChild(this.createTd(member.endDate));
-                // tr.appendChild(this.createTd(member.eventName));
                 tr.appendChild(this.createTd(member.fullName));
                 tr.appendChild(this.createTd(dateStatusValueArray[member.dateStatusId]));
             }
@@ -296,13 +293,11 @@ class PlanningDatesTable extends Table{
                     child = this.createTd(member.endDate);
                     child.rowSpan = dateFamilyCount;
                     tr.appendChild(child);
-                    // tr.appendChild(this.createTd(member.eventName));
                     tr.appendChild(this.createTd(member.fullName));
                     tr.appendChild(this.createTd(dateStatusValueArray[member.dateStatusId]));
                     dateRangesAppended = true;
                 }
                 else{
-                    // tr.appendChild(this.createTd(member.eventName));
                     tr.appendChild(this.createTd(member.fullName));
                     tr.appendChild(this.createTd(dateStatusValueArray[member.dateStatusId]));
                 }
@@ -401,7 +396,6 @@ async function callAjax(type, values = {}){
             console.log("in default with type="+type);
             response = "hit the default with type="+type;
             messageSpaceContainer.setText(response);
-            // document.getElementById("messageSpace").innerText = response;
             return;
     }
     myObject = await fetch(myUrl);
@@ -559,7 +553,6 @@ function setTableCheckbox(member, idString){
     let ii = extractElementIdNumber(member.id);
     let checkbox = document.getElementById(generateElementId(idString,ii));
     checkbox.checked = true;
-    //maintainEventActivateEventButtons(checkbox);
     setButtonStatusForName(checkbox.name);
 }
 async function maintainEventsInit(){
@@ -1069,6 +1062,7 @@ class Dialog{
         bodySelect.appendChild(this.dialog);
         this.openButton = document.createElement("button");
         this.openButton.textContent = "Explain This";
+        this.openButton.style.backgroundColor = "lightblue";
         this.openButton.addEventListener("click", this.open.bind(this));
     }
     append(element){
@@ -1081,7 +1075,7 @@ class Dialog{
         this.dialog.showModal();
     }
     setHtml(inElement){
-        this.container.innerHTML = inElement;
+        this.container.appendChild(inElement);
     }
     setText(inString){
         this.container.textContent = inString;

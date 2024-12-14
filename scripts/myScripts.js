@@ -156,6 +156,8 @@ class PlanningDatesTable extends Table{
     }
     createTableKey(){
         let fragment = new DocumentFragment();
+        let div = document.createElement('div');
+        div.style.fontSize = '.9rem';
         let span = fragment.appendChild(document.createElement('span'));
         span.textContent = 'Table key:';
         span = fragment.appendChild(document.createElement('span'));
@@ -614,7 +616,7 @@ function maintainEventClearEventInputs(){
     document.getElementById("addEvent").disabled = true;
 }
 function maintainEventCreateEventTable(eventArray){
-    let text = "<table class='tableCenter' style='width:500;'>";
+    let text = "<table class='tableCenter'>";
     text += "<thead><th>Select</th><th>Name</th><th>Start Date</th><th>End Date</th></thead>"
 
     for (let ii = 0; ii < eventArray.length; ii++) {
@@ -636,7 +638,7 @@ async function maintainEventCreateInviteTable(){
         await retrieveEventInviteStatuses();
     }
     eventArray = await callAjax('getAllEventRelationships');
-    let text = "<table class='tableCenter' style='width:500;'>";
+    let text = "<table class='tableCenter'>";
     text += "<thead><th>Sel</th><th>Event</th><th>Invitee</th><th>Status</th></thead>"
 
     for (let ii = 0; ii < eventArray.length; ii++) {
@@ -787,7 +789,7 @@ async function maintainFamilyLoadFamilyData(){
 }
 async function maintainFamilyLoadFamilyRelationships(){
     let familyArray = await callAjax('getAllRelationships');
-    let text = "<table class='tableCenter' style='width:500;'>";
+    let text = "<table class='tableCenter'>";
     text += "<thead><th>Delete</th><th>Name</th><th>Relationship</th><th>Name</th></thead>"
 
     for (let ii = 0; ii < familyArray.length; ii++) {
@@ -984,8 +986,15 @@ async function maintainInviteDatesReset(){
     maintainInviteDatesSetAddDatesButton();
     maintainInviteDatesNoSelection = true;
 }
+function maintainInviteDatesResetForMaintain(){
+    let checkedBoxes = document.querySelectorAll('input[name=maintainInviteDates]:checked');
+    for(let element of checkedBoxes){
+        element.checked = false;
+    }
+    setButtonStatusForName('maintainInviteDates');
+}
 function maintainInviteDatesPopulateMaintainDatesTable(datesArray){
-    let text = "<table class='tableCenter' style='width:800;' name='maintainInviteDates'>";
+    let text = "<table class='tableCenter' name='maintainInviteDates'>";
     text += "<thead><th>Sel</th><th>Event</th><th>Name</th><th>Status</th><th>Start Date</th><th>End Date</th></thead>";
     text += '<tbody>';
     for (let ii = 0; ii < datesArray.length; ii++) {

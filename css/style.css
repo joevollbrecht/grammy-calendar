@@ -21,19 +21,6 @@ body {
   font-family: var(--body-font-family);
   letter-spacing: 1px;
 }
-/* 
-* {
-  margin: 0;
-  padding: 0;
-  font-family: var(--body-font-family);
-  letter-spacing: 1px;
-}
-  */
-.key  {
-    margin-right:3px;
-    border-style:solid;
-    border-width:2px;
-}
 .accordion {
   background-color: #777;
   color: white;
@@ -95,6 +82,12 @@ dialog::backdrop {
 .fixTableHead thead th {
     position: sticky;
     top: 0;
+}
+.key  {
+  margin-right:3px;
+  border-style:solid;
+  border-width:2px;
+  font-size: .9rem;
 }
 .messageInfo {
   background: lightgreen;
@@ -165,15 +158,17 @@ nav > span {
   margin-left: auto;
   margin-right: auto;
 }
+.tableCenter tr:nth-child(even) {
+  background-color: #D6EEEE;
+}
 .tdCenter{
   text-align: center;
   vertical-align: middle;
+  width: 50%;
+  background-color: lightgoldenrodyellow
 }
 th{
   text-align: left;
-}
-tr.tableCenter:nth-child(even) {
-  background-color: #D6EEEE;
 }
 table {
   border: 1px solid black;
